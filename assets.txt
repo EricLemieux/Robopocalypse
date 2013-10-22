@@ -1,0 +1,9 @@
+obj resources\airplane.obj
+tex resources\mailbox.jpg
+pos 0 0 -20
+load
+
+obj resources\mailbox.obj
+tex resources\mailbox.jpg
+pos -10 0 -15
+load
