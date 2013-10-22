@@ -44,6 +44,14 @@ void Player::stopVelX(){
 void Player::draw(){
 	glPushMatrix();
 
+	if(this->getVelX() > 0.1f){
+			this->decreaseVelX(0.1f);
+		} else if (this->getVelX() < -0.1f){
+			this->increaseVelX(0.1f);
+		} else {
+			this->stopVelX();
+		}
+
 	xt += velocity.x;
 
 	glTranslatef(position.x+xt, position.y, position.z);

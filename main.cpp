@@ -30,6 +30,7 @@ int main()
 
 	//add object to player
 	Player player1(assetList.objects[0]);
+	Player player2(assetList.objects[1]);
 
 
 	sf::Image texMap;
@@ -83,9 +84,11 @@ int main()
 
 		//keyboard input
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-			yspeed += 10.f;
+			player2.decreaseVelX(0.2f);
+			//yspeed += 10.f;
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-			yspeed -= 10.f;
+			player2.increaseVelX(0.2f);
+			//yspeed -= 10.f;
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 			xspeed += 10.f;
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
@@ -111,13 +114,7 @@ int main()
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::H))
 			x2step -= 0.5f;
 
-		if(player1.getVelX() > 0.1f){
-			player1.decreaseVelX(0.1f);
-		} else if (player1.getVelX() < -0.1f){
-			player1.increaseVelX(0.1f);
-		} else {
-			player1.stopVelX();
-		}
+		
 
 	
 
@@ -134,6 +131,7 @@ int main()
 
 
 		player1.draw();
+		player2.draw();
 		//drawFunc(assetList);
 
 		glDisable(GL_TEXTURE_2D);
