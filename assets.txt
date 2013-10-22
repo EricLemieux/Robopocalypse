@@ -7,3 +7,8 @@ obj resources\mailbox.obj
 tex resources\mailbox.jpg
 pos -10 0 -15
 load
+
+obj resources\LevelDesgin.obj
+tex resources\mailbox.jpg
+pos 0 0 -50
+load

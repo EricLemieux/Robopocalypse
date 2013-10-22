@@ -4,10 +4,6 @@ Player::Player(){}
 
 Player::Player(OBJModel object){
 
-	sinceLastInput = 0;
-
-	xt = 0.f;
-
 	position.x = object.getPosX();
 	position.y = object.getPosY();
 	position.z = object.getPosZ();
@@ -29,11 +25,9 @@ Player::~Player(){}
 	//TODO put speed things here
 void Player::increaseVelX(float vt){
 	velocity.x += vt;
-	sinceLastInput = 0;
 }
 void Player::decreaseVelX(float vt){
 	velocity.x -=vt;
-	sinceLastInput = 0;
 }
 
 void Player::stopVelX(){
@@ -52,9 +46,9 @@ void Player::draw(){
 			this->stopVelX();
 		}
 
-	xt += velocity.x;
+	position.x += velocity.x;
 
-	glTranslatef(position.x+xt, position.y, position.z);
+	glTranslatef(position.x, position.y, position.z);
 
 	
 	glBegin(GL_TRIANGLES);
@@ -85,9 +79,9 @@ OBJModel Player::getObject(){
 	sf::Vector3f getPos();
 	void setPos(sf::Vector3f newposition);
 
-	float getPosX();
-	float getPosY();
-	float getPosZ();
+	float Player::getPosX(){return position.x;}
+	float Player::getPosY(){return position.y;}
+	float Player::getPosZ(){return position.z;}
 
 	void setPosX(float nxPos);
 	void setPosY(float nyPos);

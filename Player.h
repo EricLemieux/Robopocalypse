@@ -67,8 +67,7 @@ private:
 	sf::Vector3f position;
 	sf::Vector3f rotation;
 	sf::Vector3f velocity;
-	float xt;
-	int sinceLastInput;
+	
 };
 
 

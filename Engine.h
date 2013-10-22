@@ -8,6 +8,11 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <cmath>
+
+#define PI  3.14159265f
+#define DTR 0.01745329f
+#define RTD 57.2957795f
 
 #include "OBJModel.h"
 #include "AnimationMath.h"
@@ -15,8 +20,10 @@
 #include "Path.h"
 
 #include "Player.h"
+#include "Camera.h"
 
-#include "Collisions.h"
 #include "UserInput.h"
+#include "Collisions.h"
+
 
 #endif

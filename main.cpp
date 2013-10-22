@@ -6,19 +6,20 @@
 //camera movement, centered between two chars, zooms to keep them in frame. Optional, rotate camera during sidestep to new orientation.
 //obj movement/physics
 
-//TODO remove
 GLfloat yspeed = 0.0f;
-//GLfloat zstep = 0.0f;
+GLfloat zstep = 0.0f;
 GLfloat xspeed = 0.0f;
-//GLfloat xstep = 0.0f;
-//GLfloat x2step = 0.0f;
-//GLfloat z2step = 0.0f;
+GLfloat xstep = 0.0f;
+GLfloat x2step = 0.0f;
+GLfloat z2step = 0.0f;
 GLfloat camDist = -5.0f;
 
 void drawFunc(Assets assetList);
 
 int main()
 {
+
+
 	//window has constructor with same param as .create
 	sf::RenderWindow window;
 	window.create(sf::VideoMode(1400,800),"WINDOOOOW");
@@ -30,6 +31,9 @@ int main()
 	//add object to player
 	Player player1(assetList.objects[0]);
 	Player player2(assetList.objects[1]);
+
+	//Camera stuff
+	Camera camera;
 
 
 	sf::Image texMap;
@@ -60,6 +64,7 @@ int main()
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(90.0f, float(window.getSize().x)/float(window.getSize().y),2.f,2000.f);
+	//gluLookAt(0,0,0,0,0,-10,0,1,0);
 	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -82,8 +87,41 @@ int main()
 		}
 
 		//keyboard input
-		checkLeftJoystick(0, player1);
-		checkLeftJoystick(1, player2);	
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+			player2.decreaseVelX(0.2f);
+			//yspeed += 10.f;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+			player2.increaseVelX(0.2f);
+			//yspeed -= 10.f;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+			xspeed += 10.f;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+			xspeed -= 10.f;
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+			zstep += 1.0f;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+			zstep -= 1.f;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+			player1.increaseVelX(0.2f);
+			//xstep += 0.5f;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+			player1.decreaseVelX(0.2f);
+			//xstep -= 0.5f;
+		
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::U))
+			z2step += 1.0f;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::J))
+			z2step -= 1.f;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::K))
+			x2step += 0.5f;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::H))
+			x2step -= 0.5f;
+
+		
+
+		camera.setFocus(player1, player2);
+		camera.update();
 
 		//clear buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -96,10 +134,13 @@ int main()
 		//sf::Texture::bind(&texMap);
 		glBindTexture(GL_TEXTURE_2D, texture);
 
+		//controller input
+        checkLeftJoystick(0, player1);
+        checkLeftJoystick(1, player2); 
 
 		player1.draw();
 		player2.draw();
-		//drawFunc(assetList);
+		drawFunc(assetList);
 
 		glDisable(GL_TEXTURE_2D);
 		//end frame
@@ -135,42 +176,18 @@ void drawFunc(Assets assetList){
 	glPushMatrix();
 	//glTranslatef(assetList.objects[0].getPosX(), assetList.objects[0].getPosY(), assetList.objects[0].getPosZ());
 
-	//glTranslatef(xstep, 0.f, assetList.objects[1].getPosZ());
+	glTranslatef(xstep, 0.f, assetList.objects[2].getPosZ());
 
-	//glRotatef(yspeed, 0.0f, 1.f, 0.f);
-	//glRotatef(xspeed, 1.0f, 0.0f, 0.f);
-
-	glBegin(GL_TRIANGLES);
-		for(int j = 0; j < assetList.objects[0].getVerSize(); j++){
-			tempVertex = assetList.objects[0].getVertex(j);
-			tempUV = assetList.objects[0].getUV(j);
-			tempNorm = assetList.objects[0].getNormal(j);
-		
-			glNormal3f( tempNorm.x,tempNorm.y,tempNorm.z);
-		
-			glTexCoord2f(tempUV.x,tempUV.y);
-		
-			glVertex3f( tempVertex.x,tempVertex.y,tempVertex.z);
-		}
-	glEnd();
-	glPopMatrix();
-	
-
-	//PLAYER 2 move
-	glPushMatrix();
-
-	//glTranslatef(assetList.objects[1].getPosX(), assetList.objects[1].getPosY(), );
-
-	glTranslatef(0.0f, -5.f, assetList.objects[1].getPosZ());
-	
 	glRotatef(yspeed, 0.0f, 1.f, 0.f);
 	glRotatef(xspeed, 1.0f, 0.0f, 0.f);
-	
+
 	glBegin(GL_TRIANGLES);
-	for(int j = 0; j < assetList.objects[1].getVerSize(); j++){
-		tempVertex = assetList.objects[1].getVertex(j);
-		tempUV = assetList.objects[1].getUV(j);
-		tempNorm = assetList.objects[1].getNormal(j);
+
+	
+	for(int j = 0; j < assetList.objects[2].getVerSize(); j++){
+		tempVertex = assetList.objects[2].getVertex(j);
+		tempUV = assetList.objects[2].getUV(j);
+		tempNorm = assetList.objects[2].getNormal(j);
 		
 		glNormal3f( tempNorm.x,tempNorm.y,tempNorm.z);
 		
@@ -181,6 +198,33 @@ void drawFunc(Assets assetList){
 	
 	glEnd();
 	glPopMatrix();
+	
 
-
+//	//PLAYER 2 move
+//	glPushMatrix();
+//
+//	//glTranslatef(assetList.objects[1].getPosX(), assetList.objects[1].getPosY(), );
+//
+//	glTranslatef(x2step, -5.f, assetList.objects[1].getPosZ());
+//	
+//	glRotatef(yspeed, 0.0f, 1.f, 0.f);
+//	glRotatef(xspeed, 1.0f, 0.0f, 0.f);
+//	
+//	glBegin(GL_TRIANGLES);
+//	for(int j = 0; j < assetList.objects[1].getVerSize(); j++){
+//		tempVertex = assetList.objects[1].getVertex(j);
+//		tempUV = assetList.objects[1].getUV(j);
+//		tempNorm = assetList.objects[1].getNormal(j);
+//		
+//		glNormal3f( tempNorm.x,tempNorm.y,tempNorm.z);
+//		
+//		glTexCoord2f(tempUV.x,tempUV.y);
+//		
+//		glVertex3f( tempVertex.x,tempVertex.y,tempVertex.z);
+//	}
+//	
+//	glEnd();
+//	glPopMatrix();
+//
+//
 }

@@ -9,7 +9,7 @@ OBJModel::OBJModel(const char *path, const char *texPath){
 	std::vector<sf::Vector2f> vv2temp_uvs;
 	std::vector<sf::Vector3f> vv3temp_normals;
 
-
+	
 	FILE *file = fopen(path, "r");
 	//std::ifstream file;
 	//file.open(path);
