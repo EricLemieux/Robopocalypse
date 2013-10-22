@@ -16,5 +16,7 @@
 
 #include "Player.h"
 
+#include "Collisions.h"
+#include "UserInput.h"
 
 #endif
