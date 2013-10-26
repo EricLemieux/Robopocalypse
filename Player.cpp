@@ -36,7 +36,14 @@ void Player::stopVelX(){
 
 	//draw player
 void Player::draw(){
+	
+
 	glPushMatrix();
+
+	//Bind the texture
+	glEnable(GL_TEXTURE_2D);
+	//sf::Texture::bind(&texMap);
+	glBindTexture(GL_TEXTURE_2D, this->getObject().getTex());
 
 	if(this->getVelX() > 0.1f){
 			this->decreaseVelX(0.1f);

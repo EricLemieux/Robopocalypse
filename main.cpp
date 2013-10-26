@@ -35,24 +35,6 @@ int main()
 	//Camera stuff
 	Camera camera;
 
-
-	sf::Image texMap;
-	if(!texMap.loadFromFile("resources/mailbox.jpg"))
-	{
-		//The image didn't load, close the program!
-		return 0;
-	}
-
-
-
-	//Convert the SFML image to an OpenGL texture
-	GLuint texture;
-	glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, texMap.getSize().x, texMap.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, texMap.getPixelsPtr());
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
 	glClearDepth(1.f);
 	glClearColor(0.5f, 0.5f,0.5f,1.0f);
 	glEnable(GL_DEPTH_TEST);
@@ -126,13 +108,7 @@ int main()
 		//clear buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glDisableClientState(GL_COLOR_ARRAY);
-		//glEnableClientState(GL_VERTEX_ARRAY);
-		//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		
-		//Bind the texture
-		glEnable(GL_TEXTURE_2D);
-		//sf::Texture::bind(&texMap);
-		glBindTexture(GL_TEXTURE_2D, texture);
+
 
 		//controller input
         checkLeftJoystick(0, player1);

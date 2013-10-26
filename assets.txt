@@ -1,5 +1,5 @@
 obj resources\airplane.obj
-tex resources\mailbox.jpg
+tex resources\gundam.jpg
 pos 0 0 -20
 load
 
@@ -9,6 +9,6 @@ pos -10 0 -15
 load
 
 obj resources\LevelDesgin.obj
-tex resources\mailbox.jpg
+tex resources\ibrs.jpg
 pos 0 0 -50
 load

@@ -64,7 +64,7 @@ inline bezierClass Bezier(const bezierClass p[],
 						  const float t){
 	if(degree == 0)
 		return *p;//ie p[0]
-	return LERP(Bezier(p, degree-1,t), Bezier( p+1,degree-1,t),t)
+	return LERP(Bezier(p, degree-1,t), Bezier( p+1,degree-1,t),t);
 }
 
 #endif

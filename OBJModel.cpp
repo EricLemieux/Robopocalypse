@@ -9,6 +9,20 @@ OBJModel::OBJModel(const char *path, const char *texPath){
 	std::vector<sf::Vector2f> vv2temp_uvs;
 	std::vector<sf::Vector3f> vv3temp_normals;
 
+	sf::Image texMap;
+	if(!texMap.loadFromFile(texPath))
+	{
+		//The image didn't load, close the program!
+		std::cout<<"PANIC, COULDN'T LOAD TEXTURE I'M SO SORRY\n";
+	}
+
+	
+	glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, texMap.getSize().x, texMap.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, texMap.getPixelsPtr());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
 	
 	FILE *file = fopen(path, "r");
 	//std::ifstream file;
@@ -19,15 +33,6 @@ OBJModel::OBJModel(const char *path, const char *texPath){
 	char lineHeader[128];
 	//read file, convert from string to vector
 	while(fscanf(file, "%s", lineHeader) != EOF){
-		//first word of line
-		
-		//std::string line;
-		//std::string word;
-
-		//getline(file,line);
-		//break if eof
-		//if(file.eof())
-			
 
 		//add vertices
 		if(strcmp(lineHeader,"v")==0){
@@ -130,4 +135,8 @@ float OBJModel::getPosY(){
 
 float OBJModel::getPosZ(){
 	return z;
+}
+
+GLfloat OBJModel::getTex(){
+	return texture;
 }

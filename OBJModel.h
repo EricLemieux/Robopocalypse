@@ -27,11 +27,14 @@ public:
 	float getPosY();
 	float getPosZ();
 
+	GLfloat getTex();
+
 private:
 	float x,y,z;
 	float xspeed,yspeed,zspeed;
 	float orientation;
 	float dt;
+	GLuint texture;
 
 	sf::Image texMap;
 	//std::vector<std::vector<int>> out_faces;
