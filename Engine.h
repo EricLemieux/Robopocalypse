@@ -9,15 +9,18 @@
 #include <fstream>
 #include <string>
 #include <cmath>
+#include <math.h>
 
 #define PI  3.14159265f
 #define DTR 0.01745329f
 #define RTD 57.2957795f
 
 #include "OBJModel.h"
+#include "Animation.h"
 #include "AnimationMath.h"
 #include "LoadAssets.h"
 #include "Path.h"
+#include "MatrixNM.h"
 
 #include "Player.h"
 #include "Camera.h"

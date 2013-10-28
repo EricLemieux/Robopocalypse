@@ -2,6 +2,7 @@
 #define MATRIX_NM_H
 
 #include <vector>
+#include "Vector.h"
 
 template<typename T> class MatrixNM{
 private:
