@@ -64,10 +64,15 @@ void Player::update(std::vector<collisionObjects> &tempBoundBoxes, int playerIDN
 
 	if(hitAnything)
 	{
-		if(velocity.x > 0.1f)
+		if(this->position.x < tempBoundBoxes[whatHit].getPos().x)
+		{
 			this->position.x = tempBoundBoxes[whatHit].getPos().x - tempBoundBoxes[whatHit].getSize().x - 0.001f;
-		else if(velocity.x < -0.1f)
+		}
+		else
+		{
 			this->position.x = tempBoundBoxes[whatHit].getPos().x + tempBoundBoxes[whatHit].getSize().x + 0.001f;
+		}
+
 		this->stopVelX();
 	}
 	else if(!hitAnything)
