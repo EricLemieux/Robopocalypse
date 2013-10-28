@@ -18,8 +18,6 @@ void drawFunc(Assets assetList);
 
 int main()
 {
-
-
 	//window has constructor with same param as .create
 	sf::RenderWindow window;
 	window.create(sf::VideoMode(1400,800),"WINDOOOOW");
@@ -61,7 +59,7 @@ int main()
 		while(window.pollEvent(event)){
 
 			//close window if event returns closed
-			if(event.type == sf::Event::Closed){
+			if(event.type == sf::Event::Closed || sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) || sf::Joystick::isButtonPressed(0,6)){
 				running = false;
 			} else if (event.type == sf::Event::Resized){
 				glViewport(0,0,event.size.width, event.size.height);
@@ -69,7 +67,7 @@ int main()
 		}
 
 		//keyboard input
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+		/*if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 			player2.decreaseVelX(0.2f);
 			//yspeed += 10.f;
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
@@ -99,7 +97,7 @@ int main()
 			x2step += 0.5f;
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::H))
 			x2step -= 0.5f;
-
+		*/
 		
 
 		camera.setFocus(player1, player2);
@@ -111,8 +109,16 @@ int main()
 
 
 		//controller input
-        checkLeftJoystick(0, player1);
+		checkLeftJoystick(0, player1);
         checkLeftJoystick(1, player2); 
+
+		//Update the bounding boxes with the new positions.
+		//TODO make seperate function
+		assetList.boundingBoxes[0].setPos(player1.getPos());
+		assetList.boundingBoxes[1].setPos(player2.getPos());
+
+		player1.update(assetList.boundingBoxes, 0);
+		player2.update(assetList.boundingBoxes, 1);
 
 		player1.draw();
 		player2.draw();
@@ -129,10 +135,6 @@ int main()
 }
 
 void drawFunc(Assets assetList){
-	
-
-	
-
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glTranslatef(0.f,0.f,camDist);
@@ -147,10 +149,7 @@ void drawFunc(Assets assetList){
 	int c = assetList.objects[0].getNormSize();
 
 
-	//PLAYER 1 move
-	
 	glPushMatrix();
-	//glTranslatef(assetList.objects[0].getPosX(), assetList.objects[0].getPosY(), assetList.objects[0].getPosZ());
 
 	glTranslatef(xstep, 0.f, assetList.objects[2].getPosZ());
 
@@ -174,33 +173,4 @@ void drawFunc(Assets assetList){
 	
 	glEnd();
 	glPopMatrix();
-	
-
-//	//PLAYER 2 move
-//	glPushMatrix();
-//
-//	//glTranslatef(assetList.objects[1].getPosX(), assetList.objects[1].getPosY(), );
-//
-//	glTranslatef(x2step, -5.f, assetList.objects[1].getPosZ());
-//	
-//	glRotatef(yspeed, 0.0f, 1.f, 0.f);
-//	glRotatef(xspeed, 1.0f, 0.0f, 0.f);
-//	
-//	glBegin(GL_TRIANGLES);
-//	for(int j = 0; j < assetList.objects[1].getVerSize(); j++){
-//		tempVertex = assetList.objects[1].getVertex(j);
-//		tempUV = assetList.objects[1].getUV(j);
-//		tempNorm = assetList.objects[1].getNormal(j);
-//		
-//		glNormal3f( tempNorm.x,tempNorm.y,tempNorm.z);
-//		
-//		glTexCoord2f(tempUV.x,tempUV.y);
-//		
-//		glVertex3f( tempVertex.x,tempVertex.y,tempVertex.z);
-//	}
-//	
-//	glEnd();
-//	glPopMatrix();
-//
-//
 }

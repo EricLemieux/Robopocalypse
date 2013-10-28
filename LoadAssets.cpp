@@ -58,6 +58,12 @@ void Assets::LoadAssets(char fileName[256])
 
 			objects.push_back(newOBJ);
 
+			collisionObjects newBoundBox;
+			newBoundBox.setPos(x,y,z);
+			newBoundBox.setSize(5.0f,10.0f,10.0f);
+
+			boundingBoxes.push_back(newBoundBox);
+
 			assetFile.ignore(256,'\n');
 		}
 		

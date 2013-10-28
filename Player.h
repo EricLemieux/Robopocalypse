@@ -14,6 +14,10 @@ public:
 	void decreaseVelX(float vt);
 	void stopVelX();
 
+	//Update the players current position
+	//also check for collisions here.
+	void update(std::vector<collisionObjects> &tempBoundBoxes, int playerIDNum);
+
 	//draw player
 	void draw();
 

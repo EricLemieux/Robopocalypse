@@ -7,6 +7,7 @@
 #include <iostream>
 #include <vector>
 
+#include "Collisions.h"
 
 class Assets
 {
@@ -14,6 +15,7 @@ public:
 	Assets(void);
 
 	std::vector<OBJModel>  objects;
+	std::vector<collisionObjects> boundingBoxes;	//TODO Impliment
 
 	void LoadAssets(char fileName[256]);
 private:

@@ -26,7 +26,7 @@ Player::~Player(){}
 void Player::increaseVelX(float vt){
 	velocity.x += vt;
 }
-void Player::decreaseVelX(float vt){
+void Player::decreaseVelX(float vt){	
 	velocity.x -=vt;
 }
 
@@ -34,7 +34,49 @@ void Player::stopVelX(){
 	velocity.x = 0;
 }
 
-	//draw player
+//Update the player's position
+void Player::update(std::vector<collisionObjects> &tempBoundBoxes, int playerIDNum)
+{
+	if(velocity.x > 0.1)
+		velocity.x -= 0.1;
+	else if(velocity.x < -0.1)
+		velocity.x += 0.1;
+	else
+		velocity.x = 0.0f;
+
+	bool hitAnything = false;
+	int whatHit;
+
+	//Loop through all of the collision boxes to see if we hit any of them.
+	for(int i = 0; i <= tempBoundBoxes.size()-1; i++)
+	{
+		if(i == playerIDNum)
+			i++;
+		if(isBoxBoxColliding(this->getPosX() + velocity.x, this->getPosY() + velocity.y, this->getPosZ() + velocity.z,
+							tempBoundBoxes[playerIDNum].getSize().x, tempBoundBoxes[playerIDNum].getSize().y, tempBoundBoxes[playerIDNum].getSize().z,
+							tempBoundBoxes[i].getPos().x, tempBoundBoxes[i].getPos().y, tempBoundBoxes[i].getPos().z,
+							tempBoundBoxes[i].getSize().x, tempBoundBoxes[i].getSize().y, tempBoundBoxes[i].getSize().z))
+		{
+			hitAnything = true;
+			whatHit = i;
+		}
+	}
+
+	if(hitAnything)
+	{
+		if(velocity.x > 0.1f)
+			this->position.x = tempBoundBoxes[whatHit].getPos().x - tempBoundBoxes[whatHit].getSize().x - 0.001f;
+		else if(velocity.x < -0.1f)
+			this->position.x = tempBoundBoxes[whatHit].getPos().x + tempBoundBoxes[whatHit].getSize().x + 0.001f;
+		this->stopVelX();
+	}
+	else if(!hitAnything)
+	{
+		position.x += velocity.x;
+	}
+}
+
+//draw player
 void Player::draw(){
 	
 
@@ -45,15 +87,16 @@ void Player::draw(){
 	//sf::Texture::bind(&texMap);
 	glBindTexture(GL_TEXTURE_2D, this->getObject().getTex());
 
-	if(this->getVelX() > 0.1f){
-			this->decreaseVelX(0.1f);
-		} else if (this->getVelX() < -0.1f){
-			this->increaseVelX(0.1f);
-		} else {
-			this->stopVelX();
-		}
+	//TODO remove and set actual max speed settings 
+	//if(this->getVelX() > 0.1f){
+	//		this->decreaseVelX(0.1f);
+	//	} else if (this->getVelX() < -0.1f){
+	//		this->increaseVelX(0.1f);
+	//	} else {
+	//		this->stopVelX();
+	//	}
 
-	position.x += velocity.x;
+	//position.x += velocity.x;
 
 	glTranslatef(position.x, position.y, position.z);
 
@@ -83,7 +126,7 @@ OBJModel Player::getObject(){
 	void setObject(OBJModel object);
 
 	//position
-	sf::Vector3f getPos();
+	sf::Vector3f Player::getPos(){return position;}
 	void setPos(sf::Vector3f newposition);
 
 	float Player::getPosX(){return position.x;}

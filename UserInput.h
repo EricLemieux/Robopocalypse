@@ -1,9 +1,13 @@
 #ifndef USER_INPUT_H
 #define USER_INPUT_H
 
+#include <vector>
+
 #include "Engine.h"
 
-void checkLeftJoystick(int num, Player &tempPlayer);
+#include "Collisions.h"
+
+void checkLeftJoystick(int controllerNumber, Player &tempPlayer);
 void checkFaceButtons(void);
 void checkTriggers(void);
 
