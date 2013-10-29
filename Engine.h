@@ -21,18 +21,25 @@
 #define WINDOW_HEIGHT 800
 #define HUD_HEIGHT 100
 
-#include "Vec2.h"
-#include "Vec3.h"
+//#include "Vec2.h"
+//#include "Vec3.h"
 
 #include "OBJModel.h"
 #include "Animation.h"
-#include "AnimationMath.h"
+//#include "AnimationMath.h"
 #include "LoadAssets.h"
 #include "Path.h"
-#include "MatrixNM.h"
+//#include "MatrixNM.h"
 
 #include "Player.h"
 #include "Camera.h"
+
+#include "Math\AnimationMath.h"
+//#include "Math\Quaternion"
+#include "Math\MatrixNM.h"
+#include "Math\Vec2.h"
+#include "Math\Vec3.h"
+//#include "Math\Vector.h"
 
 //#include "Collisions.h"
 #include "UserInput.h"
