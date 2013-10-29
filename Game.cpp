@@ -210,6 +210,9 @@ void Game::DrawGame()
 	glLoadIdentity();
 	glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 
+	camera.setFocus(player1, player2);
+	camera.update();
+
 	player1.draw();
 	player2.draw();
 	drawFunc(assetList);
@@ -329,9 +332,7 @@ void Game::drawHUD(){
 */
 void Game::update()
 { 
-	camera.setFocus(player1, player2);
-	camera.update();
-
+	
 	//controller input
 	checkLeftJoystick(0, player1);
     checkLeftJoystick(1, player2); 
