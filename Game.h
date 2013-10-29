@@ -89,6 +89,7 @@ class Game
 
 	/* draw/rendering routines */
 	void draw(); // called from the main
+	void drawHUD();
 
 	//void PreDraw(); // prior to drawing   //TEMP DEL, replace with sf::window display in one draw function
 	void DrawGame(); // actual drawing the frame
@@ -164,5 +165,7 @@ class Game
 	GLfloat x2step; 
 	GLfloat z2step; 
 	GLfloat camDist;
+
+	GLuint hudTex;
 };
 

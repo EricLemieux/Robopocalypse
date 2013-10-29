@@ -6,7 +6,7 @@
 
 template<typename T> class MatrixNM{
 private:
-	std::vector<std::vector<T>>mat;
+	std::vector<std::vector<T>> mat;
 	unsigned rows;
 	unsigned cols;
 public:

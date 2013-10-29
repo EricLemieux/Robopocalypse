@@ -41,7 +41,7 @@ void Game::initializeGame()
     contextSettings.depthBits = 32;
 
     // Create the main window
-	window.create(sf::VideoMode(stateInfo.windowWidth, stateInfo.windowHeight), "SPRITES LEL", sf::Style::Default, contextSettings);
+	window.create(sf::VideoMode(stateInfo.windowWidth, stateInfo.windowHeight), "No", sf::Style::Default, contextSettings);
     window.setVerticalSyncEnabled(true);
 
 	window.setFramerateLimit(stateInfo.FPS);//TODO bring fps from main
@@ -68,9 +68,21 @@ void Game::initializeGame()
 	glLoadIdentity();
 	gluPerspective(90.0f, float(window.getSize().x)/float(window.getSize().y),2.f,2000.f);
 	//gluLookAt(0,0,0,0,0,-10,0,1,0);
-	
 	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+
+	sf::Image hudMap;
+	if(!hudMap.loadFromFile("resources/HUDback.jpg")){
+		std::cout<<"error loading hud texture Game.cpp in void Game::initializeGame();\n";
+	};
+
+	glGenTextures(1,&hudTex);
+	glBindTexture(GL_TEXTURE_2D,hudTex);
+	gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, hudMap.getSize().x, hudMap.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, hudMap.getPixelsPtr());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	
+	
+	
 }
 
 void Game::gameLoop()
@@ -124,9 +136,13 @@ void Game::gameEvent(){
 		}
 		}
 }
+
+
 //void Game::gameEvents(sf::Event event){
 //
 //}
+
+
 /* draw()
  * - this gets called automatically about 30 times per second
  * - this function just draws the sprites 
@@ -178,10 +194,27 @@ void Game::DrawGame()
 	drawSprites();
 	window.popGLStates();
 
+	drawHUD();
+
+	glViewport(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);
+	glEnable(GL_TEXTURE_2D);
+	
+	
+
+	glPushMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(90.f,WINDOW_WIDTH/WINDOW_HEIGHT,1.f,1000.f);
+	
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 
 	player1.draw();
 	player2.draw();
 	drawFunc(assetList);
+
+	glPopMatrix();
 
 	glDisable(GL_TEXTURE_2D);
 	
@@ -190,7 +223,7 @@ void Game::DrawGame()
 	window.display();
 }
 
-
+//hardcoded get rid of it, currently draws the 3rd item in assets.txt which for the purposes of this method is the level
 void Game::drawFunc(Assets assetList){
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -201,9 +234,10 @@ void Game::drawFunc(Assets assetList){
 	sf::Vector3f tempVertex;
 	sf::Vector2f tempUV;
 	sf::Vector3f tempNorm;
-	int a = assetList.objects[0].getVerSize();
-	int b = assetList.objects[0].getUVSize();
-	int c = assetList.objects[0].getNormSize();
+	//for debugging
+	//int a = assetList.objects[0].getVerSize();
+	//int b = assetList.objects[0].getUVSize();
+	//int c = assetList.objects[0].getNormSize();
 
 
 	glPushMatrix();
@@ -231,26 +265,8 @@ void Game::drawFunc(Assets assetList){
 	glEnd();
 	glPopMatrix();
 }
-/*
- * PostDraw()
- *  - in here you should clean up and set up things for the next frame
- *  - i.e. once I've used my assets, I can change them to set up things for
- *    the next frame, usually just memory management or setting up game state 
- *    boolean values etc.  
- */
-//void Game::PostDraw()
-//{
-//	// nothing here at the moment
-//}
 
-/* drawSprites()
- * - this function is what actually draws the sprites
- *   onto the screen at their appropriate location
- * - it actually loops through a list of active sprites
- *   and then sorts them by their layerID and then draws them
- * - the sorting has to happen so that you draw from back to front
- *   just like a painter and a canvas.
- */
+
 void Game::drawSprites()
 {
 	
@@ -263,6 +279,42 @@ void Game::drawSprites()
 		window.draw(s->sprite);
 	}
 }
+
+//draw HUD
+void Game::drawHUD(){
+	glViewport(0,WINDOW_HEIGHT-HUD_HEIGHT,WINDOW_WIDTH,HUD_HEIGHT);
+	glEnable(GL_TEXTURE_2D);
+
+	glPushMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(-10,10,-10,10,1,1000);
+	glLoadIdentity();
+	glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+	glDisable(GL_CULL_FACE);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	glBindTexture(GL_TEXTURE_2D,hudTex);
+
+	glBegin(GL_QUADS);
+		glNormal3f( 0.f, 0.f, 1.f);
+		glTexCoord2f(0.f,0.f);
+		glVertex3f(-1.f, 0.9f,  -1.f);
+		glTexCoord2f(1.f,0.f);
+		glVertex3f( 1.f, 0.9f,  -1.f);
+		glTexCoord2f(1.f,1.f);
+		glVertex3f( 1.f,  -1.f,  -1.f);
+		glTexCoord2f(0.f,1.f);
+		glVertex3f(-1.f,  -1.f,  -1.f);
+	glEnd();
+
+	glEnable(GL_CULL_FACE);
+
+	glPopMatrix();
+}
+
 
 
 
