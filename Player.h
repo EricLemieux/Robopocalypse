@@ -10,8 +10,9 @@ public:
 
 	//player input
 	//TODO put speed things here
-	void increaseVelX(float vt);
-	void decreaseVelX(float vt);
+	//void increaseVelX(float vt);
+	//void decreaseVelX(float vt);
+	void increaseVel(Vec3 vt);
 	void stopVelX();
 
 	//Update the players current position
@@ -68,9 +69,11 @@ public:
 
 private:
 	OBJModel playerObject;
-	sf::Vector3f position;
+	//sf::Vector3f position;
+	Vec3 position;
 	sf::Vector3f rotation;
-	sf::Vector3f velocity;
+	//sf::Vector3f velocity;
+	Vec3 velocity;
 	
 };
 

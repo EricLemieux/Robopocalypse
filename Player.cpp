@@ -23,11 +23,17 @@ Player::~Player(){}
 
 	//player input
 	//TODO put speed things here
-void Player::increaseVelX(float vt){
-	velocity.x += vt;
-}
-void Player::decreaseVelX(float vt){	
-	velocity.x -=vt;
+//void Player::increaseVelX(float vt){
+//	velocity.x += vt;
+//}
+//void Player::decreaseVelX(float vt){	
+//	velocity.x -=vt;
+//}
+
+void Player::increaseVel(Vec3 vt)
+{
+	velocity += vt;
+	velocity = velocity;
 }
 
 void Player::stopVelX(){
@@ -72,7 +78,7 @@ void Player::update(std::vector<collisionObjects> &tempBoundBoxes, int playerIDN
 	}
 	else if(!hitAnything)
 	{
-		position.x += velocity.x;
+		position += velocity;
 	}
 }
 
@@ -126,7 +132,7 @@ OBJModel Player::getObject(){
 	void setObject(OBJModel object);
 
 	//position
-	sf::Vector3f Player::getPos(){return position;}
+	sf::Vector3f Player::getPos(){return sf::Vector3f(position.x,position.y, position.z);}
 	void setPos(sf::Vector3f newposition);
 
 	float Player::getPosX(){return position.x;}
