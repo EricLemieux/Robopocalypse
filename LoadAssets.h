@@ -1,8 +1,6 @@
 #ifndef LOAD_ASSETS_H
 #define LOAD_ASSETS_H
 
-#include "Engine.h"
-
 #include <fstream>
 #include <iostream>
 #include <vector>

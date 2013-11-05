@@ -1,8 +1,6 @@
 #ifndef ANIMATION_MATH_H
 #define ANIMATION_MATH_H
 
-#include "Engine.h"
-
 template<typename lerpClass>
 inline lerpClass LERP(const lerpClass p0, const lerpClass p1, const float t){
 	//blending

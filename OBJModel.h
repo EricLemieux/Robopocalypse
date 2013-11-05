@@ -1,8 +1,6 @@
 #ifndef OBJMODEL_H
 #define OBJMODEL_H
 
-#include "Engine.h"
-
 class OBJModel{
 public:
 	OBJModel();

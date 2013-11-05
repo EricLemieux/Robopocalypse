@@ -1,8 +1,6 @@
 #ifndef COLLISIONS_H
 #define COLLISIONS_H
 
-#include "Engine.h"
-
 bool isBoxBoxColliding(float box1CenterX, float box1CenterY, float box1CenterZ,
 						float box1Width, float box1Height, float box1Depth,
 						float box2CenterX, float box2CenterY, float box2CenterZ,

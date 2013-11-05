@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Engine.h"
-
 template<typename _num>
 class Vector{
 public:

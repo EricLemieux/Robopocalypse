@@ -1,8 +1,6 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "Engine.h"
-
 class Camera{
 public:
 	Camera();

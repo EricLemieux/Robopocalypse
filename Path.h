@@ -3,9 +3,6 @@
 #define _PATH_H
 
 
-#include "Engine.h"
-
-
 
 // want to create a class that is responsible for managing 
 //	a path comprised of several 2D waypoints; an object can 

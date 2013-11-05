@@ -5,6 +5,9 @@
 #include <SFML/Window.hpp>
 #include<SFML/OpenGL.hpp>
 
+#include <glm\glm.hpp>
+#include <glm\ext.hpp>
+
 #include <iostream>
 #include <fstream>
 #include <string>

@@ -6,7 +6,6 @@
 
 // need vector (THIS IS JUST A STAND-IN, 
 //	USE A REAL MATH LIBRARY!)
-#include "Engine.h"
 
 
 // simple quaternion class
