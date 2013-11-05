@@ -142,9 +142,9 @@ class Game
 	sf::Sprite temp;
 	
 	//Drawing obj
-	std::vector<sf::Vector3f> vertices;
+	std::vector<glm::vec3> vertices;
 	std::vector<sf::Vector2f> uvs;
-	std::vector<sf::Vector3f> normals;
+	std::vector<glm::vec3> normals;
 
 
 	sf::Mouse mouse;

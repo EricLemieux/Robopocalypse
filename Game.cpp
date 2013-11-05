@@ -234,9 +234,9 @@ void Game::drawFunc(Assets assetList){
 //	glColor3f(0.f,0.f,1.f);
 	//glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 	//glGenTextures;
-	sf::Vector3f tempVertex;
+	glm::vec3 tempVertex;
 	sf::Vector2f tempUV;
-	sf::Vector3f tempNorm;
+	glm::vec3 tempNorm;
 	//for debugging
 	//int a = assetList.objects[0].getVerSize();
 	//int b = assetList.objects[0].getUVSize();

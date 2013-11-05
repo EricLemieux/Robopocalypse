@@ -5,9 +5,9 @@ OBJModel::OBJModel(){}
 
 OBJModel::OBJModel(const char *path, const char *texPath){
 	std::vector<unsigned int> vuiVertexIndex,vuiUVIndex, vuiNormalIndex;
-	std::vector<sf::Vector3f> vv3temp_vertex;
+	std::vector<glm::vec3> vv3temp_vertex;
 	std::vector<sf::Vector2f> vv2temp_uvs;
-	std::vector<sf::Vector3f> vv3temp_normals;
+	std::vector<glm::vec3> vv3temp_normals;
 
 	sf::Image texMap;
 	if(!texMap.loadFromFile(texPath))
@@ -36,7 +36,7 @@ OBJModel::OBJModel(const char *path, const char *texPath){
 
 		//add vertices
 		if(strcmp(lineHeader,"v")==0){
-			sf::Vector3f vertex;
+			glm::vec3 vertex;
 			fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
 			vv3temp_vertex.push_back(vertex);
 		} 
@@ -49,7 +49,7 @@ OBJModel::OBJModel(const char *path, const char *texPath){
 		}
 		//add normal vertices
 		else if(strcmp(lineHeader,"vn")==0){
-			sf::Vector3f normal;
+			glm::vec3 normal;
 			fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
 			vv3temp_normals.push_back(normal);
 		}
@@ -79,7 +79,7 @@ OBJModel::OBJModel(const char *path, const char *texPath){
 	//changing vectors into set of flm::vec3 for opengl
 	for(unsigned int i=0; i<vuiVertexIndex.size();i++){
 		unsigned int vertexIndex = vuiVertexIndex[i];
-		sf::Vector3f vertex = vv3temp_vertex[vertexIndex-1];
+		glm::vec3 vertex = vv3temp_vertex[vertexIndex-1];
 		out_vertices.push_back(vertex);
 	}
 	for(unsigned int j=0;j<vuiUVIndex.size();j++){
@@ -89,7 +89,7 @@ OBJModel::OBJModel(const char *path, const char *texPath){
 	}
 	for(unsigned int k=0;k<vuiNormalIndex.size();k++){
 		unsigned int normalIndex = vuiNormalIndex[k];
-		sf::Vector3f normal = vv3temp_normals[normalIndex-1];
+		glm::vec3 normal = vv3temp_normals[normalIndex-1];
 		out_normals.push_back(normal);
 	}
 	
@@ -97,7 +97,7 @@ OBJModel::OBJModel(const char *path, const char *texPath){
 OBJModel::~OBJModel(){}
 
 
-sf::Vector3f OBJModel::getVertex(int i){
+glm::vec3 OBJModel::getVertex(int i){
 	return out_vertices[i];
 }
 
@@ -105,7 +105,7 @@ sf::Vector2f OBJModel::getUV(int i){
 	return out_uvs[i];
 }
 
-sf::Vector3f OBJModel::getNormal(int i){
+glm::vec3 OBJModel::getNormal(int i){
 	return out_normals[i];
 }
 

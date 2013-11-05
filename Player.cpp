@@ -30,7 +30,7 @@ Player::~Player(){}
 //	velocity.x -=vt;
 //}
 
-void Player::increaseVel(Vec3 vt)
+void Player::increaseVel(glm::vec3 vt)
 {
 	velocity += vt;
 	velocity = velocity;
@@ -132,8 +132,8 @@ OBJModel Player::getObject(){
 	void setObject(OBJModel object);
 
 	//position
-	sf::Vector3f Player::getPos(){return sf::Vector3f(position.x,position.y, position.z);}
-	void setPos(sf::Vector3f newposition);
+	glm::vec3 Player::getPos(){return glm::vec3(position.x,position.y, position.z);}
+	void setPos(glm::vec3 newposition);
 
 	float Player::getPosX(){return position.x;}
 	float Player::getPosY(){return position.y;}
@@ -144,8 +144,8 @@ OBJModel Player::getObject(){
 	void setPosZ(float nzPos);
 
 	//rotation
-	sf::Vector3f getRotation();
-	void setRotation(sf::Vector3f newrotation);
+	glm::vec3 getRotation();
+	void setRotation(glm::vec3 newrotation);
 
 	float getRotX(float nxRot);
 	float getRotY(float nyRot);
@@ -156,8 +156,8 @@ OBJModel Player::getObject(){
 	void setRotZ();
 
 	//velocity
-	sf::Vector3f getVelocity();
-	void setVelocity(sf::Vector3f newvelocity);
+	glm::vec3 getVelocity();
+	void setVelocity(glm::vec3 newvelocity);
 
 	float Player::getVelX(){
 		return velocity.x;

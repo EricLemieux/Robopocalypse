@@ -11,7 +11,7 @@ public:
 	//TODO put speed things here
 	//void increaseVelX(float vt);
 	//void decreaseVelX(float vt);
-	void increaseVel(Vec3 vt);
+	void increaseVel(glm::vec3 vt);
 	void stopVelX();
 
 	//Update the players current position
@@ -28,8 +28,8 @@ public:
 	void setObject(OBJModel object);
 
 	//position
-	sf::Vector3f getPos();
-	void setPos(sf::Vector3f newposition);
+	glm::vec3 getPos();
+	void setPos(glm::vec3 newposition);
 
 	float getPosX();
 	float getPosY();
@@ -40,8 +40,8 @@ public:
 	void setPosZ(float nzPos);
 
 	//rotation
-	sf::Vector3f getRotation();
-	void setRotation(sf::Vector3f newrotation);
+	glm::vec3 getRotation();
+	void setRotation(glm::vec3 newrotation);
 
 	float getRotX(float nxRot);
 	float getRotY(float nyRot);
@@ -52,8 +52,8 @@ public:
 	void setRotZ();
 
 	//velocity
-	sf::Vector3f getVelocity();
-	void setVelocity(sf::Vector3f newvelocity);
+	glm::vec3 getVelocity();
+	void setVelocity(glm::vec3 newvelocity);
 
 	float getVelX();
 	float getVelY();
@@ -68,11 +68,11 @@ public:
 
 private:
 	OBJModel playerObject;
-	//sf::Vector3f position;
-	Vec3 position;
-	sf::Vector3f rotation;
-	//sf::Vector3f velocity;
-	Vec3 velocity;
+	//glm::vec3 position;
+	glm::vec3 position;
+	glm::vec3 rotation;
+	//glm::vec3 velocity;
+	glm::vec3 velocity;
 	
 };
 

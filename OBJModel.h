@@ -12,9 +12,9 @@ public:
 
 
 	//getter setters
-	sf::Vector3f getVertex(int i);
+	glm::vec3 getVertex(int i);
 	sf::Vector2f getUV(int i);
-	sf::Vector3f getNormal(int i);
+	glm::vec3 getNormal(int i);
 
 	int getVerSize();
 	int getUVSize();
@@ -37,9 +37,9 @@ private:
 	sf::Image texMap;
 	//std::vector<std::vector<int>> out_faces;
 	std::vector<std::vector<int>> out_faces;
-	std::vector<sf::Vector3f> out_vertices;
+	std::vector<glm::vec3> out_vertices;
 	std::vector<sf::Vector2f> out_uvs;
-	std::vector<sf::Vector3f> out_normals;
+	std::vector<glm::vec3> out_normals;
 };
 
 

@@ -13,10 +13,10 @@ public:
 	void update();
 
 private:
-	sf::Vector3f camPos;
-	sf::Vector3f targetPos;
-	sf::Vector3f orientation;
-	sf::Vector3f playerCenter;
+	glm::vec3 camPos;
+	glm::vec3 targetPos;
+	glm::vec3 orientation;
+	glm::vec3 playerCenter;
 };
 
 #endif

@@ -16,18 +16,18 @@ public:
 	~collisionObjects(){}
 
 	//Getters
-	sf::Vector3f getPos(void){return position;}
-	sf::Vector3f getSize(void){return size;}
+	glm::vec3 getPos(void){return position;}
+	glm::vec3 getSize(void){return size;}
 
 	//Setters
-	void setPos(float x, float y, float z){position = sf::Vector3f(x,y,z);}
-	void setPos(sf::Vector3f newPos){this->position = newPos;}
-	void setSize(float width, float height, float depth){size = sf::Vector3f(width, height, depth);}
-	void setSize(sf::Vector3f newSize){this->size = newSize;}
+	void setPos(float x, float y, float z){position = glm::vec3(x,y,z);}
+	void setPos(glm::vec3 newPos){this->position = newPos;}
+	void setSize(float width, float height, float depth){size = glm::vec3(width, height, depth);}
+	void setSize(glm::vec3 newSize){this->size = newSize;}
 
 private:
-	sf::Vector3f position;	//X,Y,Z of the center point
-	sf::Vector3f size;		//Width, Height, Depth
+	glm::vec3 position;	//X,Y,Z of the center point
+	glm::vec3 size;		//Width, Height, Depth
 };
 
 #endif
