@@ -90,6 +90,8 @@ class Game
 	/* draw/rendering routines */
 	void draw(); // called from the main
 	void drawHUD();
+	
+	void healthManagement(float dt); // manages health
 
 	//void PreDraw(); // prior to drawing   //TEMP DEL, replace with sf::window display in one draw function
 	void DrawGame(); // actual drawing the frame
@@ -113,7 +115,7 @@ class Game
 
 	
 	// Create a clock for measuring the time elapsed TEMP
-    sf::Clock clock;
+    	sf::Clock clock;
 	sf::Time frameTime;
 
 	/* game state info */
@@ -165,6 +167,26 @@ class Game
 	GLfloat x2step; 
 	GLfloat z2step; 
 	GLfloat camDist;
+	
+	/* HUD COMPONENTS */
+
+	float playerOneCurrentHealth;
+	float playerOneLastHealth;
+	float playerOneHealthDecayTimer;
+
+	float playerTwoCurrentHealth;
+	float playerTwoLastHealth;
+	float playerTwoHealthDecayTimer;
+
+	float playerOneCurrentSpecial;
+	float playerOneLastSpecial;
+	float playerOneSpecialDecayTimer;
+
+	float playerTwoCurrentSpecial;
+	float playerTwoLastSpecial;
+	float playerTwoSpecialDecayTimer;
+
+	bool healthCountdown;
 
 	GLuint hudTex;
 };
