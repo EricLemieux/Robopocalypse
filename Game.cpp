@@ -21,6 +21,26 @@ Game::Game(float fps)
 	x2step = 0.0f;
 	z2step = 0.0f;
 	camDist = -5.0f;
+	
+	// health stuff
+	playerOneHealthDecayTimer = 0.0f;
+	playerOneCurrentHealth = 100.0f;
+	playerOneLastHealth = playerOneCurrentHealth;
+
+	playerTwoHealthDecayTimer = 0.0f;
+	playerTwoCurrentHealth = 100.0f;
+	playerTwoLastHealth = playerTwoCurrentHealth;
+
+	// special stuff
+	playerOneSpecialDecayTimer = 0.0f;
+	playerOneCurrentSpecial = 100.0f;
+	playerOneLastSpecial = playerOneCurrentSpecial;
+
+	playerTwoLastSpecial = 0.0f;
+	playerTwoCurrentSpecial = 100.0f;
+	playerTwoLastSpecial = playerTwoCurrentSpecial;
+
+	healthCountdown = false;
 }
 
 /* destructor */
@@ -285,39 +305,321 @@ void Game::drawSprites()
 
 //draw HUD
 void Game::drawHUD(){
-	glViewport(0,WINDOW_HEIGHT-HUD_HEIGHT,WINDOW_WIDTH,HUD_HEIGHT);
+glViewport(0,float(window.getSize().y)-HUD_HEIGHT,float(window.getSize().x),HUD_HEIGHT);
+	//glViewport(0,WINDOW_HEIGHT-HUD_HEIGHT,WINDOW_WIDTH,HUD_HEIGHT);
 	glEnable(GL_TEXTURE_2D);
 
 	glPushMatrix();
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(-10,10,-10,10,1,1000);
+	//gluPerspective(90.0f, float(window.getSize().x)/float(window.getSize().y),2.f,2000.f);
 	glLoadIdentity();
 	glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 	glDisable(GL_CULL_FACE);
 
+	glDisable(GL_TEXTURE_2D);
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+	GLubyte halftone[] = {
+    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
+    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
+    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
+    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
+    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
+    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
+    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
+    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
+    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
+    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
+    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
+    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
+    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
+    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
+    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
+    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/* PLAYER ONE HEALTH */
+
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
+	// ratios for player health on the bar
+	// 0 hp = -0.85 ratio on the hud
+	// full hp = -0.127 ratio on the hud
+	// fitting in the bars is 0.7 and 0.2
+
+	// Sets the bar size to the health
+	float temp1 = -0.127f;
+	float temp2 = temp1 - 0.723f*(playerOneCurrentHealth/100);
+
+	glEnable(GL_POLYGON_STIPPLE);
+	
+	// Make the health red
+	
+
+	glPolygonStipple(halftone);
+
+	glColor3f(1.0, 0.0, 0.0);
+
+	// Draw the health bar
+	glBegin(GL_QUADS);
+		glNormal3f( 0.f, 0.f, 1.f);
+		glTexCoord2f(0.f,0.f);
+		glVertex3f(temp1, 0.7f, -1.f);
+		glTexCoord2f(1.f,0.f);
+		glVertex3f(temp2,  0.7f, -1.f);
+		glTexCoord2f(1.f,1.f);
+		glVertex3f(temp2,  0.2f, -1.f);
+		glTexCoord2f(0.f,1.f);
+		glVertex3f(temp1, 0.2f, -1.f);
+	glEnd();
+
+	// Make the lost health yellow
+	glColor3f(1.0, 1.0, 0.0);
+
+	temp2 = temp1 - 0.723f*(playerOneLastHealth/100);
+
+	// Draw the health bar
+	glBegin(GL_QUADS);
+		glNormal3f( 0.f, 0.f, 1.f);
+		glTexCoord2f(0.f,0.f);
+		glVertex3f(temp1, 0.7f, -1.f);
+		glTexCoord2f(1.f,0.f);
+		glVertex3f(temp2,  0.7f, -1.f);
+		glTexCoord2f(1.f,1.f);
+		glVertex3f(temp2,  0.2f, -1.f);
+		glTexCoord2f(0.f,1.f);
+		glVertex3f(temp1, 0.2f, -1.f);
+	glEnd();
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/* PLAYER ONE SPECIAL */
+
+	// ratios for player health on the bar
+	// 0 hp = -0.85 ratio on the hud
+	// full hp = -0.127 ratio on the hud
+	// fitting in the bars is 0.7 and 0.2
+
+	// Sets the borders based on health
+	temp1 = -0.127f;
+	temp2 = temp1 - 0.723f*(playerOneCurrentSpecial/100);
+
+	glColor3f(0.0, 0.0, 1.0);
+
+	// Draws the special bar
+	glBegin(GL_QUADS);
+		glNormal3f( 0.f, 0.f, 1.f);
+		glTexCoord2f(0.f,0.f);
+		glVertex3f(temp1, -0.7f, -1.f);
+		glTexCoord2f(1.f,0.f);
+		glVertex3f(temp2, -0.7f, -1.f);
+		glTexCoord2f(1.f,1.f);
+		glVertex3f(temp2, -0.2f, -1.f);
+		glTexCoord2f(0.f,1.f);
+		glVertex3f(temp1, -0.2f, -1.f);
+	glEnd();
+
+	temp2 = temp1 - 0.723f*(playerOneLastSpecial/100);
+
+	glColor3f(0.0, 1.0, 1.0);
+
+	// Draws the lost health bar
+	glBegin(GL_QUADS);
+		glNormal3f( 0.f, 0.f, 1.f);
+		glTexCoord2f(0.f,0.f);
+		glVertex3f(temp1, -0.7f, -1.f);
+		glTexCoord2f(1.f,0.f);
+		glVertex3f(temp2, -0.7f, -1.f);
+		glTexCoord2f(1.f,1.f);
+		glVertex3f(temp2, -0.2f, -1.f);
+		glTexCoord2f(0.f,1.f);
+		glVertex3f(temp1, -0.2f, -1.f);
+	glEnd();
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/* PLAYER TWO HEALTH */
+
+	// ratios for player health on the bar
+	// 0 hp = -0.85 ratio on the hud
+	// full hp = -0.127 ratio on the hud
+	// fitting in the bars is 0.7 and 0.2
+
+	// Sets the borders based on health
+	temp1 = 0.127f;
+	temp2 = temp1 + 0.723f*(playerTwoCurrentHealth/100);
+
+	glColor3f(1.0, 0.0, 0.0);
+
+	// Draws the health bar
+	glBegin(GL_QUADS);
+		glNormal3f( 0.f, 0.f, 1.f);
+		glTexCoord2f(0.f,0.f);
+		glVertex3f(temp1, 0.7f, -1.f);
+		glTexCoord2f(1.f,0.f);
+		glVertex3f(temp2,  0.7f, -1.f);
+		glTexCoord2f(1.f,1.f);
+		glVertex3f(temp2,  0.2f, -1.f);
+		glTexCoord2f(0.f,1.f);
+		glVertex3f(temp1, 0.2f, -1.f);
+	glEnd();
+
+	temp2 = temp1 + 0.723f*(playerTwoLastHealth/100);
+
+	glColor3f(1.0, 0.0, 0.0);
+
+	// Draws the lost health bar
+	glBegin(GL_QUADS);
+		glNormal3f( 0.f, 0.f, 1.f);
+		glTexCoord2f(0.f,0.f);
+		glVertex3f(temp1, 0.7f, -1.f);
+		glTexCoord2f(1.f,0.f);
+		glVertex3f(temp2,  0.7f, -1.f);
+		glTexCoord2f(1.f,1.f);
+		glVertex3f(temp2,  0.2f, -1.f);
+		glTexCoord2f(0.f,1.f);
+		glVertex3f(temp1, 0.2f, -1.f);
+	glEnd();
+
+	/////////////////////////////////////////////////
+
+	/* PLAYER TWO SPECIAL */
+
+	// ratios for player health on the bar
+	// 0 hp = -0.85 ratio on the hud
+	// full hp = -0.127 ratio on the hud
+	// fitting in the bars is 0.7 and 0.2
+
+	// Sets the borders based on health
+	temp1 = 0.127f;
+	temp2 = temp1 + 0.723f*(playerTwoCurrentSpecial/100);
+
+	glColor3f(0.0, 0.0, 1.0);
+
+	// Draws the health bar
+	glBegin(GL_QUADS);
+		glNormal3f( 0.f, 0.f, 1.f);
+		glTexCoord2f(0.f,0.f);
+		glVertex3f(temp1, -0.7f, -1.f);
+		glTexCoord2f(1.f,0.f);
+		glVertex3f(temp2, -0.7f, -1.f);
+		glTexCoord2f(1.f,1.f);
+		glVertex3f(temp2, -0.2f, -1.f);
+		glTexCoord2f(0.f,1.f);
+		glVertex3f(temp1, -0.2f, -1.f);
+	glEnd();
+
+	temp2 = temp1 + 0.723f*(playerTwoLastSpecial/100);
+
+	glColor3f(0.0, 1.0, 1.0);
+
+	// Draws the lost special bar
+	glBegin(GL_QUADS);
+		glNormal3f( 0.f, 0.f, 1.f);
+		glTexCoord2f(0.f,0.f);
+		glVertex3f(temp1, -0.7f, -1.f);
+		glTexCoord2f(1.f,0.f);
+		glVertex3f(temp2, -0.7f, -1.f);
+		glTexCoord2f(1.f,1.f);
+		glVertex3f(temp2, -0.2f, -1.f);
+		glTexCoord2f(0.f,1.f);
+		glVertex3f(temp1, -0.2f, -1.f);
+	glEnd();
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+	glDisable(GL_POLYGON_STIPPLE);
+	/////////////////////////////////////////////////
+	glEnable(GL_TEXTURE_2D);
+
 	glBindTexture(GL_TEXTURE_2D,hudTex);
+
+	glColor3f(1.0, 1.0, 1.0);
 
 	glBegin(GL_QUADS);
 		glNormal3f( 0.f, 0.f, 1.f);
 		glTexCoord2f(0.f,0.f);
-		glVertex3f(-1.f, 0.9f,  -1.f);
+		glVertex3f(-1.f, 1.f,  -1.f);
 		glTexCoord2f(1.f,0.f);
-		glVertex3f( 1.f, 0.9f,  -1.f);
+		glVertex3f( 1.f, 1.f,  -1.f);
 		glTexCoord2f(1.f,1.f);
 		glVertex3f( 1.f,  -1.f,  -1.f);
 		glTexCoord2f(0.f,1.f);
 		glVertex3f(-1.f,  -1.f,  -1.f);
 	glEnd();
 
-	glEnable(GL_CULL_FACE);
+//////////////////////////////////////////////////////////
 
+	glEnable(GL_CULL_FACE);
 	glPopMatrix();
 }
 
+void Game::healthManagement(float dt)
+{
+	
+	if (playerOneLastHealth != playerOneCurrentHealth)
+	{
+		playerOneHealthDecayTimer += dt*0.2f;
+
+		playerOneLastHealth = ((1-playerOneHealthDecayTimer)*playerOneLastHealth) + ((playerOneHealthDecayTimer)*playerOneCurrentHealth);
+
+	}
+
+	if (playerOneHealthDecayTimer >= 1)
+	{
+		playerOneHealthDecayTimer = 0.0f;
+
+		playerOneLastHealth = playerOneLastHealth;
+	}
+
+	if (playerTwoLastHealth != playerTwoCurrentHealth)
+	{
+		playerTwoHealthDecayTimer += dt*0.2f;
+
+		playerTwoLastHealth = ((1-playerTwoHealthDecayTimer)*playerTwoLastHealth) + ((playerTwoHealthDecayTimer)*playerTwoCurrentHealth);
+
+	}
+
+	if (playerTwoHealthDecayTimer >= 1)
+	{
+		playerTwoHealthDecayTimer = 0.0f;
+
+		playerTwoLastHealth = playerOneLastHealth;
+	}
+
+	if (playerOneLastSpecial != playerOneCurrentSpecial)
+	{
+		playerOneSpecialDecayTimer += dt*0.2f;
+
+		playerOneLastSpecial = ((1-playerOneSpecialDecayTimer)*playerOneLastSpecial) + ((playerOneSpecialDecayTimer)*playerOneCurrentSpecial);
+
+	}
+
+	if (playerOneSpecialDecayTimer >= 1)
+	{
+		playerOneSpecialDecayTimer = 0.0f;
+
+		playerOneLastSpecial = playerOneCurrentSpecial;
+	}
+
+	if (playerTwoLastSpecial != playerTwoCurrentSpecial)
+	{
+		playerTwoSpecialDecayTimer += dt*0.2f;
+
+		playerTwoLastSpecial = ((1-playerTwoSpecialDecayTimer)*playerTwoLastSpecial) + ((playerTwoSpecialDecayTimer)*playerTwoCurrentSpecial);
+
+	}
+
+	if (playerTwoSpecialDecayTimer >= 1)
+	{
+		playerTwoHealthDecayTimer = 0.0f;
+
+		playerTwoLastSpecial = playerTwoCurrentSpecial;
+	}
+}
 
 
 
@@ -349,7 +651,11 @@ void Game::update()
 	frameTime = clock.getElapsedTime();
 	clock.restart();
 
-	float dt = frameTime.asSeconds();	
+	float dt = frameTime.asSeconds();
+	
+	drawHUD();
+
+	healthManagement(dt);
 }
 
 /* 
