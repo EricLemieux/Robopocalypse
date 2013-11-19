@@ -41,6 +41,10 @@ Game::Game(float fps)
 	playerTwoLastSpecial = playerTwoCurrentSpecial;
 
 	healthCountdown = false;
+
+	//Debuging tools
+	//Should all be false in releases
+	shouldDrawHitboxes = true;
 }
 
 /* destructor */
@@ -236,6 +240,11 @@ void Game::DrawGame()
 	player1.draw();
 	player2.draw();
 	drawFunc(assetList);
+
+	if(shouldDrawHitboxes)
+	{
+		drawHitboxes(assetList.boundingBoxes);
+	}
 
 	glPopMatrix();
 
@@ -733,4 +742,54 @@ void Game::mouseMoved(int x, int y)    //TODO REMOVE
 	/* convert from window to screen pixel coordinates */
 	input.currentX = x*stateInfo.ratioWidth;
 	input.currentY = (stateInfo.windowHeight-y)*stateInfo.ratioHeight;
+}
+
+
+//Draw the hitboxes for everything
+void drawHitboxes(std::vector<collisionObjects>  objects)
+{
+	glPushMatrix();
+	glColor3f(1.0f, 0.0f, 0.0f);
+	glEnable(GL_COLOR_MATERIAL);
+	glPolygonMode( GL_FRONT_AND_BACK, GL_LINE);
+	glDisable(GL_CULL_FACE);
+	glBegin(GL_QUADS);
+		for(unsigned int i = 0; i < objects.size(); ++i)
+		{
+			//Back face
+			glVertex3f(objects[i].getPos().x - objects[i].getSize().x/2,	objects[i].getPos().y + objects[i].getSize().y/2,	objects[i].getPos().z - objects[i].getSize().z/2);
+			glVertex3f(objects[i].getPos().x + objects[i].getSize().x/2,	objects[i].getPos().y + objects[i].getSize().y/2,	objects[i].getPos().z - objects[i].getSize().z/2);
+			glVertex3f(objects[i].getPos().x + objects[i].getSize().x/2,	objects[i].getPos().y - objects[i].getSize().y/2,	objects[i].getPos().z - objects[i].getSize().z/2);
+			glVertex3f(objects[i].getPos().x - objects[i].getSize().x/2,	objects[i].getPos().y - objects[i].getSize().y/2,	objects[i].getPos().z - objects[i].getSize().z/2);
+			//Front face
+			glVertex3f(objects[i].getPos().x - objects[i].getSize().x/2,	objects[i].getPos().y + objects[i].getSize().y/2,	objects[i].getPos().z + objects[i].getSize().z/2);
+			glVertex3f(objects[i].getPos().x + objects[i].getSize().x/2,	objects[i].getPos().y + objects[i].getSize().y/2,	objects[i].getPos().z + objects[i].getSize().z/2);
+			glVertex3f(objects[i].getPos().x + objects[i].getSize().x/2,	objects[i].getPos().y - objects[i].getSize().y/2,	objects[i].getPos().z + objects[i].getSize().z/2);
+			glVertex3f(objects[i].getPos().x - objects[i].getSize().x/2,	objects[i].getPos().y - objects[i].getSize().y/2,	objects[i].getPos().z + objects[i].getSize().z/2);
+
+			//Top face
+			glVertex3f(objects[i].getPos().x - objects[i].getSize().x/2,	objects[i].getPos().y + objects[i].getSize().y/2,	objects[i].getPos().z + objects[i].getSize().z/2);
+			glVertex3f(objects[i].getPos().x + objects[i].getSize().x/2,	objects[i].getPos().y + objects[i].getSize().y/2,	objects[i].getPos().z + objects[i].getSize().z/2);
+			glVertex3f(objects[i].getPos().x + objects[i].getSize().x/2,	objects[i].getPos().y + objects[i].getSize().y/2,	objects[i].getPos().z - objects[i].getSize().z/2);
+			glVertex3f(objects[i].getPos().x - objects[i].getSize().x/2,	objects[i].getPos().y + objects[i].getSize().y/2,	objects[i].getPos().z - objects[i].getSize().z/2);
+			//Bottom face
+			glVertex3f(objects[i].getPos().x - objects[i].getSize().x/2,	objects[i].getPos().y - objects[i].getSize().y/2,	objects[i].getPos().z + objects[i].getSize().z/2);
+			glVertex3f(objects[i].getPos().x + objects[i].getSize().x/2,	objects[i].getPos().y - objects[i].getSize().y/2,	objects[i].getPos().z + objects[i].getSize().z/2);
+			glVertex3f(objects[i].getPos().x + objects[i].getSize().x/2,	objects[i].getPos().y - objects[i].getSize().y/2,	objects[i].getPos().z - objects[i].getSize().z/2);
+			glVertex3f(objects[i].getPos().x - objects[i].getSize().x/2,	objects[i].getPos().y - objects[i].getSize().y/2,	objects[i].getPos().z - objects[i].getSize().z/2);
+			
+			//Right face
+			glVertex3f(objects[i].getPos().x + objects[i].getSize().x/2,	objects[i].getPos().y + objects[i].getSize().y/2,	objects[i].getPos().z + objects[i].getSize().z/2);
+			glVertex3f(objects[i].getPos().x + objects[i].getSize().x/2,	objects[i].getPos().y + objects[i].getSize().y/2,	objects[i].getPos().z - objects[i].getSize().z/2);
+			glVertex3f(objects[i].getPos().x + objects[i].getSize().x/2,	objects[i].getPos().y - objects[i].getSize().y/2,	objects[i].getPos().z + objects[i].getSize().z/2);
+			glVertex3f(objects[i].getPos().x + objects[i].getSize().x/2,	objects[i].getPos().y - objects[i].getSize().y/2,	objects[i].getPos().z - objects[i].getSize().z/2);
+			//Left face
+			glVertex3f(objects[i].getPos().x - objects[i].getSize().x/2,	objects[i].getPos().y + objects[i].getSize().y/2,	objects[i].getPos().z + objects[i].getSize().z/2);
+			glVertex3f(objects[i].getPos().x - objects[i].getSize().x/2,	objects[i].getPos().y + objects[i].getSize().y/2,	objects[i].getPos().z - objects[i].getSize().z/2);
+			glVertex3f(objects[i].getPos().x - objects[i].getSize().x/2,	objects[i].getPos().y - objects[i].getSize().y/2,	objects[i].getPos().z + objects[i].getSize().z/2);
+			glVertex3f(objects[i].getPos().x - objects[i].getSize().x/2,	objects[i].getPos().y - objects[i].getSize().y/2,	objects[i].getPos().z - objects[i].getSize().z/2);
+		}
+	glEnd();
+	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+	glPopMatrix();
 }

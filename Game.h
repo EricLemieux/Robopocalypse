@@ -142,6 +142,9 @@ class Game
 
 	sf::Texture Spritetexture; //TEMP, I c
 	sf::Sprite temp;
+
+	//Should the game draw the hitboxes?
+	bool shouldDrawHitboxes;
 	
 	//Drawing obj
 	std::vector<glm::vec3> vertices;
@@ -191,3 +194,4 @@ class Game
 	GLuint hudTex;
 };
 
+extern void drawHitboxes(std::vector<collisionObjects>  objects);
