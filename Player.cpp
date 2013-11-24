@@ -8,15 +8,27 @@ Player::Player(OBJModel object){
 	position.y = object.getPosY();
 	position.z = object.getPosZ();
 
+	
 	rotation.x = 0.f;
 	rotation.y = 0.f;
 	rotation.z= 0.f;
 
-	velocity.x = 0.f;
-	velocity.y = 0.f;
-	velocity.z = 0.f;
-
+	
 	playerObject = object;
+	playerHitBox = object.getHitBox();
+
+	velocity = glm::vec3(0,0,0);
+	maxVelY = 64;
+
+	acceleration = glm::vec3(0,0,0);
+	impactForce = glm::vec3(0,0,0);
+	totalForce = glm::vec3(0,0,0);
+	gravityForce = glm::vec3(0,-1000,0);
+	moveForce = glm::vec3(0,0,0);
+	resistanceForce = glm::vec3(0,0,0);
+	jumpForce = glm::vec3(0,0,0);
+
+	jumpCount = 0;
 }
 
 Player::~Player(){}
@@ -40,26 +52,28 @@ void Player::stopVelX(){
 	velocity.x = 0;
 }
 
+void Player::stopVelY(){
+	velocity.y = 0;
+}
+
 //Update the player's position
-void Player::update(std::vector<collisionObjects> &tempBoundBoxes, int playerIDNum)
+void Player::update(std::vector<collisionObjects> &tempBoundBoxes, int playerIDNum,float t)
 {
-	if(velocity.x > 0.1)
-		velocity.x -= 0.1;
-	else if(velocity.x < -0.1)
-		velocity.x += 0.1;
-	else
-		velocity.x = 0.0f;
+	
+
+	impactForce = glm::vec3(0,0,0);
 
 	bool hitAnything = false;
 	int whatHit;
 
+	
+
 	//Loop through all of the collision boxes to see if we hit any of them.
 	for(int i = 0; i <= tempBoundBoxes.size()-1; i++)
 	{
-		if(i == playerIDNum)
-			i++;
+		
 		if(isBoxBoxColliding(this->getPosX() + velocity.x, this->getPosY() + velocity.y, this->getPosZ() + velocity.z,
-							tempBoundBoxes[playerIDNum].getSize().x, tempBoundBoxes[playerIDNum].getSize().y, tempBoundBoxes[playerIDNum].getSize().z,
+							playerObject.getHitBox().getSize().x, playerObject.getHitBox().getSize().y, playerObject.getHitBox().getSize().z,
 							tempBoundBoxes[i].getPos().x, tempBoundBoxes[i].getPos().y, tempBoundBoxes[i].getPos().z,
 							tempBoundBoxes[i].getSize().x, tempBoundBoxes[i].getSize().y, tempBoundBoxes[i].getSize().z))
 		{
@@ -68,41 +82,77 @@ void Player::update(std::vector<collisionObjects> &tempBoundBoxes, int playerIDN
 		}
 	}
 
+	//on collision, set position at border of collision and stop velocity
 	if(hitAnything)
 	{
-		if(this->position.x < tempBoundBoxes[whatHit].getPos().x)
+		if(this->position.x < tempBoundBoxes[whatHit].getPos().x){
 			this->position.x = tempBoundBoxes[whatHit].getPos().x - tempBoundBoxes[whatHit].getSize().x - 0.001f;
-		else
+			impactForce = glm::vec3(-5,0,0);
+		}else{
 			this->position.x = tempBoundBoxes[whatHit].getPos().x + tempBoundBoxes[whatHit].getSize().x + 0.001f;
+			impactForce = glm::vec3(5,0,0);
+		}
 		this->stopVelX();
+		
 	}
+	//else continue on
 	else if(!hitAnything)
 	{
-		position += velocity;
+		this->updatePos(t);
 	}
+
+
+	if((this->getVelX() < 200.f)&&(this->getVelX() > 200.f)){
+		this->stopVelX();
+	}
+	if(this->getPosY() < 0){
+		position.y = 0;
+		this->stopVelY();
+		jumpCount = 0;
+		gravityForce = glm::vec3(0,-1000,0);
+	}
+
+	//update object and hitbox
+	playerObject.setPos(position.x,position.y,position.z);
+	playerObject.getHitBox().setPos(position.x,position.y,position.z);;
+}
+
+void Player::updatePos(float t){
+	
+	if(velocity.y > maxVelY){
+			jumpForce = glm::vec3(0,0,0);
+	}
+	if((position.y > 0)||((moveForce.x < 0)&&(velocity.x < 0))||((moveForce.x>0)&&(velocity.x > 0))){
+		resistanceForce.x = -1 * velocity.x;
+	} else {
+		resistanceForce.x = -200 * velocity.x;
+	}
+	if((velocity.y > -1.f) && (velocity.y < 1.f)&&(jumpCount != 0)){
+		gravityForce = glm::vec3(0,-5000,0);
+	} else if (jumpCount != 0) {
+		gravityForce += glm::vec3(0,-100,0);
+	}
+
+	totalForce = impactForce + gravityForce + moveForce + resistanceForce + jumpForce;
+	acceleration = t*totalForce;
+	velocity += t*acceleration;
+	position += t*velocity;
 }
 
 //draw player
 void Player::draw(){
 	
+	//glMatrixMode(GL_MODELVIEW);
+	//glLoadIdentity();
+	//
+	//particlemanager.update(1.f);
+	//particlemanager.draw();
 
 	glPushMatrix();
 
 	//Bind the texture
 	glEnable(GL_TEXTURE_2D);
-	//sf::Texture::bind(&texMap);
-	glBindTexture(GL_TEXTURE_2D, this->getObject().getTex());
-
-	//TODO remove and set actual max speed settings 
-	//if(this->getVelX() > 0.1f){
-	//		this->decreaseVelX(0.1f);
-	//	} else if (this->getVelX() < -0.1f){
-	//		this->increaseVelX(0.1f);
-	//	} else {
-	//		this->stopVelX();
-	//	}
-
-	//position.x += velocity.x;
+	glBindTexture(GL_TEXTURE_2D, this->getObject().getTex());           
 
 	glTranslatef(position.x, position.y, position.z);
 
@@ -122,6 +172,57 @@ void Player::draw(){
 	glEnd();
 	glPopMatrix();
 }
+
+
+//update actions
+void Player::updateAction(int numAction){
+	switch(numAction){
+		//standard move left
+		case 1:
+			this->moveAction(numAction);
+			break;
+		//standard move right
+		case 2:
+			this->moveAction(numAction);
+			break;
+		//dash left
+		case 3:
+			break;
+		//dash right
+		case 4:
+			break;
+		//jump
+		case 5:
+			this->moveAction(numAction);
+			break;
+		default:
+			moveForce = glm::vec3(0,0,0);
+			break;
+			//idle
+	}
+}
+
+//movement + any collisions
+void Player::moveAction(int numAction){
+	if(numAction == 1){
+		moveForce = glm::vec3(2000,0,0);
+	} else if (numAction == 2){
+		moveForce = glm::vec3(-2000,0,0);
+	} else if (numAction == 5){
+		if(jumpCount == 0){
+			ParticleEmitter newemitter;
+			newemitter.setNumOfParticles(100);
+			newemitter.initialise();
+			particlemanager.addEmmiter(newemitter);
+			jumpForce = glm::vec3(0,100000,0);
+			++jumpCount;
+		}
+	}
+}
+
+
+
+
 
 //getters and setters
 
@@ -162,7 +263,9 @@ OBJModel Player::getObject(){
 	float Player::getVelX(){
 		return velocity.x;
 	}
-	float getVelY();
+	float Player::getVelY(){
+		return velocity.y;
+	}
 	float getVelZ();
 
 	void setVelX();

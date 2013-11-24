@@ -7,21 +7,37 @@ public:
 	Player(OBJModel object);
 	~Player();
 
-	//player input
-	//TODO put speed things here
-	//void increaseVelX(float vt);
-	//void decreaseVelX(float vt);
+	
+	//temporary, delete soon
 	void increaseVel(glm::vec3 vt);
+	//kill velocity
 	void stopVelX();
-
+	void stopVelY();
+	
 	//Update the players current position
 	//also check for collisions here.
-	void update(std::vector<collisionObjects> &tempBoundBoxes, int playerIDNum);
+	void update(std::vector<collisionObjects> &tempBoundBoxes, int playerIDNum,float t);
+	void updatePos(float t);
+
+	//*********************************
+	//these should be called in UserInput.cpp
+	//player input decides what action happens
+	void updateAction(int numAction);
+
+	//update movement vars + any collisions
+	void moveAction(int numAction);
+	//attack choice, play animation + move if necessary, 
+	void attackAction(int numAction);
+	//dodge, invincibility frames, animate, move, block input for set time
+	void dodgeAction(int numAction);
+	//block, reduce speed, block input for set time, set blocking status, animate
+	void blockAction(int numAction);
+	//***********************************
 
 	//draw player
 	void draw();
 
-//getters and setters
+	//getters and setters
 
 	//object
 	OBJModel getObject();
@@ -68,12 +84,35 @@ public:
 
 private:
 	OBJModel playerObject;
+	collisionObjects playerHitBox;
+	int input;
+
 	//glm::vec3 position;
 	glm::vec3 position;
 	glm::vec3 rotation;
 	//glm::vec3 velocity;
 	glm::vec3 velocity;
-	
+	float maxVelY;
+	glm::vec3 acceleration;
+	glm::vec3 totalForce;
+	//force from collision with another player/attack
+	glm::vec3 impactForce;
+	//gravity
+	glm::vec3 gravityForce;
+	glm::vec3 moveForce;
+	glm::vec3 resistanceForce;
+	glm::vec3 jumpForce;
+
+	//check for whether player input is accepted
+	int onCooldown;
+	//track current action
+	int currentAction;
+	//tracking for double jumps
+	int jumpCount;
+
+	//particle manager
+	ParticleManager particlemanager;
+
 };
 
 

@@ -1,12 +1,6 @@
 #include "Game.h"
 
 
-bool spriteSortingFunction(Animation *s1, Animation *s2)
-{
-	// return true if s1's layerID is less than s2's layerID
-	return (s1->layerID < s2->layerID);
-}
-
 /* constructor */
 Game::Game(float fps)
 {
@@ -21,7 +15,7 @@ Game::Game(float fps)
 	x2step = 0.0f;
 	z2step = 0.0f;
 	camDist = -5.0f;
-	
+
 	// health stuff
 	playerOneHealthDecayTimer = 0.0f;
 	playerOneCurrentHealth = 100.0f;
@@ -44,7 +38,9 @@ Game::Game(float fps)
 
 	//Debuging tools
 	//Should all be false in releases
-	shouldDrawHitboxes = true;
+	shouldDrawHitboxes = false;
+
+	t = 0.03f;
 }
 
 /* destructor */
@@ -79,6 +75,8 @@ void Game::initializeGame()
 	//add object to player
 	player1 = Player(assetList.objects[0]);
 	player2 = Player(assetList.objects[1]);
+	assetList.objects.erase(assetList.objects.begin(),assetList.objects.begin()+2);
+	assetList.boundingBoxes.erase(assetList.boundingBoxes.begin(),assetList.boundingBoxes.begin()+2);
 
 	glClearDepth(1.f);
 	glClearColor(0.5f, 0.5f,0.5f,1.0f);
@@ -114,8 +112,9 @@ void Game::gameLoop()
 	while(window.isOpen()){
 		
 		gameEvent();
-		draw();
 		update();
+		draw();
+		
 	}
 }
 
@@ -134,10 +133,7 @@ void Game::gameEvent(){
 
             // Adjust the viewport when the window is resized
             if (event.type == sf::Event::Resized)
-				//glMatrixMode(GL_PROJECTION);   //TODO
-				//glLoadIdentity();
-				//GLfloat ratio = static_cast<float>(window.getSize().x) / window.getSize().y;
-				//glFrustum(-ratio, ratio, -1.f, 1.f, 1.f, 500.f);
+
 				glViewport(0, 0, event.size.width, event.size.height);
                 
 					while(window.pollEvent(event)){
@@ -150,11 +146,7 @@ void Game::gameEvent(){
 			}
 
 			if ((event.type == sf::Event::MouseButtonPressed)&&(event.mouseButton.button == mouse.Left)){  //TODO MOUSE
-				//float x =  mouse.getPosition(window).x;
-				//float y = mouse.getPosition(window).y;
-				//
 
-				//mouseClicks.push_back(sf::Vector2f(x,y));
 			}
 
 		}
@@ -162,61 +154,24 @@ void Game::gameEvent(){
 }
 
 
-//void Game::gameEvents(sf::Event event){
-//
-//}
-
-
-/* draw()
- * - this gets called automatically about 30 times per second
- * - this function just draws the sprites 
- */
+//draw
 void Game::draw(){
-		/* sort the sprites by layerID so we draw them in the right order */
-	std::sort(spriteListToDraw.begin(), spriteListToDraw.end(), spriteSortingFunction);
-	///* pre-draw - setup the rendering */
-	//PreDraw();
 
-	/* draw - actually render to the screen */
+
+
 	DrawGame();
-	///* post-draw - after rendering, setup the next frame */
-	//PostDraw();
+
 }
 
-/*
- * Pre-Draw() is for setting up things that need to happen in order to draw
- *    the game, i.e. sorting, splitting things into appropriate lists etc.
- */
-//void Game::PreDraw()
-//{
-//	/* clear the screen */  //TEMP REMOVE?
-//	//glViewport(0,0,stateInfo.windowWidth,stateInfo.windowHeight); 
-//	//glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-//	//glLoadIdentity(); // clear out the transformation matrix
-//	//glEnable(GL_TEXTURE_2D); // turn on texturing
-//
-//	// if we update our timer it will tell us the elapsed time since the previous 
-//	// frame that we rendered
-//	//renderingTimer->tick(); TEMP
-//}
 
-/* 
- * DrawGame()
- *  - this is the actual drawing of the current frame of the game.
- */
+
+//draw game
 void Game::DrawGame()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glDisableClientState(GL_COLOR_ARRAY);
 
 	window.clear();
-	/* here is where your drawing stuff goes */
-
-	//TODO
-
-	window.pushGLStates();
-	drawSprites();
-	window.popGLStates();
 
 	drawHUD();
 
@@ -241,11 +196,6 @@ void Game::DrawGame()
 	player2.draw();
 	drawFunc(assetList);
 
-	if(shouldDrawHitboxes)
-	{
-		drawHitboxes(assetList.boundingBoxes);
-	}
-
 	glPopMatrix();
 
 	glDisable(GL_TEXTURE_2D);
@@ -257,71 +207,21 @@ void Game::DrawGame()
 
 //hardcoded get rid of it, currently draws the 3rd item in assets.txt which for the purposes of this method is the level
 void Game::drawFunc(Assets assetList){
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glTranslatef(0.f,0.f,camDist);
-//	glColor3f(0.f,0.f,1.f);
-	//glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-	//glGenTextures;
-	glm::vec3 tempVertex;
-	sf::Vector2f tempUV;
-	glm::vec3 tempNorm;
-	//for debugging
-	//int a = assetList.objects[0].getVerSize();
-	//int b = assetList.objects[0].getUVSize();
-	//int c = assetList.objects[0].getNormSize();
-
-
-	glPushMatrix();
-
-	glTranslatef(xstep, 0.f, assetList.objects[2].getPosZ());
-
-	glRotatef(yspeed, 0.0f, 1.f, 0.f);
-	glRotatef(xspeed, 1.0f, 0.0f, 0.f);
-
-	glBegin(GL_TRIANGLES);
-
-	
-	for(int j = 0; j < assetList.objects[2].getVerSize(); j++){
-		tempVertex = assetList.objects[2].getVertex(j);
-		tempUV = assetList.objects[2].getUV(j);
-		tempNorm = assetList.objects[2].getNormal(j);
-		
-		glNormal3f( tempNorm.x,tempNorm.y,tempNorm.z);
-		
-		glTexCoord2f(tempUV.x,tempUV.y);
-		
-		glVertex3f( tempVertex.x,tempVertex.y,tempVertex.z);
-	}
-	
-	glEnd();
-	glPopMatrix();
-}
-
-
-void Game::drawSprites()
-{
-	
-	/* better way */
-	/* this is better because it doesn't matter how many sprites we have, they will always be drawn */
-	std::vector<Animation*>::iterator it; 
-	for(it=spriteListToDraw.begin(); it != spriteListToDraw.end();it++)
-	{
-		Animation *s = (*it);
-		window.draw(s->sprite);
+	for(int i = 0, size = assetList.objects.size(); i<size; ++i){
+		assetList.objects[i].drawOBJ();
 	}
 }
+
 
 //draw HUD
 void Game::drawHUD(){
-glViewport(0,float(window.getSize().y)-HUD_HEIGHT,float(window.getSize().x),HUD_HEIGHT);
-	//glViewport(0,WINDOW_HEIGHT-HUD_HEIGHT,WINDOW_WIDTH,HUD_HEIGHT);
+	glViewport(0,WINDOW_HEIGHT-HUD_HEIGHT,WINDOW_WIDTH,HUD_HEIGHT);
 	glEnable(GL_TEXTURE_2D);
 
 	glPushMatrix();
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	//gluPerspective(90.0f, float(window.getSize().x)/float(window.getSize().y),2.f,2000.f);
+	glOrtho(-10,10,-10,10,1,1000);
 	glLoadIdentity();
 	glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 	glDisable(GL_CULL_FACE);
@@ -632,117 +532,30 @@ void Game::healthManagement(float dt)
 
 
 
-/* update()
-  - this function is essentially the game loop
-    it gets called often and as such you
-	don't actually need a "loop" to define the game
-	it happens behind the scenes
-  - think of this function as one iteration of the game loop
-  - if you need to update physics calculations, sprite animation info,
-    or sound etc, it goes in here
-*/
+
+//UPDATE gamestate
 void Game::update()
 { 
-	
 	//controller input
 	checkLeftJoystick(0, player1);
-    checkLeftJoystick(1, player2); 
+    //checkLeftJoystick(1, player2); 
 
-	//Update the bounding boxes with the new positions.
-	//TODO make seperate function
-	assetList.boundingBoxes[0].setPos(player1.getPos());
-	assetList.boundingBoxes[1].setPos(player2.getPos());
 
-	player1.update(assetList.boundingBoxes, 0);
-	player2.update(assetList.boundingBoxes, 1);
+	player1.update(assetList.boundingBoxes, 0,t);
+	player2.update(assetList.boundingBoxes, 1,t);
 
 	//TODO Animations stuff/Interpolation
 	frameTime = clock.getElapsedTime();
 	clock.restart();
 
 	float dt = frameTime.asSeconds();
-	
+
 	drawHUD();
 
 	healthManagement(dt);
+	
 }
 
-/* 
- * addSpriteToDrawList()
- * - this function simply pushes the sprite to the end of the list
- */
-void Game::addSpriteToDrawList(Animation *s)
-{
-	if(s)
-	{
-		/* push the sprite to the back of the list */
-		this->spriteListToDraw.push_back(s);
-	}
-}
-
-
-/*************************************************/
-/* INPUT - keyboard/mouse functions below        */
-/*************************************************/
-/* keyboardDown()
-   - this gets called when you press a key down
-   - you are given the key that was pressed
-     and where the (x,y) location of the mouse is when pressed
-*/
-void Game::keyboardDown(unsigned char key, int mouseX, int mouseY)  //TODO REMOVE
-{
-	switch(key) //TEMP move these keyboards into event handler
-	{
-	case 32: // the space bar
-		break;
-	case 27: // the escape key
-	case 'q': // the 'q' key
-		exit(1);
-		break;
-	}
-}
-/* keyboardUp()
-   - this gets called when you lift a key up
-   - you are given the key that was pressed
-     and where the (x,y) location of the mouse is when pressed
-*/
-void Game::keyboardUp(unsigned char key, int mouseX, int mouseY)  //TODOREMOVE
-{
-	switch(key)
-	{
-	case 32: // the space bar
-		break;
-	case 27: // the escape key
-	case 'q': // the 'q' key
-		exit(1);
-		break;
-	}
-}
-
-/*
- * mouseClicked
- * - this function is called when the mouse is clicked and it handles the 
- *   input state managment
- */
-void Game::mouseClicked(int button, int state, int x, int y)  //TODO REMOVe
-{
-	//TEMP replace
-}
-
-/*
- * mouseMoved(x,y)
- * - this occurs only when the mouse is pressed down
- *   and the mouse has moved.  you are given the x,y locations
- *   in window coordinates (from the top left corner) and thus 
- *   must be converted to screen coordinates using the screen to window pixels ratio
- *   and the y must be flipped to make the bottom left corner the origin.
- */
-void Game::mouseMoved(int x, int y)    //TODO REMOVE
-{
-	/* convert from window to screen pixel coordinates */
-	input.currentX = x*stateInfo.ratioWidth;
-	input.currentY = (stateInfo.windowHeight-y)*stateInfo.ratioHeight;
-}
 
 
 //Draw the hitboxes for everything
@@ -756,6 +569,8 @@ void drawHitboxes(std::vector<collisionObjects>  objects)
 	glBegin(GL_QUADS);
 		for(unsigned int i = 0; i < objects.size(); ++i)
 		{
+			//glTranslatef(assetLis
+			//glBegin(GL_QUADS);
 			//Back face
 			glVertex3f(objects[i].getPos().x - objects[i].getSize().x/2,	objects[i].getPos().y + objects[i].getSize().y/2,	objects[i].getPos().z - objects[i].getSize().z/2);
 			glVertex3f(objects[i].getPos().x + objects[i].getSize().x/2,	objects[i].getPos().y + objects[i].getSize().y/2,	objects[i].getPos().z - objects[i].getSize().z/2);
@@ -788,6 +603,8 @@ void drawHitboxes(std::vector<collisionObjects>  objects)
 			glVertex3f(objects[i].getPos().x - objects[i].getSize().x/2,	objects[i].getPos().y + objects[i].getSize().y/2,	objects[i].getPos().z - objects[i].getSize().z/2);
 			glVertex3f(objects[i].getPos().x - objects[i].getSize().x/2,	objects[i].getPos().y - objects[i].getSize().y/2,	objects[i].getPos().z + objects[i].getSize().z/2);
 			glVertex3f(objects[i].getPos().x - objects[i].getSize().x/2,	objects[i].getPos().y - objects[i].getSize().y/2,	objects[i].getPos().z - objects[i].getSize().z/2);
+
+			//glEnd();
 		}
 	glEnd();
 	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );

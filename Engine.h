@@ -24,6 +24,7 @@
 #define WINDOW_HEIGHT 800
 #define HUD_HEIGHT 100
 
+#include "Particles.h"
 #include "OBJModel.h"
 #include "Animation.h"
 #include "AnimationMath.h"
@@ -33,7 +34,8 @@
 #include "Player.h"
 #include "Camera.h"
 
-//#include "Collisions.h"
+#include "Collisions.h"
 #include "UserInput.h"
+
 
 #endif

@@ -6,7 +6,7 @@ OBJModel::OBJModel(){}
 OBJModel::OBJModel(const char *path, const char *texPath){
 	std::vector<unsigned int> vuiVertexIndex,vuiUVIndex, vuiNormalIndex;
 	std::vector<glm::vec3> vv3temp_vertex;
-	std::vector<sf::Vector2f> vv2temp_uvs;
+	std::vector<glm::vec2> vv2temp_uvs;
 	std::vector<glm::vec3> vv3temp_normals;
 
 	sf::Image texMap;
@@ -42,7 +42,7 @@ OBJModel::OBJModel(const char *path, const char *texPath){
 		} 
 		// add texture vertices
 		else if(strcmp(lineHeader, "vt")==0){
-			sf::Vector2f uv;
+			glm::vec2 uv;
 			fscanf(file, "%f %f\n", &uv.x, &uv.y);
 			uv.y = 1-uv.y;
 			vv2temp_uvs.push_back(uv);
@@ -84,7 +84,7 @@ OBJModel::OBJModel(const char *path, const char *texPath){
 	}
 	for(unsigned int j=0;j<vuiUVIndex.size();j++){
 		unsigned int uvIndex = vuiUVIndex[j];
-		sf::Vector2f uv = vv2temp_uvs[uvIndex-1];
+		glm::vec2 uv = vv2temp_uvs[uvIndex-1];
 		out_uvs.push_back(uv);
 	}
 	for(unsigned int k=0;k<vuiNormalIndex.size();k++){
@@ -96,12 +96,52 @@ OBJModel::OBJModel(const char *path, const char *texPath){
 }
 OBJModel::~OBJModel(){}
 
+void OBJModel::drawOBJ(){
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	
+	glm::vec3 tempVertex;
+	glm::vec2 tempUV;
+	glm::vec3 tempNorm;
+	//for debugging
+	int a = this->getVerSize();
+	int b = this->getUVSize();
+	int c = this->getNormSize();
+
+
+	glPushMatrix();
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, this->getTex());
+
+	glRotatef(-90.f,0,1,0);
+
+	glTranslatef(this->getPosX(), this->getPosY(), this->getPosZ());
+
+	glBegin(GL_TRIANGLES);
+
+	
+	for(int j = 0; j < this->getVerSize(); j++){
+		tempVertex = this->getVertex(j);
+		tempUV = this->getUV(j);
+		tempNorm = this->getNormal(j);
+		
+		glNormal3f( tempNorm.x,tempNorm.y,tempNorm.z);
+		
+		glTexCoord2f(tempUV.x,tempUV.y);
+		
+		glVertex3f( tempVertex.x,tempVertex.y,tempVertex.z);
+	}
+	
+	glEnd();
+	glPopMatrix();
+}
 
 glm::vec3 OBJModel::getVertex(int i){
 	return out_vertices[i];
 }
 
-sf::Vector2f OBJModel::getUV(int i){
+glm::vec2 OBJModel::getUV(int i){
 	return out_uvs[i];
 }
 
@@ -123,6 +163,7 @@ void OBJModel::setPos(float xtemp, float ytemp, float ztemp){
 	x = xtemp;
 	y = ytemp;
 	z = ztemp;
+	boundingBox.setPos(xtemp,ytemp,ztemp);
 }
 
 float OBJModel::getPosX(){
@@ -139,4 +180,8 @@ float OBJModel::getPosZ(){
 
 GLfloat OBJModel::getTex(){
 	return texture;
+}
+
+collisionObjects OBJModel::getHitBox(){
+	return boundingBox;
 }

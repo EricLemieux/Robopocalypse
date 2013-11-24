@@ -1,13 +1,12 @@
-obj resources\mailbox.obj
+obj resources\morph1.obj
 tex resources\mailbox.jpg
 pos -25 0 -50
 load
-obj resources\airplane.obj
+obj resources\morph1.obj
 tex resources\ibrs.jpg
 pos 25 0 -50
 load
-obj resources\LevelDesgin.obj
+obj resources\LevelBackground.obj
 tex resources\background.jpg
-pos 0 0 -60
+pos -50 -10 0
 load
-

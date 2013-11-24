@@ -57,9 +57,6 @@ class Game
 
 	void gameEvent();
 
-	//void gameEvents(sf::Event event); TEMP change to event function
-	// add a sprite to the draw list
-	// only sprites in the draw list will be drawn
 
 		/* convenience functions */
 	// screen size is the apparent size in pixels
@@ -85,26 +82,20 @@ class Game
 		stateInfo.windowHeight = height;
 	}
 
-	void addSpriteToDrawList(Animation *s);
-
 	/* draw/rendering routines */
 	void draw(); // called from the main
 	void drawHUD();
-	
+
 	void healthManagement(float dt); // manages health
 
 	//void PreDraw(); // prior to drawing   //TEMP DEL, replace with sf::window display in one draw function
 	void DrawGame(); // actual drawing the frame
 	//void PostDraw(); // cleanup and prepare for next frame
 	
-	void drawSprites(); // draw the sprite list
 
 	/* update routines, the game loop */
 	void update(); // called from main frequently  //TEMP call physics, draw and functions
-	void keyboardDown(unsigned char key, int mouseX, int mouseY);
-	void keyboardUp(unsigned char key, int mouseX, int mouseY);
-	void mouseClicked(int button, int state, int x, int y);
-	void mouseMoved(int x, int y);
+
 
 	void drawFunc(Assets assetlist);
 
@@ -115,7 +106,7 @@ class Game
 
 	
 	// Create a clock for measuring the time elapsed TEMP
-    	sf::Clock clock;
+    sf::Clock clock;
 	sf::Time frameTime;
 
 	/* game state info */
@@ -123,28 +114,13 @@ class Game
 
 	InputInfo input;
 
-	/* sprite list to draw */
-	std::vector<Animation*> spriteListToDraw;
 
 	sf::ContextSettings contextSettings;
 	sf::RenderWindow window;
-	
-	/* you could have more lists of sprite pointers */
-	/* such as spritesToUpdateForPhysics  
-	   or      spritesToUpdateForCollisions 
-	   etc....
-    */
-	Animation *FATCAT;
-	Animation *BURD;
-	/* timer's for rendering and animation/physics update */
-	//Timer *renderingTimer;
-	//Timer *updateTimer; // for physics/collisions etc.  //TEMP sf clock?
 
-	sf::Texture Spritetexture; //TEMP, I c
-	sf::Sprite temp;
 
 	//Should the game draw the hitboxes?
-	bool shouldDrawHitboxes;
+    bool shouldDrawHitboxes;
 	
 	//Drawing obj
 	std::vector<glm::vec3> vertices;
@@ -156,13 +132,18 @@ class Game
 
 	sf::Vector2f Position;
 
-
 	Camera camera;
 
+	//contains everything that isn't a player
 	Assets assetList;
+	//player objects
 	Player player1;
 	Player player2;
 
+	//1/30 for speed assuming FPS 30
+	float t;
+
+	//what were we using this for?
 	GLfloat yspeed; 
 	GLfloat zstep;
 	GLfloat xspeed; 
@@ -170,7 +151,7 @@ class Game
 	GLfloat x2step; 
 	GLfloat z2step; 
 	GLfloat camDist;
-	
+
 	/* HUD COMPONENTS */
 
 	float playerOneCurrentHealth;
