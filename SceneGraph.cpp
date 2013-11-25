@@ -31,6 +31,12 @@ void Node::rotateNodeZ(const float degree)
 	rotZ[1] = glm::vec4(-sin(degree * PI/180), cos(degree * PI/180), 0, 0);
 }
 
+//Rotate using a quaternion
+void Node::setRotationQuat(glm::quat newQuat)
+{
+	frameTransform = glm::toMat4(newQuat);
+}
+
 //Attach a node as a child object
 void Node::attachNode(Node *childNode)
 {

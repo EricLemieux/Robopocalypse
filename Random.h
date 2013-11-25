@@ -19,7 +19,14 @@ inline void genRandSeed()
 }
 
 //Generate a random value between the minimum and maximum value
-inline float random(const float min, const float max)
+inline float random(float min,float max)
 {	
+	if(max < min){
+		int temp = max;
+		max = min;
+		min = temp;
+	}
+	if(max == min)
+		return 0;
 	return float(rand() % int(max - min) + min);
 }

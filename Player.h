@@ -16,7 +16,7 @@ public:
 	
 	//Update the players current position
 	//also check for collisions here.
-	void update(std::vector<collisionObjects> &tempBoundBoxes, int playerIDNum,float t);
+	void update(Assets &assetList, int playerIDNum,float t);
 	void updatePos(float t);
 
 	//*********************************
@@ -84,7 +84,7 @@ public:
 
 private:
 	OBJModel playerObject;
-	collisionObjects playerHitBox;
+	//collisionObjects playerHitBox;
 	int input;
 
 	//glm::vec3 position;

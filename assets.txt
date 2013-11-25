@@ -1,8 +1,8 @@
-obj resources\morph1.obj
+obj resources\dammitMaya.obj
 tex resources\mailbox.jpg
 pos -25 0 -50
 load
-obj resources\morph1.obj
+obj resources\dammitMaya.obj
 tex resources\ibrs.jpg
 pos 25 0 -50
 load

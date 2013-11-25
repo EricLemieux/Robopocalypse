@@ -19,6 +19,7 @@ private:
 	glm::mat4 rotY;
 	glm::mat4 rotZ;
 	glm::mat4 translation;
+	glm::mat4 frameTransform;
 public:
 	Node();
 
@@ -29,6 +30,9 @@ public:
 	void rotateNodeX(const float degree);
 	void rotateNodeY(const float degree);
 	void rotateNodeZ(const float degree);
+
+	//Rotate using a quaternion.
+	void setRotationQuat(glm::quat newQuat);
 
 	//Attach a node as a child object
 	void attachNode(Node *childNode);

@@ -118,6 +118,9 @@ class Game
 	sf::ContextSettings contextSettings;
 	sf::RenderWindow window;
 
+	//Should the game use the debug tools?
+	bool debugTools;
+
 
 	//Should the game draw the hitboxes?
     bool shouldDrawHitboxes;
@@ -175,4 +178,5 @@ class Game
 	GLuint hudTex;
 };
 
-extern void drawHitboxes(std::vector<collisionObjects>  objects);
+//extern void drawHitboxes(std::vector<collisionObjects>  objects);
+extern void drawHitboxes(Player &p1, Player &p2, Assets &assets);

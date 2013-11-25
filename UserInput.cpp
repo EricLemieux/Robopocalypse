@@ -30,7 +30,7 @@ void checkLeftJoystick(int controllerNumber, Player &tempPlayer)
 		}
 
 
-		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space) || sf::Joystick::getAxisPosition(controllerNumber,sf::Joystick::X) > 20)
+		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space) || sf::Joystick::getAxisPosition(controllerNumber,sf::Joystick::Y) < -20)
         {
 			tempPlayer.updateAction(5);
 			action = true;

@@ -116,7 +116,8 @@ void OBJModel::drawOBJ(){
 
 	glRotatef(-90.f,0,1,0);
 
-	glTranslatef(this->getPosX(), this->getPosY(), this->getPosZ());
+	//glTranslatef(this->getPosX(), this->getPosY(), this->getPosZ());
+	glTranslatef(this->boundingBox.getPos().x, this->boundingBox.getPos().y, this->boundingBox.getPos().z);
 
 	glBegin(GL_TRIANGLES);
 
@@ -184,4 +185,9 @@ GLfloat OBJModel::getTex(){
 
 collisionObjects OBJModel::getHitBox(){
 	return boundingBox;
+}
+
+void OBJModel::setBoundingBox(collisionObjects newBoundBox)
+{
+	boundingBox = newBoundBox;
 }

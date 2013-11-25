@@ -30,6 +30,8 @@ public:
 	GLfloat getTex();
 	collisionObjects getHitBox();
 
+	void setBoundingBox(collisionObjects newBoundBox);
+
 private:
 	float x,y,z;
 	float xspeed,yspeed,zspeed;

@@ -13,7 +13,7 @@ public:
 	Assets(void);
 
 	std::vector<OBJModel>  objects;
-	std::vector<collisionObjects> boundingBoxes;	//TODO Implement
+	//std::vector<collisionObjects> boundingBoxes;	
 
 	void LoadAssets(char fileName[256]);
 private:

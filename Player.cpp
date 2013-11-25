@@ -15,7 +15,7 @@ Player::Player(OBJModel object){
 
 	
 	playerObject = object;
-	playerHitBox = object.getHitBox();
+	//playerHitBox = object.getHitBox();
 
 	velocity = glm::vec3(0,0,0);
 	maxVelY = 64;
@@ -57,9 +57,13 @@ void Player::stopVelY(){
 }
 
 //Update the player's position
-void Player::update(std::vector<collisionObjects> &tempBoundBoxes, int playerIDNum,float t)
+void Player::update(Assets &assetList, int playerIDNum,float t)
 {
-	
+	std::vector<collisionObjects> tempBoundBoxes;
+	for(unsigned int i = 0; i < assetList.objects.size(); ++i)
+	{
+		tempBoundBoxes.push_back(assetList.objects[i].getHitBox());
+	}
 
 	impactForce = glm::vec3(0,0,0);
 
@@ -69,7 +73,7 @@ void Player::update(std::vector<collisionObjects> &tempBoundBoxes, int playerIDN
 	
 
 	//Loop through all of the collision boxes to see if we hit any of them.
-	for(int i = 0; i <= tempBoundBoxes.size()-1; i++)
+	for(unsigned int i = 0; i < tempBoundBoxes.size(); ++i)
 	{
 		
 		if(isBoxBoxColliding(this->getPosX() + velocity.x, this->getPosY() + velocity.y, this->getPosZ() + velocity.z,
@@ -136,17 +140,18 @@ void Player::updatePos(float t){
 	totalForce = impactForce + gravityForce + moveForce + resistanceForce + jumpForce;
 	acceleration = t*totalForce;
 	velocity += t*acceleration;
-	position += t*velocity;
+	position += t*velocity + 0.5f*acceleration*t*t;
 }
 
 //draw player
 void Player::draw(){
 	
-	//glMatrixMode(GL_MODELVIEW);
-	//glLoadIdentity();
-	//
-	//particlemanager.update(1.f);
-	//particlemanager.draw();
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	
+	particlemanager.update(1.f);
+	particlemanager.draw();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	glPushMatrix();
 
@@ -155,6 +160,7 @@ void Player::draw(){
 	glBindTexture(GL_TEXTURE_2D, this->getObject().getTex());           
 
 	glTranslatef(position.x, position.y, position.z);
+	//glTranslatef(this->playerObject.getHitBox().getPos().x, this->playerObject.getHitBox().getPos().y, this->playerObject.getHitBox().getPos().z);
 
 	
 	glBegin(GL_TRIANGLES);
@@ -171,6 +177,9 @@ void Player::draw(){
 	
 	glEnd();
 	glPopMatrix();
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glDisable(GL_TEXTURE_2D);
 }
 
 
@@ -205,13 +214,103 @@ void Player::updateAction(int numAction){
 //movement + any collisions
 void Player::moveAction(int numAction){
 	if(numAction == 1){
+		ParticleEmitter newemitter;
+        Range tempRange[3];
+        newemitter.setNumOfParticles(1000);
+        newemitter.setLifeRange(Range(0,5));
+        tempRange[0] = Range(position.x-1,position.x+1);
+        tempRange[1] = Range(position.y-1,position.y+1);
+        tempRange[2] = Range(position.z-1,position.z+1);
+        newemitter.setPosRange(tempRange);
+        
+        tempRange[0] = Range(-5,0);
+        tempRange[1] = Range(-1,1);
+        tempRange[2] = Range(-2,2);
+        newemitter.setVelRange(tempRange);
+
+        tempRange[0] = Range(-1,0);
+        tempRange[1] = Range(-1,2);
+        tempRange[2] = Range(-2,2);
+        newemitter.setAcelRange(tempRange);
+        
+        tempRange[0] = Range(0,2);
+        tempRange[1] = Range(0,2);
+        tempRange[2] = Range(0,1);
+        newemitter.setSizeRange(tempRange);
+
+        tempRange[0] = Range(240,256);
+        tempRange[1] = Range(0,10);
+        tempRange[2] = Range(0,10);
+        newemitter.setColourRange(tempRange);
+
+        newemitter.initialise();
+        particlemanager.addEmmiter(newemitter);
 		moveForce = glm::vec3(2000,0,0);
 	} else if (numAction == 2){
+		ParticleEmitter newemitter;
+		Range tempRange[3];
+		newemitter.setNumOfParticles(1000);
+		newemitter.setLifeRange(Range(0,5));
+		tempRange[0] = Range(position.x-1,position.x+1);
+		tempRange[1] = Range(position.y-1,position.y+1);
+		tempRange[2] = Range(position.z-1,position.z+1);
+		newemitter.setPosRange(tempRange);
+		
+		tempRange[0] = Range(0,5);
+		tempRange[1] = Range(-1,1);
+		tempRange[2] = Range(-2,2);
+		newemitter.setVelRange(tempRange);
+		
+		tempRange[0] = Range(0,1);
+		tempRange[1] = Range(-1,2);
+		tempRange[2] = Range(-2,2);
+		newemitter.setAcelRange(tempRange);
+		
+		tempRange[0] = Range(0,2);
+		tempRange[1] = Range(0,2);
+		tempRange[2] = Range(0,1);
+		newemitter.setSizeRange(tempRange);
+		
+		tempRange[0] = Range(240,256);
+		tempRange[1] = Range(0,10);
+		tempRange[2] = Range(0,10);
+		newemitter.setColourRange(tempRange);
+		
+		newemitter.initialise();
+		particlemanager.addEmmiter(newemitter);
 		moveForce = glm::vec3(-2000,0,0);
 	} else if (numAction == 5){
 		if(jumpCount == 0){
 			ParticleEmitter newemitter;
-			newemitter.setNumOfParticles(100);
+			
+			Range tempRange[3];
+			newemitter.setNumOfParticles(1000);
+			newemitter.setLifeRange(Range(0,5));
+			tempRange[0] = Range(position.x-1,position.x);
+			tempRange[1] = Range(position.y-1,position.y);
+			tempRange[2] = Range(position.z-1,position.z);
+			newemitter.setPosRange(tempRange);
+			
+			tempRange[0] = Range(0,1);
+			tempRange[1] = Range(-1,0);
+			tempRange[2] = Range(0,1);
+			newemitter.setVelRange(tempRange);
+			
+			tempRange[0] = Range(-1,1);
+			tempRange[1] = Range(-3,0);
+			tempRange[2] = Range(-1,1);
+			newemitter.setAcelRange(tempRange);
+			
+			tempRange[0] = Range(0,2);
+			tempRange[1] = Range(0,2);
+			tempRange[2] = Range(0,1);
+			newemitter.setSizeRange(tempRange);
+			
+			tempRange[0] = Range(240,256);
+			tempRange[1] = Range(0,10);
+			tempRange[2] = Range(0,10);
+			newemitter.setColourRange(tempRange);
+
 			newemitter.initialise();
 			particlemanager.addEmmiter(newemitter);
 			jumpForce = glm::vec3(0,100000,0);

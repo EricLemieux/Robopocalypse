@@ -12,23 +12,23 @@ ParticleEmitter::ParticleEmitter(void)
 {
 	numOfParticles = 0;
 
-	this->pLifeRange = Range(0,50);
+	this->pLifeRange = Range(0,500);
 
 	this->pSizeRange[0] = Range(1,5);
 	this->pSizeRange[1] = Range(1,5);
 	this->pSizeRange[2] = Range(1,5);
 
 	this->pPositionRange[0] = Range(0,1);
-	this->pPositionRange[1] = Range(-400,-401);
-	this->pPositionRange[2] = Range(-400,-401);
+	this->pPositionRange[1] = Range(0,1);
+	this->pPositionRange[2] = Range(-50,-49);
 
-	this->pVelocityRange[0] = Range(0,1);
-	this->pVelocityRange[1] = Range(0,1);
-	this->pVelocityRange[2] = Range(0,1);
+	this->pVelocityRange[0] = Range(-5,5);
+	this->pVelocityRange[1] = Range(-5,5);
+	this->pVelocityRange[2] = Range(-5,5);
 
-	this->pAccelerationRange[0] = Range(0,1);
-	this->pAccelerationRange[1] = Range(0,1);
-	this->pAccelerationRange[2] = Range(0,1);
+	this->pAccelerationRange[0] = Range(-5,5);
+	this->pAccelerationRange[1] = Range(-5,5);
+	this->pAccelerationRange[2] = Range(-5,5);
 
 	this->pColourRange[0] = Range(0,256);
 	this->pColourRange[1] = Range(0,256);
@@ -80,6 +80,8 @@ void ParticleEmitter::update(float dt)
 //	-Add textures
 void ParticleEmitter::draw(void)
 {
+	glDisable(GL_CULL_FACE);
+	glPushMatrix();
 	glBegin(GL_QUADS);
 		for(unsigned int i = 0; i < particleList.size(); ++i)
 		{
@@ -93,4 +95,9 @@ void ParticleEmitter::draw(void)
 			}
 		}
 	glEnd();
+	glPopMatrix();
+
+	glColor4f(1, 1, 1, 1);
+	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_CULL_FACE);
 }
