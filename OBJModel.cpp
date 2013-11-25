@@ -108,16 +108,15 @@ void OBJModel::drawOBJ(){
 	int b = this->getUVSize();
 	int c = this->getNormSize();
 
-
+	glLoadIdentity();
 	glPushMatrix();
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, this->getTex());
 
-	glRotatef(-90.f,0,1,0);
+	//glRotatef(-90.f,0,1,0);
 
-	//glTranslatef(this->getPosX(), this->getPosY(), this->getPosZ());
-	glTranslatef(this->boundingBox.getPos().x, this->boundingBox.getPos().y, this->boundingBox.getPos().z);
+	glTranslatef(this->getPosX(), this->getPosY(), this->getPosZ());
 
 	glBegin(GL_TRIANGLES);
 

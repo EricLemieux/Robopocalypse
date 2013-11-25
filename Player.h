@@ -16,7 +16,7 @@ public:
 	
 	//Update the players current position
 	//also check for collisions here.
-	void update(Assets &assetList, int playerIDNum,float t);
+	void update(Assets &assets, int playerIDNum,float t, Player &otherPlayer);
 	void updatePos(float t);
 
 	//*********************************
@@ -79,7 +79,10 @@ public:
 	void setVelY();
 	void setVelZ();
 
-
+	//Collision boxes for different attacks
+	collisionObjects attackFist;
+	collisionObjects attackKick;
+	collisionObjects attackRange;
 
 
 private:
@@ -103,6 +106,11 @@ private:
 	glm::vec3 resistanceForce;
 	glm::vec3 jumpForce;
 
+	float xEnergy;
+	
+	//check for is moving, used to reset movement if button isn't held
+	int isMoving;
+
 	//check for whether player input is accepted
 	int onCooldown;
 	//track current action
@@ -110,8 +118,22 @@ private:
 	//tracking for double jumps
 	int jumpCount;
 
+	//booster cooldown for dashing/jumping
+	int boosterCooldown;
+	int jumpCooldown;
+	
+	int isAttacking;
+	glm::vec3 attackStartPos;
+	float dt;
+	//using this for temp speed control, put actual speed control later
+	float tInterval;
+	
+	int isBlocking;
+
 	//particle manager
 	ParticleManager particlemanager;
+
+	void checkOtherPlayerAttacks(Player &otherPlayer);
 
 };
 

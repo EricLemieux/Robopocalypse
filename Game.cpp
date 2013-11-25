@@ -554,10 +554,10 @@ void Game::update()
 	checkLeftJoystick(0, player1);
     //checkLeftJoystick(1, player2); 
 
-	Assets emptyList;
+	//Assets emptyList;
 	//player1.update(assetList, 0,t);
-	player1.update(emptyList, 0,t);
-	player2.update(emptyList, 1,t);
+	player1.update(assetList, 0,t, player2);
+	player2.update(assetList, 1,t, player1);
 
 
 	////Update positions of bounding boxes in the asset list
@@ -580,7 +580,80 @@ void Game::update()
 	
 }
 
+void drawCube()
+{
+	glBegin(GL_QUADS);
+		//Back face
+		glVertex3f( -1, +1, -1);
+		glVertex3f( +1, +1, -1);
+		glVertex3f( +1, -1, -1);
+		glVertex3f( -1, -1, -1);
+		//Front face
+		glVertex3f( -1, +1, +1);
+		glVertex3f( +1, +1, +1);
+		glVertex3f( +1, -1, +1);
+		glVertex3f( -1, -1, +1);
 
+		//Top face
+		glVertex3f( -1, +1, -1);
+		glVertex3f( +1, +1, -1);
+		glVertex3f( +1, +1, +1);
+		glVertex3f( -1, +1, +1);
+		//Bottom face
+		glVertex3f( -1, -1, -1);
+		glVertex3f( +1, -1, -1);
+		glVertex3f( +1, -1, +1);
+		glVertex3f( -1, -1, +1);
+
+		//Right face
+		glVertex3f( +1, +1, +1);
+		glVertex3f( +1, +1, -1);
+		glVertex3f( +1, -1, -1);
+		glVertex3f( +1, -1, +1);
+		//Left face
+		glVertex3f( -1, +1, +1);
+		glVertex3f( -1, +1, -1);
+		glVertex3f( -1, -1, -1);
+		glVertex3f( -1, -1, +1);
+	glEnd();
+}
+
+void drawPlayerBoundingBoxes(Player &tempPlayer)
+{
+	//Draw the main player bounding box
+	glPushMatrix();
+	glTranslatef(tempPlayer.getPos().x, tempPlayer.getPos().y, tempPlayer.getPos().z);
+	glScalef(tempPlayer.getObject().getHitBox().getSize().x/2, tempPlayer.getObject().getHitBox().getSize().y/2, tempPlayer.getObject().getHitBox().getSize().z/2);
+	drawCube();
+	glPopMatrix();
+
+	//Draw the attack's bounding box
+	glColor3f(1,1,1);
+
+	//Drawing punch
+	glPushMatrix();
+	glTranslatef(tempPlayer.attackFist.getPos().x, tempPlayer.attackFist.getPos().y, tempPlayer.attackFist.getPos().z);
+	glScalef(tempPlayer.attackFist.getSize().x/2, tempPlayer.attackFist.getSize().y/2, tempPlayer.attackFist.getSize().z/2);
+	drawCube();
+	glPopMatrix();
+
+	//Drawing kick
+	glPushMatrix();
+	glTranslatef(tempPlayer.attackKick.getPos().x, tempPlayer.attackKick.getPos().y, tempPlayer.attackKick.getPos().z);
+	glScalef(tempPlayer.attackKick.getSize().x/2, tempPlayer.attackKick.getSize().y/2, tempPlayer.attackKick.getSize().z/2);
+	drawCube();
+	glPopMatrix();
+
+	//Drawing ranged attack
+	glPushMatrix();
+	glTranslatef(tempPlayer.attackRange.getPos().x, tempPlayer.attackRange.getPos().y, tempPlayer.attackRange.getPos().z);
+	glScalef(tempPlayer.attackRange.getSize().x/2, tempPlayer.attackRange.getSize().y/2, tempPlayer.attackRange.getSize().z/2);
+	drawCube();
+	glPopMatrix();
+
+	//Reset colour
+	glColor3f(1,0,0);
+}
 
 //Draw the hitboxes for everything
 //void drawHitboxes(std::vector<collisionObjects>  objects)
@@ -594,94 +667,11 @@ extern void drawHitboxes(Player &p1, Player &p2, Assets &assets)
 	//glBegin(GL_QUADS);
 
 	//Draw player1's bouding box
-	glPushMatrix();
-	glTranslatef(p1.getPos().x, p1.getPos().y, p1.getPos().z);
-
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glPointSize(20);
-	glBegin(GL_POINTS);
-		glVertex3f(0,0,0);
-	glEnd();
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-
-	glScalef(p1.getObject().getHitBox().getSize().x/2, p1.getObject().getHitBox().getSize().y/2, p1.getObject().getHitBox().getSize().z/2);
-	glBegin(GL_QUADS);
-		//Back face
-		glVertex3f( -1, +1, -1);
-		glVertex3f( +1, +1, -1);
-		glVertex3f( +1, -1, -1);
-		glVertex3f( -1, -1, -1);
-		//Front face
-		glVertex3f( -1, +1, +1);
-		glVertex3f( +1, +1, +1);
-		glVertex3f( +1, -1, +1);
-		glVertex3f( -1, -1, +1);
-
-		//Top face
-		glVertex3f( -1, +1, -1);
-		glVertex3f( +1, +1, -1);
-		glVertex3f( +1, +1, +1);
-		glVertex3f( -1, +1, +1);
-		//Bottom face
-		glVertex3f( -1, -1, -1);
-		glVertex3f( +1, -1, -1);
-		glVertex3f( +1, -1, +1);
-		glVertex3f( -1, -1, +1);
-
-		//Right face
-		glVertex3f( +1, +1, +1);
-		glVertex3f( +1, +1, -1);
-		glVertex3f( +1, -1, -1);
-		glVertex3f( +1, -1, +1);
-		//Left face
-		glVertex3f( -1, +1, +1);
-		glVertex3f( -1, +1, -1);
-		glVertex3f( -1, -1, -1);
-		glVertex3f( -1, -1, +1);
-	glEnd();
-	glPopMatrix();
+	drawPlayerBoundingBoxes(p1);
 
 
 	//Draw player2's bouding box
-	glPushMatrix();
-	glTranslatef(p2.getPos().x, p2.getPos().y, p2.getPos().z);
-	glScalef(p2.getObject().getHitBox().getSize().x/2, p2.getObject().getHitBox().getSize().y/2, p2.getObject().getHitBox().getSize().z/2);
-	glBegin(GL_QUADS);
-		//Back face
-		glVertex3f( -1, +1, -1);
-		glVertex3f( +1, +1, -1);
-		glVertex3f( +1, -1, -1);
-		glVertex3f( -1, -1, -1);
-		//Front face
-		glVertex3f( -1, +1, +1);
-		glVertex3f( +1, +1, +1);
-		glVertex3f( +1, -1, +1);
-		glVertex3f( -1, -1, +1);
-
-		//Top face
-		glVertex3f( -1, +1, -1);
-		glVertex3f( +1, +1, -1);
-		glVertex3f( +1, +1, +1);
-		glVertex3f( -1, +1, +1);
-		//Bottom face
-		glVertex3f( -1, -1, -1);
-		glVertex3f( +1, -1, -1);
-		glVertex3f( +1, -1, +1);
-		glVertex3f( -1, -1, +1);
-
-		//Right face
-		glVertex3f( +1, +1, +1);
-		glVertex3f( +1, +1, -1);
-		glVertex3f( +1, -1, -1);
-		glVertex3f( +1, -1, +1);
-		//Left face
-		glVertex3f( -1, +1, +1);
-		glVertex3f( -1, +1, -1);
-		glVertex3f( -1, -1, -1);
-		glVertex3f( -1, -1, +1);
-	glEnd();
-	glPopMatrix();
+	drawPlayerBoundingBoxes(p2);
 
 	//Draw asset list
 	for(unsigned int i = 0; i < assets.objects.size(); ++i)
@@ -690,75 +680,7 @@ extern void drawHitboxes(Player &p1, Player &p2, Assets &assets)
 			//glTranslatef(assets.objects[i].getPosX(), assets.objects[i].getPosY(), assets.objects[i].getPosZ());
 			glTranslatef(assets.objects[i].getHitBox().getPos().x, assets.objects[i].getHitBox().getPos().y, assets.objects[i].getHitBox().getPos().z);
 			glScalef(assets.objects[i].getHitBox().getSize().x/2, assets.objects[i].getHitBox().getSize().y/2, assets.objects[i].getHitBox().getSize().z/2);
-			glBegin(GL_QUADS);
-				////Back face
-				//glVertex3f(assets.objects[i].getHitBox().getPos().x - assets.objects[i].getHitBox().getSize().x/2,	assets.objects[i].getHitBox().getPos().y + assets.objects[i].getHitBox().getSize().y/2,	assets.objects[i].getHitBox().getPos().z - assets.objects[i].getHitBox().getSize().z/2);
-				//glVertex3f(assets.objects[i].getHitBox().getPos().x + assets.objects[i].getHitBox().getSize().x/2,	assets.objects[i].getHitBox().getPos().y + assets.objects[i].getHitBox().getSize().y/2,	assets.objects[i].getHitBox().getPos().z - assets.objects[i].getHitBox().getSize().z/2);
-				//glVertex3f(assets.objects[i].getHitBox().getPos().x + assets.objects[i].getHitBox().getSize().x/2,	assets.objects[i].getHitBox().getPos().y - assets.objects[i].getHitBox().getSize().y/2,	assets.objects[i].getHitBox().getPos().z - assets.objects[i].getHitBox().getSize().z/2);
-				//glVertex3f(assets.objects[i].getHitBox().getPos().x - assets.objects[i].getHitBox().getSize().x/2,	assets.objects[i].getHitBox().getPos().y - assets.objects[i].getHitBox().getSize().y/2,	assets.objects[i].getHitBox().getPos().z - assets.objects[i].getHitBox().getSize().z/2);
-				////Front face
-				//glVertex3f(assets.objects[i].getHitBox().getPos().x - assets.objects[i].getHitBox().getSize().x/2,	assets.objects[i].getHitBox().getPos().y + assets.objects[i].getHitBox().getSize().y/2,	assets.objects[i].getHitBox().getPos().z + assets.objects[i].getHitBox().getSize().z/2);
-				//glVertex3f(assets.objects[i].getHitBox().getPos().x + assets.objects[i].getHitBox().getSize().x/2,	assets.objects[i].getHitBox().getPos().y + assets.objects[i].getHitBox().getSize().y/2,	assets.objects[i].getHitBox().getPos().z + assets.objects[i].getHitBox().getSize().z/2);
-				//glVertex3f(assets.objects[i].getHitBox().getPos().x + assets.objects[i].getHitBox().getSize().x/2,	assets.objects[i].getHitBox().getPos().y - assets.objects[i].getHitBox().getSize().y/2,	assets.objects[i].getHitBox().getPos().z + assets.objects[i].getHitBox().getSize().z/2);
-				//glVertex3f(assets.objects[i].getHitBox().getPos().x - assets.objects[i].getHitBox().getSize().x/2,	assets.objects[i].getHitBox().getPos().y - assets.objects[i].getHitBox().getSize().y/2,	assets.objects[i].getHitBox().getPos().z + assets.objects[i].getHitBox().getSize().z/2);
-				//
-				////Top face
-				//glVertex3f(assets.objects[i].getHitBox().getPos().x - assets.objects[i].getHitBox().getSize().x/2,	assets.objects[i].getHitBox().getPos().y + assets.objects[i].getHitBox().getSize().y/2,	assets.objects[i].getHitBox().getPos().z + assets.objects[i].getHitBox().getSize().z/2);
-				//glVertex3f(assets.objects[i].getHitBox().getPos().x + assets.objects[i].getHitBox().getSize().x/2,	assets.objects[i].getHitBox().getPos().y + assets.objects[i].getHitBox().getSize().y/2,	assets.objects[i].getHitBox().getPos().z + assets.objects[i].getHitBox().getSize().z/2);
-				//glVertex3f(assets.objects[i].getHitBox().getPos().x + assets.objects[i].getHitBox().getSize().x/2,	assets.objects[i].getHitBox().getPos().y + assets.objects[i].getHitBox().getSize().y/2,	assets.objects[i].getHitBox().getPos().z - assets.objects[i].getHitBox().getSize().z/2);
-				//glVertex3f(assets.objects[i].getHitBox().getPos().x - assets.objects[i].getHitBox().getSize().x/2,	assets.objects[i].getHitBox().getPos().y + assets.objects[i].getHitBox().getSize().y/2,	assets.objects[i].getHitBox().getPos().z - assets.objects[i].getHitBox().getSize().z/2);
-				////Bottom face
-				//glVertex3f(assets.objects[i].getHitBox().getPos().x - assets.objects[i].getHitBox().getSize().x/2,	assets.objects[i].getHitBox().getPos().y - assets.objects[i].getHitBox().getSize().y/2,	assets.objects[i].getHitBox().getPos().z + assets.objects[i].getHitBox().getSize().z/2);
-				//glVertex3f(assets.objects[i].getHitBox().getPos().x + assets.objects[i].getHitBox().getSize().x/2,	assets.objects[i].getHitBox().getPos().y - assets.objects[i].getHitBox().getSize().y/2,	assets.objects[i].getHitBox().getPos().z + assets.objects[i].getHitBox().getSize().z/2);
-				//glVertex3f(assets.objects[i].getHitBox().getPos().x + assets.objects[i].getHitBox().getSize().x/2,	assets.objects[i].getHitBox().getPos().y - assets.objects[i].getHitBox().getSize().y/2,	assets.objects[i].getHitBox().getPos().z - assets.objects[i].getHitBox().getSize().z/2);
-				//glVertex3f(assets.objects[i].getHitBox().getPos().x - assets.objects[i].getHitBox().getSize().x/2,	assets.objects[i].getHitBox().getPos().y - assets.objects[i].getHitBox().getSize().y/2,	assets.objects[i].getHitBox().getPos().z - assets.objects[i].getHitBox().getSize().z/2);
-				//
-				////Right face
-				//glVertex3f(assets.objects[i].getHitBox().getPos().x + assets.objects[i].getHitBox().getSize().x/2,	assets.objects[i].getHitBox().getPos().y + assets.objects[i].getHitBox().getSize().y/2,	assets.objects[i].getHitBox().getPos().z + assets.objects[i].getHitBox().getSize().z/2);
-				//glVertex3f(assets.objects[i].getHitBox().getPos().x + assets.objects[i].getHitBox().getSize().x/2,	assets.objects[i].getHitBox().getPos().y + assets.objects[i].getHitBox().getSize().y/2,	assets.objects[i].getHitBox().getPos().z - assets.objects[i].getHitBox().getSize().z/2);
-				//glVertex3f(assets.objects[i].getHitBox().getPos().x + assets.objects[i].getHitBox().getSize().x/2,	assets.objects[i].getHitBox().getPos().y - assets.objects[i].getHitBox().getSize().y/2,	assets.objects[i].getHitBox().getPos().z + assets.objects[i].getHitBox().getSize().z/2);
-				//glVertex3f(assets.objects[i].getHitBox().getPos().x + assets.objects[i].getHitBox().getSize().x/2,	assets.objects[i].getHitBox().getPos().y - assets.objects[i].getHitBox().getSize().y/2,	assets.objects[i].getHitBox().getPos().z - assets.objects[i].getHitBox().getSize().z/2);
-				////Left face
-				//glVertex3f(assets.objects[i].getHitBox().getPos().x - assets.objects[i].getHitBox().getSize().x/2,	assets.objects[i].getHitBox().getPos().y + assets.objects[i].getHitBox().getSize().y/2,	assets.objects[i].getHitBox().getPos().z + assets.objects[i].getHitBox().getSize().z/2);
-				//glVertex3f(assets.objects[i].getHitBox().getPos().x - assets.objects[i].getHitBox().getSize().x/2,	assets.objects[i].getHitBox().getPos().y + assets.objects[i].getHitBox().getSize().y/2,	assets.objects[i].getHitBox().getPos().z - assets.objects[i].getHitBox().getSize().z/2);
-				//glVertex3f(assets.objects[i].getHitBox().getPos().x - assets.objects[i].getHitBox().getSize().x/2,	assets.objects[i].getHitBox().getPos().y - assets.objects[i].getHitBox().getSize().y/2,	assets.objects[i].getHitBox().getPos().z + assets.objects[i].getHitBox().getSize().z/2);
-				//glVertex3f(assets.objects[i].getHitBox().getPos().x - assets.objects[i].getHitBox().getSize().x/2,	assets.objects[i].getHitBox().getPos().y - assets.objects[i].getHitBox().getSize().y/2,	assets.objects[i].getHitBox().getPos().z - assets.objects[i].getHitBox().getSize().z/2);
-
-				//Back face
-				glVertex3f( -1, +1, -1);
-				glVertex3f( +1, +1, -1);
-				glVertex3f( +1, -1, -1);
-				glVertex3f( -1, -1, -1);
-				//Front face
-				glVertex3f( -1, +1, +1);
-				glVertex3f( +1, +1, +1);
-				glVertex3f( +1, -1, +1);
-				glVertex3f( -1, -1, +1);
-
-				//Top face
-				glVertex3f( -1, +1, -1);
-				glVertex3f( +1, +1, -1);
-				glVertex3f( +1, +1, +1);
-				glVertex3f( -1, +1, +1);
-				//Bottom face
-				glVertex3f( -1, -1, -1);
-				glVertex3f( +1, -1, -1);
-				glVertex3f( +1, -1, +1);
-				glVertex3f( -1, -1, +1);
-
-				//Right face
-				glVertex3f( +1, +1, +1);
-				glVertex3f( +1, +1, -1);
-				glVertex3f( +1, -1, -1);
-				glVertex3f( +1, -1, +1);
-				//Left face
-				glVertex3f( -1, +1, +1);
-				glVertex3f( -1, +1, -1);
-				glVertex3f( -1, -1, -1);
-				glVertex3f( -1, -1, +1);
-
-
-			glEnd();
+			drawCube();
 			glPopMatrix();
 		}
 	//glEnd();

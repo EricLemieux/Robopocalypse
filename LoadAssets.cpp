@@ -54,7 +54,7 @@ void Assets::LoadAssets(char fileName[256])
 		{
 			//Load OBJ
 			OBJModel newOBJ(objectName, textureName);
-			newOBJ.setPos(x,y,z);
+			
 
 			//Generate the size of the bounding box
 			glm::vec3 size, minPos, maxPos;
@@ -87,6 +87,8 @@ void Assets::LoadAssets(char fileName[256])
 			newCollisionObject.setSize(size);
 
 			newOBJ.setBoundingBox(newCollisionObject);
+
+			newOBJ.setPos(x,y,z);
 
 			objects.push_back(newOBJ);
 

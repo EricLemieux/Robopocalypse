@@ -29,13 +29,37 @@ void checkLeftJoystick(int controllerNumber, Player &tempPlayer)
 			action = true;
 		}
 
+		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q) || sf::Joystick::getAxisPosition(controllerNumber,sf::Joystick::X) < -20)
+		{
+			tempPlayer.updateAction(4);
+			action = true;
+		}
 
-		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space) || sf::Joystick::getAxisPosition(controllerNumber,sf::Joystick::Y) < -20)
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::E) || sf::Joystick::getAxisPosition(controllerNumber,sf::Joystick::X) > 20)
+        {
+			tempPlayer.updateAction(3);
+			action = true;
+		}
+
+		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space) || sf::Joystick::getAxisPosition(controllerNumber,sf::Joystick::X) > 20)
         {
 			tempPlayer.updateAction(5);
 			action = true;
 		} 
-		
+
+		if(sf::Keyboard::isKeyPressed(sf::Keyboard::J) || sf::Joystick::getAxisPosition(controllerNumber,sf::Joystick::X) > 20)
+        {
+			tempPlayer.updateAction(6);
+			action = true;
+		} 
+
+		if(sf::Keyboard::isKeyPressed(sf::Keyboard::K) || sf::Joystick::getAxisPosition(controllerNumber,sf::Joystick::X) > 20)
+        {
+			tempPlayer.updateAction(7);
+			action = true;
+		} 
+
+
 		if(!action){
 			tempPlayer.updateAction(0);
 		}

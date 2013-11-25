@@ -5,6 +5,7 @@ bool isBoxBoxColliding(float box1CenterX, float box1CenterY, float box1CenterZ,
 						float box1Width, float box1Height, float box1Depth,
 						float box2CenterX, float box2CenterY, float box2CenterZ,
 						float box2Width, float box2Height, float box2Depth);
+bool isBoxBoxColliding(glm::vec3 box1Center, glm::vec3 box1Size, glm::vec3 box2Center, glm::vec3 box2Size);
 
 bool isCircleCircleColliding(float circle1CenterX, float circle1CenterY, float circle1CenterZ, float circle1Radius,
                             float circle2CenterX, float circle2CenterY, float circle2CenterZ, float circle2Radius);
