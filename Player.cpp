@@ -7,6 +7,7 @@ Player::Player(OBJModel object){
 	position.x = object.getPosX();
 	position.y = object.getPosY();
 	position.z = object.getPosZ();
+	prevpos = position;
 
 	
 	rotation.x = 0.f;
@@ -23,6 +24,7 @@ Player::Player(OBJModel object){
 	isMoving = 0;
 
 	acceleration = glm::vec3(0,0,0);
+	pushForce = glm::vec3(0,0,0);
 	impactForce = glm::vec3(0,0,0);
 	totalForce = glm::vec3(0,0,0);
 	gravityForce = glm::vec3(0,-1000,0);
@@ -53,6 +55,19 @@ Player::Player(OBJModel object){
 	
 	boosterCooldown = 0;
 	jumpCooldown = 0;
+
+	stunCooldown = 0;
+	wasHit = 0;
+	invincibleFrames = 0;
+
+	faceDirection = 1;
+	bodyTobody = 0;
+
+	hitFloor	= false;
+	hitWall		= false;
+
+	health = 100;
+	shield = 100;
 }
 
 Player::~Player(){}
@@ -84,7 +99,7 @@ void Player::stopVelY(){
 void Player::update(Assets &assets, int playerIDNum,float t, Player &otherPlayer)
 {
 	//Check collisions against the other player
-	checkOtherPlayerAttacks(otherPlayer);
+	checkOtherPlayer(otherPlayer);
 
 	std::vector<collisionObjects> tempBoundBoxes;
 	for(unsigned int i = 0; i < assets.objects.size(); ++i)
@@ -92,52 +107,22 @@ void Player::update(Assets &assets, int playerIDNum,float t, Player &otherPlayer
 		tempBoundBoxes.push_back(assets.objects[i].getHitBox());
 	}
 
-	impactForce = glm::vec3(0,0,0);
-
 	bool hitAnything = false;
 	int whatHit;
 
 	
-
-	////Loop through all of the collision boxes to see if we hit any of them.
-	//for(unsigned int i = 0; i < tempBoundBoxes.size(); ++i)
-	//{
-	//	
-	//	if(isBoxBoxColliding(this->getPosX() + velocity.x, this->getPosY() + velocity.y, this->getPosZ() + velocity.z,
-	//						playerObject.getHitBox().getSize().x, playerObject.getHitBox().getSize().y, playerObject.getHitBox().getSize().z,
-	//						tempBoundBoxes[i].getPos().x, tempBoundBoxes[i].getPos().y, tempBoundBoxes[i].getPos().z,
-	//						tempBoundBoxes[i].getSize().x, tempBoundBoxes[i].getSize().y, tempBoundBoxes[i].getSize().z))
-	//	{
-	//		hitAnything = true;
-	//		whatHit = i;
-	//	}
-	//}
-	//
-	////on collision, set position at border of collision and stop velocity
-	//if(hitAnything)
-	//{
-	//	if(this->position.x < tempBoundBoxes[whatHit].getPos().x){
-	//		this->position.x = tempBoundBoxes[whatHit].getPos().x - tempBoundBoxes[whatHit].getSize().x - 0.001f;
-	//		impactForce = glm::vec3(-5,0,0);
-	//	}else{
-	//		this->position.x = tempBoundBoxes[whatHit].getPos().x + tempBoundBoxes[whatHit].getSize().x + 0.001f;
-	//		impactForce = glm::vec3(5,0,0);
-	//	}
-	//	this->stopVelX();
-	//	
-	//}
-	////else continue on
-	//else if(!hitAnything)
-	//{
-	//	this->updatePos(t);
-	//}
-
 	if(isAttacking == 6){
 		if(dt<1){
 			dt += tInterval;
-			attackFist.setPos(position.x+8,position.y+3.5,position.z);
-			attackStartPos = attackFist.getPos();
-			attackFist.setPos(LERP(attackStartPos,glm::vec3(attackStartPos.x+10,attackStartPos.y,attackStartPos.z),dt));
+			if(faceDirection == 1){
+				attackFist.setPos(position.x+8,position.y+3.5,position.z);
+				attackStartPos = attackFist.getPos();
+				attackFist.setPos(LERP(attackStartPos,glm::vec3(attackStartPos.x+10,attackStartPos.y,attackStartPos.z),dt));
+			} else if (faceDirection == -1){
+				attackFist.setPos(position.x-8,position.y+3.5,position.z);
+				attackStartPos = attackFist.getPos();
+				attackFist.setPos(LERP(attackStartPos,glm::vec3(attackStartPos.x-10,attackStartPos.y,attackStartPos.z),dt));
+			}
 		} else {
 			isAttacking = 0;
 			dt = 0.f;
@@ -145,6 +130,26 @@ void Player::update(Assets &assets, int playerIDNum,float t, Player &otherPlayer
 			attackFist.setPos(0,0,50);
 		}
 	}
+	if(isAttacking == 8){
+		if(dt<1){
+			dt += tInterval;
+			if(faceDirection == 1){
+				attackKick.setPos(position.x+8,position.y-3.5,position.z);
+				attackStartPos = attackKick.getPos();
+				attackKick.setPos(LERP(attackStartPos,glm::vec3(attackStartPos.x+10,attackStartPos.y+5,attackStartPos.z),dt));
+			} else if (faceDirection == -1){
+				attackKick.setPos(position.x-8,position.y-3.5,position.z);
+				attackStartPos = attackKick.getPos();
+				attackKick.setPos(LERP(attackStartPos,glm::vec3(attackStartPos.x-10,attackStartPos.y+5,attackStartPos.z),dt));
+			}
+		} else {
+			isAttacking = 0;
+			dt = 0.f;
+			tInterval = 0.f;
+			attackKick.setPos(0,0,50);
+		}
+	}
+
 
 	if(onCooldown > 0){
 		--onCooldown;
@@ -158,58 +163,98 @@ void Player::update(Assets &assets, int playerIDNum,float t, Player &otherPlayer
 	if(jumpCooldown > 0){
 		--jumpCooldown;
 	}
-
+	if(stunCooldown >  0){
+		--stunCooldown;	
+	}
+	if(wasHit > 0){
+		--wasHit;
+	}
+	if(invincibleFrames > 0){
+		--invincibleFrames;
+	}
 	//Checking X values
 	hitAnything = false;
+	
+	//Loop through all collision boxes to see if anything hit on the 
+	for(unsigned int i = 0; i < tempBoundBoxes.size(); ++i)
+	{
+		if(isBoxBoxColliding(this->position + this->velocity * t, this->playerObject.getHitBox().getSize(), tempBoundBoxes[i].getPos(), tempBoundBoxes[i].getSize()))
+		{
+			if(velocity.x >10.0f || velocity.x < -10.0f)
+			{
+				hitWall = true;
+			}
+				
+			whatHit = i;
+			//velocity.x = 0.0f;
+		}
+	}
+	//if the player hit anything
+	if(hitAnything)
+	{
+		hitWall = true;
+	}
+	//if the player didnt hit anything
+	else
+	{
+		bool hitBuffer = false;
+		for(unsigned int i = 0; i < tempBoundBoxes.size(); ++i)
+		{
+			if(isBoxBoxColliding(this->playerObject.getHitBox().getPos() + this->velocity * t, this->playerObject.getHitBox().getSize() * glm::vec3(1.1f,0.1f,0.1f), tempBoundBoxes[i].getPos(), tempBoundBoxes[i].getSize()))
+			{
+				hitBuffer = true;
+			}
+		}
+		if(hitBuffer)
+		{
+			hitWall = true;
+		}
+		else
+		{
+			hitWall = false;
+		}
+	}
+	
+	/////
+	//Checking Y axis
+	/////
 
-	//////////////////Loop through all collision boxes to see if anything hit on the 
-	////////////////for(unsigned int i = 0; i < tempBoundBoxes.size(); ++i)
-	////////////////{
-	////////////////	if((std::abs((this->position.x + this->velocity.x * t) - tempBoundBoxes[i].getPos().x)	<	(this->playerObject.getHitBox().getSize().x + tempBoundBoxes[i].getSize().x)	/	2	))
-	////////////////	{
-	////////////////		if(isBoxBoxColliding(this->position + this->velocity * t, this->playerObject.getHitBox().getSize(), tempBoundBoxes[i].getPos(), tempBoundBoxes[i].getSize()))
-	////////////////		{
-	////////////////			hitAnything = true;
-	////////////////			whatHit = i;
-	////////////////		}
-	////////////////	}
-	////////////////}
-	//////////////////if the player hit anything
-	////////////////if(hitAnything)
-	////////////////{
-	////////////////	//Stop the player on the Y axis
-	////////////////}
-	//////////////////if the player didnt hit anything
-	////////////////else
-	////////////////{
-	////////////////	this->updatePos(t);
-	////////////////}
-	////////////////
-	//////////////////Checking Y axis
-	////////////////hitAnything = false;
-	////////////////
-	//////////////////Loop through all collision boxes to see if anything hit on the 
-	///////////////////////for(unsigned int i = 0; i < tempBoundBoxes.size(); ++i)
-	///////////////////////{
-	///////////////////////	if((std::abs((this->position.y + this->velocity.y * t) - tempBoundBoxes[i].getPos().y)	<	(this->playerObject.getHitBox().getSize().y + tempBoundBoxes[i].getSize().y)	/	2	))
-	///////////////////////	{
-	///////////////////////		if(isBoxBoxColliding(this->position + this->velocity * t, this->playerObject.getHitBox().getSize(), tempBoundBoxes[i].getPos(), tempBoundBoxes[i].getSize()))
-	///////////////////////		{
-	///////////////////////			hitAnything = true;
-	///////////////////////			whatHit = i;
-	///////////////////////		}
-	///////////////////////	}
-	///////////////////////}
-	//////////////////if the player hit anything
-	////////////////if(hitAnything)
-	////////////////{
-	////////////////	//Stop the player on the Y axis
-	////////////////}
-	//////////////////if the player didnt hit anything
-	////////////////else
-	////////////////{
-	////////////////	
-	////////////////}
+	//Reset the checks for what i could have hit
+	hitAnything = false;
+
+	//Loop through all collision boxes to see if anything hit on the 
+	for(unsigned int i = 0; i < tempBoundBoxes.size(); ++i)
+	{
+		if(isBoxBoxColliding(this->playerObject.getHitBox().getPos() + this->velocity * t, this->playerObject.getHitBox().getSize(), tempBoundBoxes[i].getPos(), tempBoundBoxes[i].getSize()))
+		{
+			hitAnything = true;
+			whatHit = i;
+		}
+	}
+	if(hitAnything)
+	{
+		hitFloor = true;
+	}
+	//check to see if the player is not inside of the geometry but still within the buffer.
+	else if(!hitAnything)
+	{
+		bool hitBuffer = false;
+		for(unsigned int i = 0; i < tempBoundBoxes.size(); ++i)
+		{
+			if(isBoxBoxColliding(this->playerObject.getHitBox().getPos() + this->velocity * t, this->playerObject.getHitBox().getSize() * glm::vec3(0.1f,1.1f,0.1f), tempBoundBoxes[i].getPos(), tempBoundBoxes[i].getSize()))
+			{
+				hitBuffer = true;
+			}
+		}
+		if(hitBuffer)
+		{
+			hitFloor = true;
+		}
+		else
+		{
+			hitFloor = false;
+		}
+	}
 
 	this->updatePos(t);
 
@@ -222,30 +267,100 @@ void Player::update(Assets &assets, int playerIDNum,float t, Player &otherPlayer
 
 	//update object and hitbox
 	playerObject.setPos(position.x,position.y,position.z);
-	playerObject.getHitBox().setPos(position.x,position.y,position.z);;
+	playerObject.getHitBox().setPos(position.x,position.y,position.z);
 }
 
-void Player::checkOtherPlayerAttacks(Player &otherPlayer)
+void Player::checkOtherPlayer(Player &otherPlayer)
 {
-	//Check to see if the player is being hit with a punch
-	if(isBoxBoxColliding(playerObject.getHitBox().getPos(),playerObject.getHitBox().getSize(), otherPlayer.attackFist.getPos(), otherPlayer.attackFist.getSize()))
-	{
-		//Player is getting punched
-		//TODO
+	//check to see which way should be facing
+	if(position.x < otherPlayer.getPosX()){
+		faceDirection = 1;
+	} else if(position.x > otherPlayer.getPosX()) {
+		faceDirection = -1;
+	} else {
+		faceDirection = 0;
 	}
+	bodyTobody = 0;
+	if(invincibleFrames == 0){
+		//Check to see if the player is being hit with a punch
+		if(isBoxBoxColliding(playerObject.getHitBox().getPos(),playerObject.getHitBox().getSize(), otherPlayer.attackFist.getPos(), otherPlayer.attackFist.getSize()))
+		{
+			//Player is getting punched
+			//TODO
+			if(health > 0)
+				health -= 10;
+			if(shield > 10)
+				shield -= 20;
+			else if (shield > 0)
+				shield-=10;
+			stunCooldown = 10;
+			invincibleFrames = 10;
+			wasHit = 2;
+			if(faceDirection == 1){
+				impactForce = glm::vec3(-50000,0,0);
+			} else if(faceDirection == -1) {
+				impactForce = glm::vec3(50000,0,0);
+			}
+		}
 
-	//Check to see if the player is being hit with a kick
-	if(isBoxBoxColliding(playerObject.getHitBox().getPos(),playerObject.getHitBox().getSize(), otherPlayer.attackKick.getPos(), otherPlayer.attackKick.getSize()))
-	{
-		//Player is getting kicked
-		//TODO
+		//Check to see if the player is being hit with a kick
+		if(isBoxBoxColliding(playerObject.getHitBox().getPos(),playerObject.getHitBox().getSize(), otherPlayer.attackKick.getPos(), otherPlayer.attackKick.getSize()))
+		{
+			//Player is getting kicked
+			//TODO
+			if(health > 10)
+				health -= 20;
+			else if (health > 0)
+				health-=10;
+			if(shield > 10)
+				shield -= 20;
+			else if (shield > 0)
+				shield-=10;
+			jumpCount = 1;
+			stunCooldown = 30;
+			invincibleFrames = 20;
+			wasHit = 2;
+			if(faceDirection == 1){
+				impactForce = glm::vec3(-30000,10000,0);
+			} else if(faceDirection == -1) {
+				impactForce = glm::vec3(30000,10000,0);
+			}
+		}
+
+		//Check to see if the player is being hit with a ranged attack
+		if(isBoxBoxColliding(playerObject.getHitBox().getPos(),playerObject.getHitBox().getSize(), otherPlayer.attackRange.getPos(), otherPlayer.attackRange.getSize()))
+		{
+			//Player is getting hit with a range attack
+			//TODO
+		}
 	}
+	//if player is colliding with another player
+	if(isBoxBoxColliding(playerObject.getHitBox().getPos(),playerObject.getHitBox().getSize(),otherPlayer.getObject().getHitBox().getPos(),otherPlayer.getObject().getHitBox().getSize())){
+		//wasHit = 2;
+		//pushForce = glm::vec3(otherPlayer.getVelocity().x*0.03,otherPlayer.getVelocity().y*0.03,otherPlayer.getVelocity().z*0.03);
 
-	//Check to see if the player is being hit with a ranged attack
-	if(isBoxBoxColliding(playerObject.getHitBox().getPos(),playerObject.getHitBox().getSize(), otherPlayer.attackRange.getPos(), otherPlayer.attackRange.getSize()))
-	{
-		//Player is getting hit with a range attack
-		//TODO
+		//bodyTobody = 1;
+		//position = prevpos;
+		
+		if((faceDirection == 1)&&(position.y < otherPlayer.getPosY()+ (otherPlayer.getObject().getHitBox().getSize().y/2))&&(position.y > otherPlayer.getPosY()-(otherPlayer.getObject().getHitBox().getSize().y/2))){
+			position.x = otherPlayer.getObject().getHitBox().getPos().x- (otherPlayer.getObject().getHitBox().getSize().x/2)- (playerObject.getHitBox().getSize().x/2);
+			bodyTobody = 2;
+			pushForce = glm::vec3(0.5f*otherPlayer.getVelX()*otherPlayer.getVelX(),0,0);
+		} else if ((faceDirection == -1)&&(position.y < otherPlayer.getPosY()+(otherPlayer.getObject().getHitBox().getSize().y/2))&&(position.y > otherPlayer.getPosY()-(otherPlayer.getObject().getHitBox().getSize().y/2))){
+			position.x = otherPlayer.getObject().getHitBox().getPos().x+ (otherPlayer.getObject().getHitBox().getSize().x/2)+ (playerObject.getHitBox().getSize().x/2);
+			bodyTobody = 2;
+			pushForce = glm::vec3(0.5f*otherPlayer.getVelX()*otherPlayer.getVelX(),0,0);
+		} 
+		
+		//else if (position.y-playerObject.getHitBox().getSize().y/2 < otherPlayer.getPosY()+otherPlayer.getObject().getHitBox().getSize().y/2){
+		//	position.y = otherPlayer.getObject().getHitBox().getPos().y- (otherPlayer.getObject().getHitBox().getSize().y/2)- (playerObject.getHitBox().getSize().y/2);
+		//	wasHit = 2;
+		//	impactForce = glm::vec3(0,-0.5f*otherPlayer.getVelY()*otherPlayer.getVelY(),0);
+		//} else if (position.y+playerObject.getHitBox().getSize().y/2 > otherPlayer.getPosY()-otherPlayer.getObject().getHitBox().getSize().y/2){
+		//	position.y = otherPlayer.getObject().getHitBox().getPos().y+ (otherPlayer.getObject().getHitBox().getSize().y/2)+ (playerObject.getHitBox().getSize().y/2);
+		//	wasHit = 2;
+		//	impactForce = glm::vec3(0,0.5f*otherPlayer.getVelY()*otherPlayer.getVelY() + (-gravityForce.y),0);
+		//}
 	}
 }
 
@@ -254,16 +369,24 @@ void Player::updatePos(float t){
 	if(velocity.y > maxVelY){
 			jumpForce = glm::vec3(0,0,0);
 	}
-	if((position.y > 0)||((moveForce.x < 0)&&(velocity.x < 0))||((moveForce.x>0)&&(velocity.x > 0))){
+	if((!hitFloor)||((moveForce.x < 0)&&(velocity.x < 0))||((moveForce.x>0)&&(velocity.x > 0))){
 		resistanceForce.x = -1 * velocity.x;
 	} else {
 		resistanceForce.x = -200 * velocity.x;
+	}
+
+	if(!hitFloor)
+	{
+		gravityForce.y = -5000.0f;
+	} else {
+		gravityForce.y = 0.f;
 	}
 	if((velocity.y > -1.f) && (velocity.y < 1.f)&&(jumpCount != 0)){
 		gravityForce = glm::vec3(0,-5000,0);
 	} else if (jumpCount != 0) {
 		gravityForce += glm::vec3(0,-100,0);
 	}
+	
 
 	if(isMoving == 0){
 	    moveForce = glm::vec3(0,0,0);
@@ -275,10 +398,49 @@ void Player::updatePos(float t){
 	    impactForce = impactForce*0.1f;
 	}
 
-	totalForce = impactForce + gravityForce + moveForce + resistanceForce + jumpForce;
-	acceleration = t*totalForce;
-	velocity += t*acceleration;
-	position += t*velocity + 0.5f*acceleration*t*t;
+	if(wasHit == 0){
+		impactForce = glm::vec3(0,0,0);
+	}
+
+	if(bodyTobody == 0){
+		pushForce = glm::vec3(0,0,0);
+	}
+
+	totalForce = impactForce + gravityForce + moveForce + resistanceForce + jumpForce + pushForce;
+	if(!hitFloor)
+	{
+		acceleration.y = t*totalForce.y;
+		velocity.y += t*acceleration.y;
+		position.y += t*velocity.y + 0.5f*acceleration.y*t*t;
+	}
+	else if(hitFloor)
+	{
+		
+		position.y		= position.y - t*velocity.y - 0.5f*acceleration.y*t*t;
+
+		gravityForce.y	= 0.0f;
+		//totalForce.y	= 0.0f;
+		acceleration.y	= 0.0f;
+		velocity.y		= 0.0f;
+		
+		jumpCount		= 0;
+	}
+
+	if(!hitWall)
+	{
+		acceleration.x = t*totalForce.x;
+		velocity.x += t*acceleration.x;
+		position.x += t*velocity.x + 0.5f*acceleration.x*t*t;
+	}
+	else if(hitWall)
+	{
+		position.x = position.x - t*velocity.x - 0.5f*acceleration.x*t*t;
+
+		totalForce.x	= impactForce.x = gravityForce.x = moveForce.x = resistanceForce.x = jumpForce.x = 0.0f;
+		//totalForce.x = 0.0f;
+		acceleration.x	= 0.0f;
+		velocity.x		= 0.0f;
+	}
 }
 
 //draw player
@@ -323,60 +485,70 @@ void Player::draw(){
 
 //update actions
 void Player::updateAction(int numAction){
-	switch(numAction){
-		//standard move left
-		case 1:
-			this->moveAction(numAction);
-			isMoving = numAction;
-			break;
-		//standard move right
-		case 2:
-			this->moveAction(numAction);
-			isMoving = numAction;
-			break;
-		//dash left
-		case 3:
-			if(boosterCooldown == 0){
-			     this->moveAction(numAction);
-			     isMoving = numAction;
-			 } else {
-			     isMoving = 0;
-			 }
-			break;
-		//dash right
-		case 4:
-			if(boosterCooldown == 0){
-		    this->moveAction(numAction);
-		    isMoving = numAction;
-		} else {
-		    isMoving = 0;
+	if(stunCooldown == 0){
+		switch(numAction){
+			//standard move left
+			case 1:
+				this->moveAction(numAction);
+				isMoving = numAction;
+				break;
+			//standard move right
+			case 2:
+				this->moveAction(numAction);
+				isMoving = numAction;
+				break;
+			//dash left
+			case 3:
+				if(boosterCooldown == 0){
+				     this->moveAction(numAction);
+				     isMoving = numAction;
+				 } else {
+				     isMoving = 0;
+				 }
+				break;
+			//dash right
+			case 4:
+				if(boosterCooldown == 0){
+			    this->moveAction(numAction);
+			    isMoving = numAction;
+			} else {
+			    isMoving = 0;
+			}
+				break;
+			//jump
+			case 5:
+				if(jumpCooldown == 0){
+			        this->moveAction(numAction);
+			        isMoving = 0;
+			    }
+			    break;
+			//attack pawnch
+			case 6:
+			    if(onCooldown == 0){
+			        this->attackAction(numAction);
+			        isAttacking = numAction;
+			        isMoving = 0;
+			    }
+			    break;
+			//block
+			case 7:
+			    if(onCooldown == 0){
+			        this->blockAction(numAction);
+			        isMoving = 0;
+			    }
+				break;
+				//kick
+			case 8:
+				if(onCooldown == 0){
+					this->attackAction(numAction);
+					isAttacking = numAction;
+					isMoving = 0;
+				}
+			default:
+				isMoving = 0;
+				break;
+				//idle
 		}
-			break;
-		//jump
-		case 5:
-			if(jumpCooldown == 0){
-		        this->moveAction(numAction);
-		        isMoving = 0;
-		    }
-		    break;
-		//attack pawnch
-		case 6:
-		    if(onCooldown == 0){
-		        this->attackAction(numAction);
-		        isAttacking = numAction;
-		        isMoving = 0;
-		    }
-		    break;
-		//block
-		case 7:
-		    if(onCooldown == 0){
-		        this->blockAction(numAction);
-		        isMoving = 0;
-		    }
-		default:
-			isMoving = 0;
-			break;
-			//idle
 	}
 }
 
@@ -499,10 +671,15 @@ void Player::moveAction(int numAction){
 void Player::attackAction(int numAction){
     isAttacking = numAction;
     if(numAction == 6){
-        tInterval = 0.1f;
+        tInterval = 0.15f;
         attackFist.setPos(position.x+8,position.y+3.5,position.z);
         attackStartPos = attackFist.getPos();
         onCooldown = 20;
+    } else if(numAction == 8){
+        tInterval = 0.05f;
+        attackKick.setPos(position.x+8,position.y-3.5,position.z);
+        attackStartPos = attackKick.getPos();
+        onCooldown = 40;
     }
 }
 
@@ -523,7 +700,9 @@ OBJModel Player::getObject(){
 
 	//position
 	glm::vec3 Player::getPos(){return glm::vec3(position.x,position.y, position.z);}
-	void setPos(glm::vec3 newposition);
+	void Player::setPos(glm::vec3 newposition){
+		position = newposition;
+	}
 
 	float Player::getPosX(){return position.x;}
 	float Player::getPosY(){return position.y;}
@@ -566,3 +745,13 @@ OBJModel Player::getObject(){
 	void setVelX();
 	void setVelY();
 	void setVelZ();
+
+	int Player::getHealth(){return health;}
+	int Player::getShield(){return shield;}
+
+	void setHealth();
+	void setShield();
+
+	glm::vec3 Player::getTotalForce(){
+		return totalForce;
+	}

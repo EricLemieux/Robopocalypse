@@ -10,3 +10,11 @@ obj resources\flatLevel.obj
 tex resources\background.jpg
 pos 0 0 -50
 load
+obj resources\basicBox.obj
+tex resources\background.jpg
+pos 50 0 -50
+load
+obj resources\basicBox.obj
+tex resources\background.jpg
+pos -50 0 -50
+load

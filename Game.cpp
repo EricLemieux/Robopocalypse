@@ -242,6 +242,12 @@ void Game::drawHUD(){
 
 	glDisable(GL_TEXTURE_2D);
 
+	playerOneCurrentHealth = player1.getHealth();
+	playerOneCurrentSpecial = player1.getShield();
+
+	playerTwoCurrentHealth = player2.getHealth();
+	playerTwoCurrentSpecial = player2.getShield();
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 	GLubyte halftone[] = {
@@ -552,7 +558,7 @@ void Game::update()
 { 
 	//controller input
 	checkLeftJoystick(0, player1);
-    //checkLeftJoystick(1, player2); 
+    checkLeftJoystick(1, player2); 
 
 	//Assets emptyList;
 	//player1.update(assetList, 0,t);

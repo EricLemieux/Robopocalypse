@@ -79,6 +79,16 @@ public:
 	void setVelY();
 	void setVelZ();
 
+	//health and shield
+	int getHealth();
+	int getShield();
+
+	void setHealth();
+	void setShield();
+
+	//force
+	glm::vec3 getTotalForce();
+
 	//Collision boxes for different attacks
 	collisionObjects attackFist;
 	collisionObjects attackKick;
@@ -92,6 +102,7 @@ private:
 
 	//glm::vec3 position;
 	glm::vec3 position;
+	glm::vec3 prevpos;
 	glm::vec3 rotation;
 	//glm::vec3 velocity;
 	glm::vec3 velocity;
@@ -99,6 +110,7 @@ private:
 	glm::vec3 acceleration;
 	glm::vec3 totalForce;
 	//force from collision with another player/attack
+	glm::vec3 pushForce;
 	glm::vec3 impactForce;
 	//gravity
 	glm::vec3 gravityForce;
@@ -106,7 +118,7 @@ private:
 	glm::vec3 resistanceForce;
 	glm::vec3 jumpForce;
 
-	float xEnergy;
+	
 	
 	//check for is moving, used to reset movement if button isn't held
 	int isMoving;
@@ -117,6 +129,12 @@ private:
 	int currentAction;
 	//tracking for double jumps
 	int jumpCount;
+	//getting hit
+	int stunCooldown;
+	int wasHit;
+	int invincibleFrames;
+	//for bodybody collision
+	int bodyTobody;
 
 	//booster cooldown for dashing/jumping
 	int boosterCooldown;
@@ -130,10 +148,23 @@ private:
 	
 	int isBlocking;
 
+	//booleans for the players collision with the level geometry
+	//On the Y axis
+	bool hitFloor;
+	bool hitCeiling;
+
+	//On the X axis
+	bool hitWall;
+
 	//particle manager
 	ParticleManager particlemanager;
 
-	void checkOtherPlayerAttacks(Player &otherPlayer);
+	void checkOtherPlayer(Player &otherPlayer);
+	//left is -1, right is 1
+	int faceDirection;
+
+	int health;
+	int shield;
 
 };
 
