@@ -27,11 +27,11 @@ Game::Game(float fps)
 
 	// special stuff
 	playerOneSpecialDecayTimer = 0.0f;
-	playerOneCurrentSpecial = 100.0f;
+	playerOneCurrentSpecial = 50.0f;
 	playerOneLastSpecial = playerOneCurrentSpecial;
 
 	playerTwoLastSpecial = 0.0f;
-	playerTwoCurrentSpecial = 100.0f;
+	playerTwoCurrentSpecial = 50.0f;
 	playerTwoLastSpecial = playerTwoCurrentSpecial;
 
 	healthCountdown = false;
@@ -335,7 +335,7 @@ void Game::drawHUD(){
 
 	// Sets the borders based on health
 	temp1 = -0.127f;
-	temp2 = temp1 - 0.723f*(playerOneCurrentSpecial/100);
+	temp2 = temp1 - 0.723f*(playerOneCurrentSpecial/50);
 
 	glColor3f(0.0, 0.0, 1.0);
 
@@ -352,7 +352,7 @@ void Game::drawHUD(){
 		glVertex3f(temp1, -0.2f, -1.f);
 	glEnd();
 
-	temp2 = temp1 - 0.723f*(playerOneLastSpecial/100);
+	temp2 = temp1 - 0.723f*(playerOneLastSpecial/50);
 
 	glColor3f(0.0, 1.0, 1.0);
 
@@ -425,7 +425,7 @@ void Game::drawHUD(){
 
 	// Sets the borders based on health
 	temp1 = 0.127f;
-	temp2 = temp1 + 0.723f*(playerTwoCurrentSpecial/100);
+	temp2 = temp1 + 0.723f*(playerTwoCurrentSpecial/50);
 
 	glColor3f(0.0, 0.0, 1.0);
 
@@ -442,7 +442,7 @@ void Game::drawHUD(){
 		glVertex3f(temp1, -0.2f, -1.f);
 	glEnd();
 
-	temp2 = temp1 + 0.723f*(playerTwoLastSpecial/100);
+	temp2 = temp1 + 0.723f*(playerTwoLastSpecial/50);
 
 	glColor3f(0.0, 1.0, 1.0);
 
@@ -556,6 +556,20 @@ void Game::healthManagement(float dt)
 //UPDATE gamestate
 void Game::update()
 { 
+	//Check to see if a player has won the game
+	if(player1.getHealth() <= 0)
+	{
+		//player 2 wins
+		//exit(92);
+		player1.Death();
+	}
+	else if(player2.getHealth() <= 0)
+	{
+		//player 1 wins
+		//exit(91);
+		player2.Death();		
+	}
+
 	//controller input
 	checkLeftJoystick(0, player1);
     checkLeftJoystick(1, player2); 
@@ -626,6 +640,10 @@ void drawCube()
 
 void drawPlayerBoundingBoxes(Player &tempPlayer)
 {
+	//Reset colour
+	glColor4f(1, 1, 1, 1);
+	glDisable(GL_TEXTURE_2D);
+
 	//Draw the main player bounding box
 	glPushMatrix();
 	glTranslatef(tempPlayer.getPos().x, tempPlayer.getPos().y, tempPlayer.getPos().z);
@@ -634,7 +652,7 @@ void drawPlayerBoundingBoxes(Player &tempPlayer)
 	glPopMatrix();
 
 	//Draw the attack's bounding box
-	glColor3f(1,1,1);
+	glColor3f(1,0,0);
 
 	//Drawing punch
 	glPushMatrix();
@@ -657,8 +675,16 @@ void drawPlayerBoundingBoxes(Player &tempPlayer)
 	drawCube();
 	glPopMatrix();
 
+	//draw block field
+	glPushMatrix();
+	glTranslatef(tempPlayer.blockBox.getPos().x, tempPlayer.blockBox.getPos().y, tempPlayer.blockBox.getPos().z);
+	glScalef(tempPlayer.blockBox.getSize().x/2, tempPlayer.blockBox.getSize().y/2, tempPlayer.blockBox.getSize().z/2);
+	drawCube();
+	glPopMatrix();
+
 	//Reset colour
-	glColor3f(1,0,0);
+	glColor4f(1, 1, 1, 1);
+	glDisable(GL_TEXTURE_2D);
 }
 
 //Draw the hitboxes for everything
@@ -692,4 +718,8 @@ extern void drawHitboxes(Player &p1, Player &p2, Assets &assets)
 	//glEnd();
 	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 	//glPopMatrix();
+
+	//Reset colour
+	glColor4f(1, 1, 1, 1);
+	glDisable(GL_TEXTURE_2D);
 }

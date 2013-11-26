@@ -26,7 +26,7 @@ inline float random(float min,float max)
 		max = min;
 		min = temp;
 	}
-	if(int(max - min)==0)
+	if(int(max - min) == 0)
 		return 0;
 	return float(rand() % int(max - min) + min);
 }

@@ -80,6 +80,8 @@ void ParticleEmitter::update(float dt)
 //	-Add textures
 void ParticleEmitter::draw(void)
 {
+	glColor4f(1, 1, 1, 1);
+	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_CULL_FACE);
 	glPushMatrix();
 	glBegin(GL_QUADS);

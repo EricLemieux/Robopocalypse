@@ -1,20 +1,39 @@
 obj resources\dammitMaya.obj
 tex resources\mailbox.jpg
-pos -25 20 -50
+pos -75 20 -50
 load
 obj resources\dammitMaya.obj
 tex resources\ibrs.jpg
-pos 25 20 -50
+pos 75 20 -50
 load
 obj resources\flatLevel.obj
-tex resources\background.jpg
-pos 0 0 -50
+tex resources\groundTexture.jpg
+pos 0 -30 -50
+load
+
+obj resources\tallBox.obj
+tex resources\testTexture.png
+pos 100 20 -50
 load
 obj resources\basicBox.obj
-tex resources\background.jpg
-pos 50 0 -50
+tex resources\testTexture.png
+pos -100 -20 -50
 load
+
+
 obj resources\basicBox.obj
-tex resources\background.jpg
-pos -50 0 -50
+tex resources\testTexture.png
+pos -100 0 -50
+load
+h
+
+obj resources\basicBox.obj
+tex resources\testTexture.png
+pos -100 20 -50
+load
+
+
+obj resources\basicBox.obj
+tex resources\testTexture.png
+pos -100 40 -50
 load

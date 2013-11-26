@@ -35,18 +35,22 @@ Player::Player(OBJModel object){
 	jumpCount = 0;
 
 	//init attack collision boxes
-	attackFist.setPos(glm::vec3(0,0,50));
+	attackFist.setPos(glm::vec3(0,0,500));
 	attackFist.setSize(glm::vec3(1,1,1));
 
-	attackKick.setPos(glm::vec3(0,0,50));
+	attackKick.setPos(glm::vec3(0,0,500));
 	attackKick.setSize(glm::vec3(1,1,1));
 
-	attackRange.setPos(glm::vec3(0,0,50));
+	attackRange.setPos(glm::vec3(0,0,500));
 	attackRange.setSize(glm::vec3(1,1,1));
 
-	attackStartPos = glm::vec3(0,0,50);
+	blockBox.setPos(glm::vec3(0,0,500));
+	blockBox.setSize(object.getHitBox().getSize().x+1,object.getHitBox().getSize().y+1,object.getHitBox().getSize().z+1);
+
+	attackStartPos = glm::vec3(0,0,500);
 	
 	isAttacking = 0;
+	isKicking = 0;
 	onCooldown = 0;
 	dt = 0.f;
 	tInterval = 0.f;
@@ -67,7 +71,7 @@ Player::Player(OBJModel object){
 	hitWall		= false;
 
 	health = 100;
-	shield = 100;
+	shield = 50;
 }
 
 Player::~Player(){}
@@ -106,49 +110,18 @@ void Player::update(Assets &assets, int playerIDNum,float t, Player &otherPlayer
 	{
 		tempBoundBoxes.push_back(assets.objects[i].getHitBox());
 	}
+	floorPos = tempBoundBoxes[0].getPos().y;
+	leftWallPos = tempBoundBoxes[1].getPos().x;
+	rightWallPos = tempBoundBoxes[2].getPos().x;
+	floorSize = tempBoundBoxes[0].getSize().y;
+	leftWallSize = tempBoundBoxes[1].getSize().x;
+	rightWallSize = tempBoundBoxes[2].getSize().x;
 
 	bool hitAnything = false;
 	int whatHit;
 
 	
-	if(isAttacking == 6){
-		if(dt<1){
-			dt += tInterval;
-			if(faceDirection == 1){
-				attackFist.setPos(position.x+8,position.y+3.5,position.z);
-				attackStartPos = attackFist.getPos();
-				attackFist.setPos(LERP(attackStartPos,glm::vec3(attackStartPos.x+10,attackStartPos.y,attackStartPos.z),dt));
-			} else if (faceDirection == -1){
-				attackFist.setPos(position.x-8,position.y+3.5,position.z);
-				attackStartPos = attackFist.getPos();
-				attackFist.setPos(LERP(attackStartPos,glm::vec3(attackStartPos.x-10,attackStartPos.y,attackStartPos.z),dt));
-			}
-		} else {
-			isAttacking = 0;
-			dt = 0.f;
-			tInterval = 0.f;
-			attackFist.setPos(0,0,50);
-		}
-	}
-	if(isAttacking == 8){
-		if(dt<1){
-			dt += tInterval;
-			if(faceDirection == 1){
-				attackKick.setPos(position.x+8,position.y-3.5,position.z);
-				attackStartPos = attackKick.getPos();
-				attackKick.setPos(LERP(attackStartPos,glm::vec3(attackStartPos.x+10,attackStartPos.y+5,attackStartPos.z),dt));
-			} else if (faceDirection == -1){
-				attackKick.setPos(position.x-8,position.y-3.5,position.z);
-				attackStartPos = attackKick.getPos();
-				attackKick.setPos(LERP(attackStartPos,glm::vec3(attackStartPos.x-10,attackStartPos.y+5,attackStartPos.z),dt));
-			}
-		} else {
-			isAttacking = 0;
-			dt = 0.f;
-			tInterval = 0.f;
-			attackKick.setPos(0,0,50);
-		}
-	}
+	
 
 
 	if(onCooldown > 0){
@@ -156,6 +129,9 @@ void Player::update(Assets &assets, int playerIDNum,float t, Player &otherPlayer
 	}
 	if(isBlocking > 0){
 		--isBlocking;
+		blockBox.setPos(position);
+	} else {
+		blockBox.setPos(0,0,500);
 	}
 	if(boosterCooldown > 0){
 		--boosterCooldown;
@@ -178,7 +154,7 @@ void Player::update(Assets &assets, int playerIDNum,float t, Player &otherPlayer
 	//Loop through all collision boxes to see if anything hit on the 
 	for(unsigned int i = 0; i < tempBoundBoxes.size(); ++i)
 	{
-		if(isBoxBoxColliding(this->position + this->velocity * t, this->playerObject.getHitBox().getSize(), tempBoundBoxes[i].getPos(), tempBoundBoxes[i].getSize()))
+		if(isBoxBoxColliding(this->position + this->velocity * t, this->playerObject.getHitBox().getSize() * glm::vec3(1.0f, 0.0f, 0.0f), tempBoundBoxes[i].getPos(), tempBoundBoxes[i].getSize()))
 		{
 			if(velocity.x >10.0f || velocity.x < -10.0f)
 			{
@@ -200,7 +176,7 @@ void Player::update(Assets &assets, int playerIDNum,float t, Player &otherPlayer
 		bool hitBuffer = false;
 		for(unsigned int i = 0; i < tempBoundBoxes.size(); ++i)
 		{
-			if(isBoxBoxColliding(this->playerObject.getHitBox().getPos() + this->velocity * t, this->playerObject.getHitBox().getSize() * glm::vec3(1.1f,0.1f,0.1f), tempBoundBoxes[i].getPos(), tempBoundBoxes[i].getSize()))
+			if(isBoxBoxColliding(this->playerObject.getHitBox().getPos() + this->velocity * t, this->playerObject.getHitBox().getSize() * glm::vec3(1.1f,0.0f,0.0f), tempBoundBoxes[i].getPos(), tempBoundBoxes[i].getSize()))
 			{
 				hitBuffer = true;
 			}
@@ -225,7 +201,7 @@ void Player::update(Assets &assets, int playerIDNum,float t, Player &otherPlayer
 	//Loop through all collision boxes to see if anything hit on the 
 	for(unsigned int i = 0; i < tempBoundBoxes.size(); ++i)
 	{
-		if(isBoxBoxColliding(this->playerObject.getHitBox().getPos() + this->velocity * t, this->playerObject.getHitBox().getSize(), tempBoundBoxes[i].getPos(), tempBoundBoxes[i].getSize()))
+		if(isBoxBoxColliding(this->playerObject.getHitBox().getPos() + this->velocity * t, this->playerObject.getHitBox().getSize() * glm::vec3(0.0f, 1.0f, 0.0f), tempBoundBoxes[i].getPos(), tempBoundBoxes[i].getSize()))
 		{
 			hitAnything = true;
 			whatHit = i;
@@ -241,7 +217,7 @@ void Player::update(Assets &assets, int playerIDNum,float t, Player &otherPlayer
 		bool hitBuffer = false;
 		for(unsigned int i = 0; i < tempBoundBoxes.size(); ++i)
 		{
-			if(isBoxBoxColliding(this->playerObject.getHitBox().getPos() + this->velocity * t, this->playerObject.getHitBox().getSize() * glm::vec3(0.1f,1.1f,0.1f), tempBoundBoxes[i].getPos(), tempBoundBoxes[i].getSize()))
+			if(isBoxBoxColliding(this->playerObject.getHitBox().getPos() + this->velocity * t, this->playerObject.getHitBox().getSize() * glm::vec3(0.0f,1.1f,0.0f), tempBoundBoxes[i].getPos(), tempBoundBoxes[i].getSize()))
 			{
 				hitBuffer = true;
 			}
@@ -256,14 +232,81 @@ void Player::update(Assets &assets, int playerIDNum,float t, Player &otherPlayer
 		}
 	}
 
+	if(isAttacking == 6){
+		if(!hitWall){
+			if(dt<1){
+				dt += tInterval;
+				if(faceDirection == 1){
+					velocity.x = 75.f;
+					attackFist.setPos(position.x+8,position.y+3.5,position.z);
+					attackStartPos = attackFist.getPos();
+					attackFist.setPos(LERP(attackStartPos,glm::vec3(attackStartPos.x+10,attackStartPos.y,attackStartPos.z),dt));
+				} else if (faceDirection == -1){
+					velocity.x = -75.f;
+					attackFist.setPos(position.x-8,position.y+3.5,position.z);
+					attackStartPos = attackFist.getPos();
+					attackFist.setPos(LERP(attackStartPos,glm::vec3(attackStartPos.x-10,attackStartPos.y,attackStartPos.z),dt));
+				}
+			} else {
+				isAttacking = 0;
+				dt = 0.f;
+				tInterval = 0.f;
+				attackFist.setPos(0,0,500);
+			}
+		} else {
+			isAttacking = 0;
+			dt = 0.f;
+			tInterval = 0.f;
+			attackFist.setPos(0,0,500);
+		}
+	}
+	if(isAttacking == 8){
+		if(!hitWall){
+			if(dt<1){
+				dt += tInterval;
+				if(faceDirection == 1){
+					velocity.x = 75.f;
+					attackKick.setPos(position.x+8,position.y-3.5,position.z);
+					attackStartPos = attackKick.getPos();
+					attackKick.setPos(LERP(attackStartPos,glm::vec3(attackStartPos.x+10,attackStartPos.y+5,attackStartPos.z),dt));
+				} else if (faceDirection == -1){
+					velocity.x = -75.f;
+					attackKick.setPos(position.x-8,position.y-3.5,position.z);
+					attackStartPos = attackKick.getPos();
+					attackKick.setPos(LERP(attackStartPos,glm::vec3(attackStartPos.x-10,attackStartPos.y+5,attackStartPos.z),dt));
+				}
+				if(hitFloor){
+					isKicking += 1;
+				} else {
+					if(isKicking == 1)
+					velocity.y=-75.f;
+					
+					
+				}
+			} else {
+				isAttacking = 0;
+				dt = 0.f;
+				tInterval = 0.f;
+				attackKick.setPos(0,0,500);
+				isKicking = 0;
+			}
+		} else {
+			isAttacking = 0;
+			dt = 0.f;
+			tInterval = 0.f;
+			attackKick.setPos(0,0,500);
+			isKicking = 0;
+		}
+	}
+
 	this->updatePos(t);
 
-	if(this->getPosY() < 0){
- 		position.y = 0;
-		this->stopVelY();
-		jumpCount = 0;
-		gravityForce = glm::vec3(0,-1000,0);
-	}
+	//if(this->getPosY() < 0){
+ 	//	position.y = 0;
+	//	this->stopVelY();
+	//	jumpCount = 0;
+	//	gravityForce = glm::vec3(0,-1000,0);
+	//}
 
 	//update object and hitbox
 	playerObject.setPos(position.x,position.y,position.z);
@@ -273,12 +316,14 @@ void Player::update(Assets &assets, int playerIDNum,float t, Player &otherPlayer
 void Player::checkOtherPlayer(Player &otherPlayer)
 {
 	//check to see which way should be facing
-	if(position.x < otherPlayer.getPosX()){
-		faceDirection = 1;
-	} else if(position.x > otherPlayer.getPosX()) {
-		faceDirection = -1;
-	} else {
-		faceDirection = 0;
+	if(isAttacking == 0){
+		if(position.x < otherPlayer.getPosX()){
+			faceDirection = 1;
+		} else if(position.x > otherPlayer.getPosX()) {
+			faceDirection = -1;
+		} else {
+			faceDirection = 0;
+		}
 	}
 	bodyTobody = 0;
 	if(invincibleFrames == 0){
@@ -287,12 +332,13 @@ void Player::checkOtherPlayer(Player &otherPlayer)
 		{
 			//Player is getting punched
 			//TODO
-			if(health > 0)
-				health -= 10;
-			if(shield > 10)
-				shield -= 20;
-			else if (shield > 0)
-				shield-=10;
+			if((isBlocking > 0) && (shield != 0)){
+				if(shield > 0)
+					shield -= 10;
+			} else {
+				if(health > 0)
+					health -= 10;
+			}
 			stunCooldown = 10;
 			invincibleFrames = 10;
 			wasHit = 2;
@@ -308,22 +354,25 @@ void Player::checkOtherPlayer(Player &otherPlayer)
 		{
 			//Player is getting kicked
 			//TODO
-			if(health > 10)
-				health -= 20;
-			else if (health > 0)
-				health-=10;
-			if(shield > 10)
-				shield -= 20;
-			else if (shield > 0)
-				shield-=10;
+			if((isBlocking > 0)&&(shield != 0)){
+				if(shield > 10)
+					shield -= 20;
+				else if (shield > 0)
+					shield-=10;
+			} else {
+				if(health > 10)
+					health -= 20;
+				else if (health > 0)
+					health-=10;
+			}
 			jumpCount = 1;
 			stunCooldown = 30;
 			invincibleFrames = 20;
 			wasHit = 2;
 			if(faceDirection == 1){
-				impactForce = glm::vec3(-30000,10000,0);
+				impactForce = glm::vec3(-40000,80000,0);
 			} else if(faceDirection == -1) {
-				impactForce = glm::vec3(30000,10000,0);
+				impactForce = glm::vec3(40000,80000,0);
 			}
 		}
 
@@ -342,15 +391,15 @@ void Player::checkOtherPlayer(Player &otherPlayer)
 		//bodyTobody = 1;
 		//position = prevpos;
 		
-		if((faceDirection == 1)&&(position.y < otherPlayer.getPosY()+ (otherPlayer.getObject().getHitBox().getSize().y/2))&&(position.y > otherPlayer.getPosY()-(otherPlayer.getObject().getHitBox().getSize().y/2))){
-			position.x = otherPlayer.getObject().getHitBox().getPos().x- (otherPlayer.getObject().getHitBox().getSize().x/2)- (playerObject.getHitBox().getSize().x/2);
-			bodyTobody = 2;
-			pushForce = glm::vec3(0.5f*otherPlayer.getVelX()*otherPlayer.getVelX(),0,0);
-		} else if ((faceDirection == -1)&&(position.y < otherPlayer.getPosY()+(otherPlayer.getObject().getHitBox().getSize().y/2))&&(position.y > otherPlayer.getPosY()-(otherPlayer.getObject().getHitBox().getSize().y/2))){
-			position.x = otherPlayer.getObject().getHitBox().getPos().x+ (otherPlayer.getObject().getHitBox().getSize().x/2)+ (playerObject.getHitBox().getSize().x/2);
-			bodyTobody = 2;
-			pushForce = glm::vec3(0.5f*otherPlayer.getVelX()*otherPlayer.getVelX(),0,0);
-		} 
+		//if((faceDirection == 1)&&(position.y < otherPlayer.getPosY()+ (otherPlayer.getObject().getHitBox().getSize().y/2))&&(position.y > otherPlayer.getPosY()-(otherPlayer.getObject().getHitBox().getSize().y/2))){
+		//	position.x = otherPlayer.getObject().getHitBox().getPos().x- (otherPlayer.getObject().getHitBox().getSize().x/2)- (playerObject.getHitBox().getSize().x/2);
+		//	bodyTobody = 2;
+		//	pushForce = glm::vec3(0.5f*otherPlayer.getVelX()*otherPlayer.getVelX(),0,0);
+		//} else if ((faceDirection == -1)&&(position.y < otherPlayer.getPosY()+(otherPlayer.getObject().getHitBox().getSize().y/2))&&(position.y > otherPlayer.getPosY()-(otherPlayer.getObject().getHitBox().getSize().y/2))){
+		//	position.x = otherPlayer.getObject().getHitBox().getPos().x+ (otherPlayer.getObject().getHitBox().getSize().x/2)+ (playerObject.getHitBox().getSize().x/2);
+		//	bodyTobody = 2;
+		//	pushForce = glm::vec3(0.5f*otherPlayer.getVelX()*otherPlayer.getVelX(),0,0);
+		//} 
 		
 		//else if (position.y-playerObject.getHitBox().getSize().y/2 < otherPlayer.getPosY()+otherPlayer.getObject().getHitBox().getSize().y/2){
 		//	position.y = otherPlayer.getObject().getHitBox().getPos().y- (otherPlayer.getObject().getHitBox().getSize().y/2)- (playerObject.getHitBox().getSize().y/2);
@@ -407,8 +456,10 @@ void Player::updatePos(float t){
 	}
 
 	totalForce = impactForce + gravityForce + moveForce + resistanceForce + jumpForce + pushForce;
+	
 	if(!hitFloor)
 	{
+		jumpCount = 1;
 		acceleration.y = t*totalForce.y;
 		velocity.y += t*acceleration.y;
 		position.y += t*velocity.y + 0.5f*acceleration.y*t*t;
@@ -416,12 +467,24 @@ void Player::updatePos(float t){
 	else if(hitFloor)
 	{
 		
-		position.y		= position.y - t*velocity.y - 0.5f*acceleration.y*t*t;
+		//position.y		= position.y - t*velocity.y - 0.5f*acceleration.y*t*t;
+		//hack, gross
+		position.y = floorPos + (floorSize/2) + (playerObject.getHitBox().getSize().y/2);
 
 		gravityForce.y	= 0.0f;
 		//totalForce.y	= 0.0f;
 		acceleration.y	= 0.0f;
-		velocity.y		= 0.0f;
+		if(isKicking == 1)
+			isKicking = 0;
+		if(isKicking == 0)
+			velocity.y	= 0.0f;
+		else if (isKicking > 1)
+			velocity.y = 75.f;
+		if(jumpCount > 0){
+			acceleration.y = t*totalForce.y;
+			velocity.y += t*acceleration.y;
+			position.y += t*velocity.y + 0.5f*acceleration.y*t*t;
+		}
 		
 		jumpCount		= 0;
 	}
@@ -435,6 +498,12 @@ void Player::updatePos(float t){
 	else if(hitWall)
 	{
 		position.x = position.x - t*velocity.x - 0.5f*acceleration.x*t*t;
+		//hackhackhack
+		//if(position.x < 0){
+		//	position.x = leftWallPos+(leftWallSize/2)+(playerObject.getHitBox().getSize().x/2);
+		//} else {
+		//	position.x = rightWallPos-(rightWallSize/2)-(playerObject.getHitBox().getSize().x/2);
+		//}
 
 		totalForce.x	= impactForce.x = gravityForce.x = moveForce.x = resistanceForce.x = jumpForce.x = 0.0f;
 		//totalForce.x = 0.0f;
@@ -591,7 +660,7 @@ void Player::moveAction(int numAction){
 
         newemitter.initialise();
         particlemanager.addEmmiter(newemitter);
-		moveForce = glm::vec3(200000,0,0);
+		moveForce = glm::vec3(150000,0,0);
 	} else if (numAction == 4){
 		boosterCooldown = 60;
 		ParticleEmitter newemitter;
@@ -625,7 +694,7 @@ void Player::moveAction(int numAction){
 		
 		newemitter.initialise();
 		particlemanager.addEmmiter(newemitter);
-		moveForce = glm::vec3(-200000,0,0);
+		moveForce = glm::vec3(-150000,0,0);
 	} else if (numAction == 5){
 		if(jumpCount == 0){
 			jumpCooldown = 60;
@@ -680,15 +749,43 @@ void Player::attackAction(int numAction){
         attackKick.setPos(position.x+8,position.y-3.5,position.z);
         attackStartPos = attackKick.getPos();
         onCooldown = 40;
+		isKicking = 1;
+
     }
 }
 
 void Player::blockAction(int numAction){
     isBlocking = 20;
     onCooldown = 30;
+	blockBox.setPos(position);
 }
 
+void Player::Death()
+{
+	ParticleEmitter deathEmitter;
 
+	deathEmitter.setNumOfParticles(20);
+
+	Range lifeRange;
+	lifeRange = Range(0,5);
+	deathEmitter.setLifeRange(lifeRange);
+
+	Range posRange[3];
+	posRange[0] = Range(position.x-1,position.x+1);
+	posRange[1] = Range(position.y-1,position.y+1);
+	posRange[2] = Range(position.z-1,position.z+1);
+	deathEmitter.setPosRange(posRange);
+
+	Range clrRange[3];
+	clrRange[0] = Range(200,250);
+	clrRange[1] = Range(0,250);
+	clrRange[2] = Range(0,250);
+	deathEmitter.setColourRange(clrRange);
+
+	deathEmitter.initialise();
+
+	particlemanager.addEmmiter(deathEmitter);
+}
 
 //getters and setters
 

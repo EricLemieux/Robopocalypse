@@ -86,6 +86,8 @@ public:
 	void setHealth();
 	void setShield();
 
+	void Death();
+
 	//force
 	glm::vec3 getTotalForce();
 
@@ -93,12 +95,21 @@ public:
 	collisionObjects attackFist;
 	collisionObjects attackKick;
 	collisionObjects attackRange;
+	collisionObjects blockBox;
 
 
 private:
 	OBJModel playerObject;
 	//collisionObjects playerHitBox;
 	int input;
+
+	//hackyshit get rid of this asap
+	float floorPos;
+	float leftWallPos;
+	float rightWallPos;
+	float floorSize;
+	float leftWallSize;
+	float rightWallSize;
 
 	//glm::vec3 position;
 	glm::vec3 position;
@@ -141,6 +152,7 @@ private:
 	int jumpCooldown;
 	
 	int isAttacking;
+	int isKicking;
 	glm::vec3 attackStartPos;
 	float dt;
 	//using this for temp speed control, put actual speed control later
