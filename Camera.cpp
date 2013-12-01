@@ -28,16 +28,39 @@ void Camera::setFocus(Player player1, Player player2){
 
 	playerToCenter = sqrt(pow(player1.getPosX() - playerCenter.x,2)+pow(player1.getPosY() - playerCenter.y,2)+pow(player1.getPosZ() - playerCenter.z,2));
 
+	camPos.x = targetPos.x = playerCenter.x;
+	camPos.y = targetPos.y = 10;
 	camPos.z = 1.2f * playerToCenter * tanf(PI/5);
+}
+
+void Camera::setFocus(Player player1)
+{
+	//Camera is looking at the player
+	targetPos = player1.getPos();
+	
+	//Update the camera's position
+	camPos.x = player1.getPos().x + 10 * player1.getFaceDirection();
+	camPos.y = player1.getPos().y + 1;
+	camPos.z = player1.getPos().z;
+}
+
+void Camera::setFocus(glm::vec3 pos1, glm::vec3 pos2, float dt, float maxT)
+{
+	//Set the target
+	targetPos	 = (pos1 + pos2)/glm::vec3(2,2,2);
+	targetPos.z -= 30.0f;
+
+
+	//Set the position
+	dt *= 1/maxT;
+	camPos = LERP(pos1,pos2,dt);
 }
 
 void Camera::update(){
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(90.f,1.f,1.f,1000.f);
-	gluLookAt(playerCenter.x,camPos.y,camPos.z,playerCenter.x,targetPos.y,targetPos.z,orientation.x,orientation.y,orientation.z);
-	//gluLookAt(0,0,0,0,0,-20,0,1,0);
-
+	gluLookAt(camPos.x, camPos.y, camPos.z, targetPos.x, targetPos.y, targetPos.z, orientation.x, orientation.y, orientation.z);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 }

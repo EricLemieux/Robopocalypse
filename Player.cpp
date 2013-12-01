@@ -520,7 +520,7 @@ void Player::draw(){
 	
 	particlemanager.update(1.f);
 	particlemanager.draw();
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	glPushMatrix();
 
@@ -781,6 +781,12 @@ void Player::Death()
 	clrRange[1] = Range(0,250);
 	clrRange[2] = Range(0,250);
 	deathEmitter.setColourRange(clrRange);
+
+	Range aclRange[3];
+	aclRange[0] = Range(-1,1);
+	aclRange[1] = Range(-1,1);
+	aclRange[2] = Range(-1,1);
+	deathEmitter.setAcelRange(aclRange);
 
 	deathEmitter.initialise();
 

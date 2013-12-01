@@ -50,12 +50,18 @@ class Game
 	Game(float fps);
 	~Game(void);
 
+	int gameState;
+
 	//Initialize
+	void initializeWindow();
 	void initializeGame();
+	void initializeMainMenu();
 
 	void gameLoop();
 
 	void gameEvent();
+
+	void mainMenuLoop();
 
 
 		/* convenience functions */
@@ -114,6 +120,9 @@ class Game
 
 	InputInfo input;
 
+	float gameTime;
+	bool cutsceneTest; //TEMP variable delete
+
 
 	sf::ContextSettings contextSettings;
 	sf::RenderWindow window;
@@ -124,12 +133,17 @@ class Game
 
 	//Should the game draw the hitboxes?
     bool shouldDrawHitboxes;
+
+	//Should the HUD be drawn?
+	bool shouldDrawHUD;
 	
 	//Drawing obj
 	std::vector<glm::vec3> vertices;
 	std::vector<sf::Vector2f> uvs;
 	std::vector<glm::vec3> normals;
 
+	//In the main menu what item is selected
+	int mainMenuSelection;
 
 	sf::Mouse mouse;
 
@@ -176,7 +190,10 @@ class Game
 	bool healthCountdown;
 
 	GLuint hudTex;
+	GLuint mainMenuTex;
 };
 
 //extern void drawHitboxes(std::vector<collisionObjects>  objects);
 extern void drawHitboxes(Player &p1, Player &p2, Assets &assets);
+
+extern void drawSquare(glm::vec3 pos, glm::vec3 size);

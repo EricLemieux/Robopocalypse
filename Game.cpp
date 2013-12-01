@@ -4,9 +4,11 @@
 /* constructor */
 Game::Game(float fps)
 {
+	gameState = STATE_MAINMENU;
+
 	/* init state */
-	stateInfo.gameState = STATE_GAMEPLAY;
-	stateInfo.FPS=fps;
+	//stateInfo.gameState = STATE_GAMEPLAY;
+	//stateInfo.FPS=fps;
 
 	yspeed = 0.0f;
 	zstep = 0.0f;
@@ -57,13 +59,7 @@ Game::~Game(void)
 	/* deallocate memory and clean up here. if needed */
 }
 
-/* 
- * initializeGame()
- * - this function is called in the constructor to initialize everything related
- *   to the game, i..e loading sprites etc.
- * - MUST be called prior to any drawing/updating (you should add in checks to ensure this occurs in the right order)
- */
-void Game::initializeGame()
+void Game::initializeWindow()
 {
 	// Request a 32-bits depth buffer when creating the window
     contextSettings.depthBits = 32;
@@ -76,8 +72,17 @@ void Game::initializeGame()
 
 	// Make it the active window for OpenGL calls
     window.setActive();
+}
 
-
+/* 
+ * initializeGame()
+ * - this function is called in the constructor to initialize everything related
+ *   to the game, i..e loading sprites etc.
+ * - MUST be called prior to any drawing/updating (you should add in checks to ensure this occurs in the right order)
+ */
+void Game::initializeGame()
+{
+	assetList.objects.clear();
 	assetList.LoadAssets("assets.txt");
 
 	//add object to player
@@ -111,19 +116,99 @@ void Game::initializeGame()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	
+	//Disable the HUD until the cutscene is done
+	shouldDrawHUD = false;
+
+	//TEMP
+	//TODO DELETE
+	cutsceneTest = false;
+	gameTime = 0.0f;
 	
+}
+
+void Game::initializeMainMenu()
+{
+	mainMenuSelection = 0;
+
+	glClearDepth(1.f);
+	glClearColor(0.0f, 0.5f,0.5f,1.0f);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_LINEAR_MIPMAP_LINEAR);
+	glDepthFunc(GL_LESS);
 	
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	//gluPerspective(90.0f, float(window.getSize().x)/float(window.getSize().y),2.f,2000.f);
+	gluOrtho2D(0,window.getSize().x,0,window.getSize().y);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	
+	sf::Image mainmenuImageMap;
+	if(!mainmenuImageMap.loadFromFile("resources/mainMenu.jpg")){
+		std::cout<<"error loading main menu texture Game.cpp in void Game::initializeGame();\n";
+	};
+	glGenTextures(1,&mainMenuTex);
+	glBindTexture(GL_TEXTURE_2D,mainMenuTex);
+	gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, mainmenuImageMap.getSize().x, mainmenuImageMap.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, mainmenuImageMap.getPixelsPtr());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 }
 
 void Game::gameLoop()
 {
-	while(window.isOpen()){
-		
-		gameEvent();
-		update();
-		draw();
-		
+	gameEvent();
+	update();
+	draw();
+
+	if(!cutsceneTest)
+		cutsceneTest = true;
+}
+
+void Game::mainMenuLoop()
+{
+	////Event loop
+	gameEvent();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glDisableClientState(GL_COLOR_ARRAY);
+
+	glViewport(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);
+	glEnable(GL_TEXTURE_2D);
+	
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(90.0f, 1400/800, 1, 1000);
+	gluLookAt(0,0,0,
+			0,0,-50,
+			0,1,0);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	//Draw the background
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, mainMenuTex);
+	drawSquare(glm::vec3(0,0,0.5), glm::vec3(100,100,100));
+	glDisable(GL_TEXTURE_2D);
+
+	//Draw the selection
+	glm::vec3 pos;
+	glColor4f(1,1,0,0);
+	if(mainMenuSelection == 0)
+	{
+		pos = glm::vec3(6.8, -4.5, -9);
 	}
+	else if(mainMenuSelection == 1)
+	{
+		pos = glm::vec3(-6.8, -4.5, -9);
+	}
+	drawSquare(pos, glm::vec3(1.1,2.2,0));
+	glColor4f(1,1,1,1);
+
+	window.display();
 }
 
 void Game::gameEvent(){
@@ -131,21 +216,6 @@ void Game::gameEvent(){
 		// Process events
         while (window.pollEvent(event))
         {
-            // Close window : exit
-            if (event.type == sf::Event::Closed)
-                window.close();
-
-            // Escape key : exit
-            if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Escape))
-                window.close();
-
-            // Adjust the viewport when the window is resized
-            if (event.type == sf::Event::Resized)
-
-				glViewport(0, 0, event.size.width, event.size.height);
-                
-					while(window.pollEvent(event)){
-
 			//close window if event returns closed
 			if(event.type == sf::Event::Closed || sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) || sf::Joystick::isButtonPressed(0,6)){
 				window.close();
@@ -153,11 +223,65 @@ void Game::gameEvent(){
 				glViewport(0,0,event.size.width, event.size.height);
 			}
 
-			if ((event.type == sf::Event::MouseButtonPressed)&&(event.mouseButton.button == mouse.Left)){  //TODO MOUSE
+			//if ((event.type == sf::Event::MouseButtonPressed)&&(event.mouseButton.button == mouse.Left)){  //TODO MOUSE
+			//
+			//}
 
+			if(gameState == STATE_MAINMENU)
+			{
+				glm::vec3 mousePos = glm::vec3(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y, 10);
+
+				//Move left and right in the main menu
+				if(sf::Joystick::getAxisPosition(0,sf::Joystick::X) < -40		|| isBoxBoxColliding(glm::vec3(172.5,590,10),glm::vec3(87.5*2,100*2,0), mousePos, glm::vec3(2,2,10)))
+				{
+					if(mainMenuSelection < 1)
+					{
+						mainMenuSelection ++;
+					}
+				}
+				else if(sf::Joystick::getAxisPosition(0,sf::Joystick::X) > 40	|| isBoxBoxColliding(glm::vec3(1220,590,10),glm::vec3(87.5*2,100*2,0), mousePos, glm::vec3(2,2,10)))
+				{
+					if(mainMenuSelection > 0)
+					{
+						mainMenuSelection --;
+					}
+				}
+
+				//Make a selection in the main menu
+				if(sf::Joystick::isButtonPressed(0,0))
+				{
+					if(mainMenuSelection == 0)
+					{
+						exit(100);
+					}
+					else if(mainMenuSelection == 1)
+					{
+						gameState = STATE_GAMEPLAY;
+						initializeGame();
+					}
+				}
+
+				if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
+				{
+					if(isBoxBoxColliding(glm::vec3(172.5,590,10),glm::vec3(87.5*2,100*2,0), mousePos, glm::vec3(2,2,10)))
+					{
+						gameState = STATE_GAMEPLAY;
+						initializeGame();
+					}
+					if(isBoxBoxColliding(glm::vec3(1220,590,10),glm::vec3(87.5*2,100*2,0), mousePos, glm::vec3(2,2,10)))
+					{
+						exit(100);
+					}
+				}
 			}
 
-		}
+			//TEMP
+			//TODO DELETE
+			if(sf::Keyboard::isKeyPressed(sf::Keyboard::P))
+			{
+				cutsceneTest = true;
+			}
+
 		}
 }
 
@@ -179,9 +303,10 @@ void Game::DrawGame()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glDisableClientState(GL_COLOR_ARRAY);
 
-	window.clear();
-
-	drawHUD();
+	if(shouldDrawHUD)
+	{
+		drawHUD();
+	}
 
 	glViewport(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);
 	glEnable(GL_TEXTURE_2D);
@@ -189,15 +314,16 @@ void Game::DrawGame()
 	
 
 	glPushMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(90.f,WINDOW_WIDTH/WINDOW_HEIGHT,1.f,1000.f);
+	//glMatrixMode(GL_PROJECTION);
+	//glLoadIdentity();
+	//gluPerspective(90.f,WINDOW_WIDTH/WINDOW_HEIGHT,1.f,1000.f);
 	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 
-	camera.setFocus(player1, player2);
+	
+	//camera.setFocus(player1, player2);
 	camera.update();
 
 	player1.draw();
@@ -555,21 +681,7 @@ void Game::healthManagement(float dt)
 
 //UPDATE gamestate
 void Game::update()
-{ 
-	//Check to see if a player has won the game
-	if(player1.getHealth() <= 0)
-	{
-		//player 2 wins
-		//exit(92);
-		player1.Death();
-	}
-	else if(player2.getHealth() <= 0)
-	{
-		//player 1 wins
-		//exit(91);
-		player2.Death();		
-	}
-
+{
 	//controller input
 	checkLeftJoystick(0, player1);
     checkLeftJoystick(1, player2); 
@@ -580,19 +692,83 @@ void Game::update()
 	player2.update(assetList, 1,t, player1);
 
 
-	////Update positions of bounding boxes in the asset list
-	//for(unsigned int i = 0; i < assetList.boundingBoxes.size(); ++i)
-	//{
-	//	assetList.boundingBoxes[i].setPos(glm::vec3(assetList.objects[i].getPosX(), assetList.objects[i].getPosY(), assetList.objects[i].getPosZ()));
-	//}
-
-
-
 	//TODO Animations stuff/Interpolation
 	frameTime = clock.getElapsedTime();
 	clock.restart();
 
 	float dt = frameTime.asSeconds();
+
+	//Animate the camera for the cutscenes
+	if(cutsceneTest && gameTime <= 5.0f)
+		gameTime += dt/5;
+
+
+	//Animate the intro cutscene
+	if(player1.getHealth() > 0 && player2.getHealth() > 0)
+	{
+		if(gameTime <= 1.0f)
+		{
+			player1.setStunCooldown(2.0 * 30);
+			player2.setStunCooldown(2.0 * 30);
+			camera.setFocus(glm::vec3(50, 10, 10), glm::vec3(-50, 10, 10), gameTime, 1.0f);
+		}
+		else if(gameTime <= 1.5f)
+		{
+			player1.setStunCooldown(2.0 * 30);
+			player2.setStunCooldown(2.0 * 30);
+			camera.setFocus(player1);
+		}
+		else if(gameTime <= 2.0f)
+		{
+			player1.setStunCooldown(2.0 * 30);
+			player2.setStunCooldown(2.0 * 30);
+			camera.setFocus(player2);
+		}
+		else
+		{
+			camera.setFocus(player1, player2);
+			shouldDrawHUD = true;
+		}
+	}
+
+	//Check to see if a player has won the game
+	if(player1.getHealth() <= 0)
+	{
+		//player 2 wins
+		shouldDrawHUD = false;
+		
+		if(gameTime > 2.0f)
+		{
+			gameTime = 0.0f;
+		}
+		else if(gameTime > 1.7f)
+		{
+			gameState = STATE_MAINMENU;
+			initializeMainMenu();
+		}
+		player1.setStunCooldown(2.0 * 30);
+		player2.setStunCooldown(2.0 * 30);
+		player1.Death();
+		camera.setFocus(camera.getCamPos(), player2.getPos(), gameTime, 1.0f);
+	}
+	else if(player2.getHealth() <= 0)
+	{
+		//player 1 wins
+		shouldDrawHUD = false;
+		if(gameTime > 2.0f)
+		{
+			gameTime = 0.0f;
+		}
+		else if(gameTime > 1.7f)
+		{
+			gameState = STATE_MAINMENU;
+			initializeMainMenu();
+		}
+		player1.setStunCooldown(2.0 * 30);
+		player2.setStunCooldown(2.0 * 30);
+		player2.Death();
+		camera.setFocus(camera.getCamPos(), glm::vec3(player1.getPos().x, player1.getPos().y, player1.getPos().z + 10), gameTime, 1.0f);
+	}
 
 	//drawHUD();
 
@@ -722,4 +898,26 @@ extern void drawHitboxes(Player &p1, Player &p2, Assets &assets)
 	//Reset colour
 	glColor4f(1, 1, 1, 1);
 	glDisable(GL_TEXTURE_2D);
+}
+
+extern void drawSquare(glm::vec3 pos, glm::vec3 size)
+{
+	glPushMatrix();
+	glTranslatef(pos.x, pos.y, pos.z);
+	glScalef(size.x, size.y, size.z);
+	glDisable(GL_CULL_FACE);
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.0f,0.0f);
+		glVertex3f(-1, +1, -1);
+		
+		glTexCoord2f(1.0f,0.0f);
+		glVertex3f(+1, +1, -1);
+		
+		glTexCoord2f(1.0f,1.0f);
+		glVertex3f(+1, -1, -1);
+		
+		glTexCoord2f(0.0f,1.0f);
+		glVertex3f(-1, -1, -1);
+	glEnd();
+	glPopMatrix();
 }

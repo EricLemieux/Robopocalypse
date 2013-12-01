@@ -67,6 +67,8 @@ public:
 	void setRotY();
 	void setRotZ();
 
+	inline int getFaceDirection(void){	return faceDirection;	}
+
 	//velocity
 	glm::vec3 getVelocity();
 	void setVelocity(glm::vec3 newvelocity);
@@ -85,6 +87,10 @@ public:
 
 	void setHealth();
 	void setShield();
+
+	//Stun cooldown
+	inline void setStunCooldown(int cooldown){ stunCooldown = cooldown; }
+	inline int getStunCooldown(){ return stunCooldown; }
 
 	void Death();
 

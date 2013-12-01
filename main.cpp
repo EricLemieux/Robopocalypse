@@ -17,9 +17,29 @@ Game *theGame;
 int main(){	
 	theGame = new Game(FPS);
 	theGame->setNewWindowSize(WINDOW_WIDTH,WINDOW_HEIGHT);
-	theGame->initializeGame();
+	theGame->initializeWindow();
 	
-	theGame->gameLoop();
+
+	if(theGame->gameState == STATE_MAINMENU)
+	{
+		theGame->initializeMainMenu();
+	}
+	else if(theGame->gameState == STATE_GAMEPLAY)
+	{
+		theGame->initializeGame();
+	}
+	
+	while(theGame->window.isOpen())
+	{
+		if(theGame->gameState == STATE_MAINMENU)
+		{
+			theGame->mainMenuLoop();
+		}
+		if(theGame->gameState == STATE_GAMEPLAY)
+		{
+			theGame->gameLoop();
+		}
+	}
 
 	return 0;
 }
