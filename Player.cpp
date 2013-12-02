@@ -518,8 +518,7 @@ void Player::draw(){
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	
-	particlemanager.update(1.f);
-	particlemanager.draw();
+	
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	glPushMatrix();
@@ -549,6 +548,9 @@ void Player::draw(){
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDisable(GL_TEXTURE_2D);
+
+	particlemanager.update(1.f);
+	particlemanager.draw();
 }
 
 
@@ -648,17 +650,21 @@ void Player::moveAction(int numAction){
         tempRange[2] = Range(-2,2);
         newemitter.setAcelRange(tempRange);
         
-        tempRange[0] = Range(0,2);
-        tempRange[1] = Range(0,2);
+        tempRange[0] = Range(0,20);
+        tempRange[1] = Range(0,20);
         tempRange[2] = Range(0,1);
         newemitter.setSizeRange(tempRange);
 
-        tempRange[0] = Range(240,256);
-        tempRange[1] = Range(0,10);
-        tempRange[2] = Range(0,10);
+        tempRange[0] = Range(250,256);
+        tempRange[1] = Range(250,256);
+        tempRange[2] = Range(250,256);
         newemitter.setColourRange(tempRange);
 
         newemitter.initialise();
+
+		newemitter.parent = &particlemanager;
+		newemitter.particleTexture = newemitter.parent->smokeTex;
+
         particlemanager.addEmmiter(newemitter);
 		moveForce = glm::vec3(150000,0,0);
 	} else if (numAction == 4){
@@ -682,16 +688,19 @@ void Player::moveAction(int numAction){
 		tempRange[2] = Range(-2,2);
 		newemitter.setAcelRange(tempRange);
 		
-		tempRange[0] = Range(0,2);
-		tempRange[1] = Range(0,2);
+		tempRange[0] = Range(0,20);
+		tempRange[1] = Range(0,20);
 		tempRange[2] = Range(0,1);
 		newemitter.setSizeRange(tempRange);
 		
-		tempRange[0] = Range(240,256);
-		tempRange[1] = Range(0,10);
-		tempRange[2] = Range(0,10);
+		tempRange[0] = Range(250,256);
+		tempRange[1] = Range(250,256);
+		tempRange[2] = Range(250,256);
 		newemitter.setColourRange(tempRange);
 		
+		newemitter.parent = &particlemanager;
+		newemitter.particleTexture = newemitter.parent->smokeTex;
+
 		newemitter.initialise();
 		particlemanager.addEmmiter(newemitter);
 		moveForce = glm::vec3(-150000,0,0);
@@ -719,15 +728,18 @@ void Player::moveAction(int numAction){
 			tempRange[2] = Range(-1,1);
 			newemitter.setAcelRange(tempRange);
 			
-			tempRange[0] = Range(0,2);
-			tempRange[1] = Range(0,2);
+			tempRange[0] = Range(0,20);
+			tempRange[1] = Range(0,20);
 			tempRange[2] = Range(0,1);
 			newemitter.setSizeRange(tempRange);
 			
-			tempRange[0] = Range(240,256);
-			tempRange[1] = Range(0,10);
-			tempRange[2] = Range(0,10);
+			tempRange[0] = Range(250,256);
+			tempRange[1] = Range(250,256);
+			tempRange[2] = Range(250,256);
 			newemitter.setColourRange(tempRange);
+
+			newemitter.parent = &particlemanager;
+			newemitter.particleTexture = newemitter.parent->smokeTex;
 
 			newemitter.initialise();
 			particlemanager.addEmmiter(newemitter);
@@ -764,97 +776,118 @@ void Player::Death()
 {
 	ParticleEmitter deathEmitter;
 
-	deathEmitter.setNumOfParticles(20);
+	deathEmitter.setNumOfParticles(200);
 
 	Range lifeRange;
-	lifeRange = Range(0,5);
+	lifeRange = Range(0,3);
 	deathEmitter.setLifeRange(lifeRange);
 
+	Range szeRange[3];
+	szeRange[0] = Range(0, 4);
+	szeRange[1] = Range(0, 4);
+	szeRange[2] = Range(0, 4);
+	deathEmitter.setSizeRange(szeRange);
+
 	Range posRange[3];
-	posRange[0] = Range(position.x-1,position.x+1);
-	posRange[1] = Range(position.y-1,position.y+1);
-	posRange[2] = Range(position.z-1,position.z+1);
+	posRange[0] = Range(position.x,position.x+1);
+	posRange[1] = Range(position.y,position.y+1);
+	posRange[2] = Range(position.z,position.z+1);
 	deathEmitter.setPosRange(posRange);
 
 	Range clrRange[3];
 	clrRange[0] = Range(200,250);
-	clrRange[1] = Range(0,250);
-	clrRange[2] = Range(0,250);
+	clrRange[1] = Range(200,250);
+	clrRange[2] = Range(200,250);
 	deathEmitter.setColourRange(clrRange);
 
+	Range velRange[3];
+	velRange[0] = Range(0,1);
+	velRange[1] = Range(0,1);
+	velRange[2] = Range(0,1);
+	deathEmitter.setAcelRange(velRange);
+
 	Range aclRange[3];
-	aclRange[0] = Range(-1,1);
-	aclRange[1] = Range(-1,1);
-	aclRange[2] = Range(-1,1);
+	aclRange[0] = Range(0,1);
+	aclRange[1] = Range(0,1);
+	aclRange[2] = Range(0,1);
 	deathEmitter.setAcelRange(aclRange);
 
 	deathEmitter.initialise();
+
+	for(unsigned int i = 0; i < deathEmitter.particleList.size(); ++i)
+	{
+		deathEmitter.particleList[i].position/10.0f;
+		deathEmitter.particleList[i].velocity/10.0f;
+		deathEmitter.particleList[i].acceleration/10.0f;
+	}
+
+	deathEmitter.parent = &particlemanager;
+
+	deathEmitter.particleTexture = deathEmitter.parent->sparkTex;
 
 	particlemanager.addEmmiter(deathEmitter);
 }
 
 //getters and setters
 
-	//object
+//object
 OBJModel Player::getObject(){
 	return playerObject;
 }
-	void setObject(OBJModel object);
+void setObject(OBJModel object);
 
-	//position
-	glm::vec3 Player::getPos(){return glm::vec3(position.x,position.y, position.z);}
-	void Player::setPos(glm::vec3 newposition){
-		position = newposition;
-	}
+//position
+glm::vec3 Player::getPos(){return glm::vec3(position.x,position.y, position.z);}
+void Player::setPos(glm::vec3 newposition){	position = newposition; }
 
-	float Player::getPosX(){return position.x;}
-	float Player::getPosY(){return position.y;}
-	float Player::getPosZ(){return position.z;}
+float Player::getPosX(){return position.x;}
+float Player::getPosY(){return position.y;}
+float Player::getPosZ(){return position.z;}
 
-	void setPosX(float nxPos);
-	void setPosY(float nyPos);
-	void setPosZ(float nzPos);
+void setPosX(float nxPos);
+void setPosY(float nyPos);
+void setPosZ(float nzPos);
 
-	//rotation
-	glm::vec3 getRotation();
-	void setRotation(glm::vec3 newrotation);
+//rotation
+glm::vec3 getRotation();
+void setRotation(glm::vec3 newrotation);
 
-	float getRotX(float nxRot);
-	float getRotY(float nyRot);
-	float getRotZ(float nzRot);
+float getRotX(float nxRot);
+float getRotY(float nyRot);
+float getRotZ(float nzRot);
 
-	void setRotX();
-	void setRotY();
-	void setRotZ();
+void setRotX();
+void setRotY();
+void setRotZ();
 
-	//velocity
-	glm::vec3 Player::getVelocity()
-	{
-		return velocity;
-	}
-	void setVelocity(glm::vec3 newvelocity);
+//velocity
+glm::vec3 Player::getVelocity()
+{
+	return velocity;
+}
+void setVelocity(glm::vec3 newvelocity);
 
-	float Player::getVelX(){
-		return velocity.x;
-	}
-	float Player::getVelY(){
-		return velocity.y;
-	}
-	float Player::getVelZ()
-	{
-		return velocity.z;
-	}
+float Player::getVelX(){
+	return velocity.x;
+}
+float Player::getVelY(){
+	return velocity.y;
+}
+float Player::getVelZ()
+{
+	return velocity.z;
+}
 
-	void setVelX();
-	void setVelY();
-	void setVelZ();
+void setVelX();
+void setVelY();
+void setVelZ();
 
-	int Player::getHealth(){return health;}
-	int Player::getShield(){return shield;}
+int Player::getHealth(){return health;}
+int Player::getShield(){return shield;}
 
-	void setHealth();
-	void setShield();
+void setHealth();
+void setShield();
 
-	glm::vec3 Player::getTotalForce(){
-		return totalForce;
-	}
+glm::vec3 Player::getTotalForce(){
+	return totalForce;
+}

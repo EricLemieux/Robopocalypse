@@ -40,7 +40,7 @@ Game::Game(float fps)
 
 	//Debuging tools
 	//Should all be false in releases
-	debugTools = true;
+	debugTools = false;
 	if(debugTools)
 	{
 		shouldDrawHitboxes = true;
@@ -65,7 +65,7 @@ void Game::initializeWindow()
     contextSettings.depthBits = 32;
 
     // Create the main window
-	window.create(sf::VideoMode(stateInfo.windowWidth, stateInfo.windowHeight), "Robots", sf::Style::Default, contextSettings);
+	window.create(sf::VideoMode(stateInfo.windowWidth, stateInfo.windowHeight), "RoboPocalypse", sf::Style::Default, contextSettings);
     window.setVerticalSyncEnabled(true);
 
 	window.setFramerateLimit(stateInfo.FPS);//TODO bring fps from main
@@ -128,7 +128,7 @@ void Game::initializeGame()
 
 void Game::initializeMainMenu()
 {
-	mainMenuSelection = 0;
+	mainMenuSelection = 1;
 
 	glClearDepth(1.f);
 	glClearColor(0.0f, 0.5f,0.5f,1.0f);
@@ -147,7 +147,7 @@ void Game::initializeMainMenu()
 	sf::Image mainmenuImageMap;
 	if(!mainmenuImageMap.loadFromFile("resources/mainMenu.jpg")){
 		std::cout<<"error loading main menu texture Game.cpp in void Game::initializeGame();\n";
-	};
+	}
 	glGenTextures(1,&mainMenuTex);
 	glBindTexture(GL_TEXTURE_2D,mainMenuTex);
 	gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, mainmenuImageMap.getSize().x, mainmenuImageMap.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, mainmenuImageMap.getPixelsPtr());
@@ -194,9 +194,12 @@ void Game::mainMenuLoop()
 	drawSquare(glm::vec3(0,0,0.5), glm::vec3(100,100,100));
 	glDisable(GL_TEXTURE_2D);
 
+	glEnable (GL_BLEND);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	//Draw the selection
 	glm::vec3 pos;
-	glColor4f(1,1,0,0);
+	glColor4f(1,1,0,0.4);
 	if(mainMenuSelection == 0)
 	{
 		pos = glm::vec3(6.8, -4.5, -9);
@@ -274,6 +277,13 @@ void Game::gameEvent(){
 					}
 				}
 			}
+			else if(gameState == STATE_GAMEPLAY)
+			{
+				if(sf::Joystick::isButtonPressed(0,7))	
+				{
+					gameTime = 5.0f;
+				}
+			}
 
 			//TEMP
 			//TODO DELETE
@@ -326,9 +336,12 @@ void Game::DrawGame()
 	//camera.setFocus(player1, player2);
 	camera.update();
 
-	player1.draw();
-	player2.draw();
 	drawFunc(assetList);
+
+	//if(player1.getHealth() > 0)
+		player1.draw();
+	//if(player2.getHealth() > 0)
+		player2.draw();
 
 	if(shouldDrawHitboxes)
 	{
@@ -748,7 +761,13 @@ void Game::update()
 		}
 		player1.setStunCooldown(2.0 * 30);
 		player2.setStunCooldown(2.0 * 30);
-		player1.Death();
+
+		if(player1.getHealth() > -40)
+		{
+			player1.setHealth(player1.getHealth() - 1);
+			player1.Death();
+		}
+		
 		camera.setFocus(camera.getCamPos(), player2.getPos(), gameTime, 1.0f);
 	}
 	else if(player2.getHealth() <= 0)
@@ -766,7 +785,13 @@ void Game::update()
 		}
 		player1.setStunCooldown(2.0 * 30);
 		player2.setStunCooldown(2.0 * 30);
-		player2.Death();
+		
+		if(player2.getHealth() > -40)
+		{
+			player2.setHealth(player2.getHealth() - 1);
+			player2.Death();
+		}
+
 		camera.setFocus(camera.getCamPos(), glm::vec3(player1.getPos().x, player1.getPos().y, player1.getPos().z + 10), gameTime, 1.0f);
 	}
 

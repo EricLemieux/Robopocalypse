@@ -19,7 +19,7 @@
 #include <glm\glm.hpp>
 #include <SFML\OpenGL.hpp>
 #include "Random.h"
-
+#include <SFML\Graphics.hpp>
 struct Range;
 struct Particle;
 class ParticleEmitter;
@@ -63,6 +63,12 @@ public:
 	Range pVelocityRange[3];	
 	Range pAccelerationRange[3];
 	Range pColourRange[3];
+
+	//parent 
+	ParticleManager *parent;
+
+	//What texture
+	unsigned int particleTexture;
 
 	//Default constructor and destructor
 	ParticleEmitter(void);
@@ -109,12 +115,55 @@ private:
 
 public:
 	//Default constructor
-	inline ParticleManager(void){	}
+	inline ParticleManager(void)
+	{
+		//init some textures for particles
+
+		//Spark Texture
+		sf::Image sparkParticleImageMap;
+		if(!sparkParticleImageMap.loadFromFile("resources/spark.png"))
+		{
+			std::cout<<"error loading spark texture for particle\n";
+		}
+
+		glGenTextures(1,&sparkTex);
+		glBindTexture(GL_TEXTURE_2D,sparkTex);
+		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, sparkParticleImageMap.getSize().x, sparkParticleImageMap.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, sparkParticleImageMap.getPixelsPtr());
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+		//Smoke Texture
+		sf::Image smokeParticleImageMap;
+		if(!smokeParticleImageMap.loadFromFile("resources/smoke.png"))
+		{
+			std::cout<<"error loading smoke texture for particle\n";
+		}
+
+		glGenTextures(1,&smokeTex);
+		glBindTexture(GL_TEXTURE_2D,smokeTex);
+		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, smokeParticleImageMap.getSize().x, smokeParticleImageMap.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, smokeParticleImageMap.getPixelsPtr());
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+		//Default Texture
+		sf::Image defaultParticleImageMap;
+		if(!defaultParticleImageMap.loadFromFile("resources/default.bmp"))
+		{
+			std::cout<<"error loading default texture for particle\n";
+		}
+
+		glGenTextures(1,&defaultTex);
+		glBindTexture(GL_TEXTURE_2D,defaultTex);
+		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, defaultParticleImageMap.getSize().x, defaultParticleImageMap.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, defaultParticleImageMap.getPixelsPtr());
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	}
 
 	//Add an emmiter to the list of particle systems
 	//inline void addEmmiter(ParticleEmitter *newEmmiter)
 	inline void addEmmiter(ParticleEmitter newEmmiter)
 	{
+		//newEmmiter.parent = this;
 		particleSystems.push_back(newEmmiter);
 	}
 	inline void delEmmiter(ParticleEmitter &newEmmiter)
@@ -145,6 +194,13 @@ public:
 			particleSystems[i].draw();
 		}
 	}
+
+	//DATA
+
+	//Textures
+	GLuint sparkTex;
+	GLuint defaultTex;
+	GLuint smokeTex;
 };
 
 //////////
@@ -168,7 +224,6 @@ public:
 		velocity = glm::vec3(random(parent->pVelocityRange[0].min,parent->pVelocityRange[0].max), random(parent->pVelocityRange[1].min,parent->pVelocityRange[1].max), random(parent->pVelocityRange[2].min,parent->pVelocityRange[2].max));
 		acceleration = glm::vec3(random(parent->pAccelerationRange[0].min,parent->pAccelerationRange[0].max), random(parent->pAccelerationRange[1].min,parent->pAccelerationRange[1].max), random(parent->pAccelerationRange[2].min,parent->pAccelerationRange[2].max));
 		colour = glm::vec3(random(parent->pColourRange[0].min,parent->pColourRange[0].max), random(parent->pColourRange[1].min,parent->pColourRange[1].max), random(parent->pColourRange[2].min,parent->pColourRange[2].max));
-
 	}
 
 	//Set the parent of this particle, used to get the information about the ranges in initialisation

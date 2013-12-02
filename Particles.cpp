@@ -75,29 +75,48 @@ void ParticleEmitter::update(float dt)
 	}
 }
 
+
 //Draws the particles in one big batch.
 //TODO
 //	-Add textures
 void ParticleEmitter::draw(void)
 {
 	glColor4f(1, 1, 1, 1);
-	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, particleTexture);
 	glDisable(GL_CULL_FACE);
 	glPushMatrix();
+	
+	glEnable (GL_BLEND);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable (GL_DEPTH_TEST);
+
 	glBegin(GL_QUADS);
 		for(unsigned int i = 0; i < particleList.size(); ++i)
 		{
 			if(particleList[i].life > 0.0f)
 			{
 				glColor3f(particleList[i].colour.x/256, particleList[i].colour.y/256, particleList[i].colour.z/256);
+				
+				glTexCoord2f(0.0f,0.0f);
 				glVertex3f(particleList[i].position.x - particleList[i].size.x/2, particleList[i].position.y + particleList[i].size.y/2, particleList[i].position.z);
+				
+				glTexCoord2f(1.0f,0.0f);
 				glVertex3f(particleList[i].position.x + particleList[i].size.x/2, particleList[i].position.y + particleList[i].size.y/2, particleList[i].position.z);
+				
+				glTexCoord2f(1.0f,1.0f);
 				glVertex3f(particleList[i].position.x + particleList[i].size.x/2, particleList[i].position.y - particleList[i].size.y/2, particleList[i].position.z);
+				
+				glTexCoord2f(0.0f,1.0f);
 				glVertex3f(particleList[i].position.x - particleList[i].size.x/2, particleList[i].position.y - particleList[i].size.y/2, particleList[i].position.z);
 			}
 		}
 	glEnd();
 	glPopMatrix();
+
+	//Reset the blending
+	glDisable(GL_BLEND);
+	glEnable (GL_DEPTH_TEST);
 
 	glColor4f(1, 1, 1, 1);
 	glDisable(GL_TEXTURE_2D);

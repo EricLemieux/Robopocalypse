@@ -85,7 +85,7 @@ public:
 	int getHealth();
 	int getShield();
 
-	void setHealth();
+	inline void setHealth(int newHealth){ health = newHealth; }
 	void setShield();
 
 	//Stun cooldown
