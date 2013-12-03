@@ -1,39 +1,40 @@
 obj resources\dammitMaya.obj
 tex resources\mailbox.jpg
-pos -75 20 -50
+pos -50 20 -90
 load
 obj resources\dammitMaya.obj
-tex resources\ibrs.jpg
-pos 75 20 -50
+tex resources\default.bmp
+pos 50 20 -90
 load
 obj resources\flatLevel.obj
-tex resources\groundTexture.jpg
-pos 0 -30 -50
+tex resources\groundTexture1.png
+pos 0 -30 -100
 load
-
-obj resources\tallBox.obj
-tex resources\testTexture.png
-pos 100 20 -50
+obj resources\Quad_Tower.obj
+tex resources\Quad_Tower_UV.png
+pos -150 74 -115
 load
-obj resources\basicBox.obj
-tex resources\testTexture.png
-pos -100 -20 -50
+obj resources\Quad_Tower2.obj
+tex resources\Quad_Tower_2_Texture.png
+pos 150 43 -115
 load
-
-
-obj resources\basicBox.obj
-tex resources\testTexture.png
-pos -100 0 -50
+obj resources\RingTower1.obj
+tex resources\Ring_Tower_Texture.png
+pos 0 65 -200
 load
-h
-
-obj resources\basicBox.obj
-tex resources\testTexture.png
-pos -100 20 -50
+obj resources\Factory.obj
+tex resources\Factory_UV.png
+pos 130 -15 -250
 load
-
-
-obj resources\basicBox.obj
-tex resources\testTexture.png
-pos -100 40 -50
+obj resources\Factory2.obj
+tex resources\Factory_UV.png
+pos -130 -15 -250
+load
+obj resources\Quad_Tower.obj
+tex resources\Quad_Tower_UV.png
+pos 150 74 -400
+load
+obj resources\Quad_Tower2.obj
+tex resources\Quad_Tower_2_Texture.png
+pos -150 43 -400
 load

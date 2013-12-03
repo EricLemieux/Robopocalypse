@@ -28,7 +28,7 @@ public:
 	inline bool GetCycling() const { return cycling; }
 
 	// add and remove waypoints
-	void AddWaypointToEnd(const sf::Vector2f newWaypoint);
+	void AddWaypointToEnd(const glm::vec3 newWaypoint);
 	void RemoveLastWaypoint();
 	void RemoveAllWaypoints();
 
@@ -49,7 +49,7 @@ public:
 	void Update(float dt);
 
 	// **** get our current state!!!!
-	inline sf::Vector2f GetCurrentState(){ return currentState;}
+	inline glm::vec3 GetCurrentState(){ return currentState;}
 
 
 private: 
@@ -59,12 +59,14 @@ private:
 
 
 	// **** need something to store our waypoints
-	std::vector<sf::Vector2f> waypoints;
+	std::vector<glm::vec3> waypoints;
 
 	// **** how do we know our current point of reference?
 	// i.e. our current 'p0' and 'p1' for use in any algorithm
+	unsigned int previousWaypointIndex;
 	unsigned int currentWaypointIndex;
 	unsigned int nextWaypointIndex;
+	unsigned int nextNextWaypointIndex;
 
 	// **** how long is each 'segment' of the path?
 	//	assume evenly divided for now
@@ -79,7 +81,7 @@ private:
 	float t;
 
 	// **** what is our current state?
-	sf::Vector2f currentState;
+	glm::vec3 currentState;
 
 	// additional properties that tell us about 
 	//	the behaviour of the path as a whole
@@ -96,6 +98,9 @@ private:
 	bool cycling;
 	// 4) are we currently running or stopped?
 	bool running;
+
+	bool usingLERP;
+	bool usingCatmullrom;
 
 };
 

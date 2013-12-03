@@ -191,6 +191,8 @@ class Game
 
 	GLuint hudTex;
 	GLuint mainMenuTex;
+
+	NodeGraph graph;
 };
 
 //extern void drawHitboxes(std::vector<collisionObjects>  objects);

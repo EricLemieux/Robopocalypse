@@ -29,6 +29,14 @@ void checkLeftJoystick(int controllerNumber, Player &tempPlayer)
 			tempPlayer.updateAction(1);
 			action = true;
 		}
+
+		//Range attack
+		if(sf::Keyboard::isKeyPressed(sf::Keyboard::R) || sf::Joystick::getAxisPosition(controllerNumber,sf::Joystick::Z) < -20)
+        {
+			tempPlayer.updateAction(11);
+			action = true;
+		}
+
 		//dash left
 		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q) || sf::Joystick::isButtonPressed(controllerNumber,4))
 		{

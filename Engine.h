@@ -30,12 +30,14 @@
 #include "AnimationMath.h"
 #include "LoadAssets.h"
 #include "Path.h"
+#include "NodeGraph.h"
 
 #include "Player.h"
 #include "Camera.h"
 
 #include "Collisions.h"
 #include "UserInput.h"
+
 
 
 #endif

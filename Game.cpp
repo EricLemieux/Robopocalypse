@@ -10,6 +10,9 @@ Game::Game(float fps)
 	//stateInfo.gameState = STATE_GAMEPLAY;
 	//stateInfo.FPS=fps;
 
+	//init onscreen graph
+	graph.init();
+
 	yspeed = 0.0f;
 	zstep = 0.0f;
 	xspeed = 0.0f;
@@ -40,7 +43,7 @@ Game::Game(float fps)
 
 	//Debuging tools
 	//Should all be false in releases
-	debugTools = false;
+	debugTools = true;
 	if(debugTools)
 	{
 		shouldDrawHitboxes = true;
@@ -346,6 +349,7 @@ void Game::DrawGame()
 	if(shouldDrawHitboxes)
 	{
 		//drawHitboxes(ass);
+		graph.draw();
 		drawHitboxes(player1, player2, assetList);
 	}
 
@@ -701,8 +705,8 @@ void Game::update()
 
 	//Assets emptyList;
 	//player1.update(assetList, 0,t);
-	player1.update(assetList, 0,t, player2);
-	player2.update(assetList, 1,t, player1);
+	player1.update(assetList, 0,t, player2, graph);
+	player2.update(assetList, 1,t, player1, graph);
 
 
 	//TODO Animations stuff/Interpolation

@@ -16,8 +16,10 @@ public:
 	
 	//Update the players current position
 	//also check for collisions here.
-	void update(Assets &assets, int playerIDNum,float t, Player &otherPlayer);
+	void update(Assets &assets, int playerIDNum,float t, Player &otherPlayer, NodeGraph &world_graph);
 	void updatePos(float t);
+	void updateWorldGraph(NodeGraph &world_graph);
+    void updateCollision( Assets &assets,int playerIDNum, Player &otherPlayer,float t);
 
 	//*********************************
 	//these should be called in UserInput.cpp
@@ -28,11 +30,20 @@ public:
 	void moveAction(int numAction);
 	//attack choice, play animation + move if necessary, 
 	void attackAction(int numAction);
+	void updateAttack();
 	//dodge, invincibility frames, animate, move, block input for set time
 	void dodgeAction(int numAction);
 	//block, reduce speed, block input for set time, set blocking status, animate
 	void blockAction(int numAction);
 	//***********************************
+
+	//Stuff for A* shortest path
+	std::vector<CollisionNode*> rangeAStar(Player &otherPlayer, NodeGraph &world_graph);
+	float distanceBetween(CollisionNode* a, CollisionNode* b);
+	std::vector<CollisionNode*> reconstructPath( CollisionNode* current_node);
+
+	//Cooldown reduction
+	void updateCooldown();
 
 	//draw player
 	void draw();
@@ -92,6 +103,8 @@ public:
 	inline void setStunCooldown(int cooldown){ stunCooldown = cooldown; }
 	inline int getStunCooldown(){ return stunCooldown; }
 
+	Path rangeAttackPath;
+
 	void Death();
 
 	//force
@@ -108,6 +121,11 @@ private:
 	OBJModel playerObject;
 	//collisionObjects playerHitBox;
 	int input;
+
+	//Variables for A* shortest path
+	CollisionNode* targetNode;
+	Player *internalOtherPlayer;
+	NodeGraph *internalWorldgraph;
 
 	//hackyshit get rid of this asap
 	float floorPos;
@@ -139,9 +157,12 @@ private:
 	
 	//check for is moving, used to reset movement if button isn't held
 	int isMoving;
+	int isDashing;
 
 	//check for whether player input is accepted
 	int onCooldown;
+	int blockCooldown;
+    int rangeCooldown;
 	//track current action
 	int currentAction;
 	//tracking for double jumps
@@ -184,6 +205,8 @@ private:
 	int health;
 	int shield;
 
+	//missile path
+    Path rangePath;
 };
 
 

@@ -49,29 +49,36 @@ Player::Player(OBJModel object){
 
 	attackStartPos = glm::vec3(0,0,500);
 	
-	isAttacking = 0;
-	isKicking = 0;
-	onCooldown = 0;
-	dt = 0.f;
-	tInterval = 0.f;
+	isMoving		= 0;
+	isDashing		= 0;
+
+	isAttacking		= 0;
+	isKicking		= 0;
+	onCooldown		= 0;
+	rangeCooldown	= 0;
+	dt				= 0.f;
+	tInterval		= 0.f;
 	
-	isBlocking = 0;
+	isBlocking		= 0;
+	blockCooldown	= 0;
 	
 	boosterCooldown = 0;
-	jumpCooldown = 0;
+	jumpCooldown	= 0;
 
-	stunCooldown = 0;
-	wasHit = 0;
-	invincibleFrames = 0;
+	stunCooldown	= 0;
+	wasHit			= 0;
+	invincibleFrames= 0;
 
-	faceDirection = 1;
-	bodyTobody = 0;
+	faceDirection	= 1;
+	bodyTobody		= 0;
 
-	hitFloor	= false;
-	hitWall		= false;
+	hitFloor		= false;
+	hitWall			= false;
 
-	health = 100;
-	shield = 50;
+	health			= 100;
+	shield			= 50;
+
+	//rangeAttackPath
 }
 
 Player::~Player(){}
@@ -100,7 +107,20 @@ void Player::stopVelY(){
 }
 
 //Update the player's position
-void Player::update(Assets &assets, int playerIDNum,float t, Player &otherPlayer)
+void Player::update(Assets &assets, int playerIDNum,float t, Player &otherPlayer, NodeGraph &world_graph)
+{
+	internalOtherPlayer = &otherPlayer;
+	internalWorldgraph = &world_graph;
+
+	this->updateCollision(assets,playerIDNum,otherPlayer,t);
+	this->updateCooldown();
+	this->updateAttack();
+	
+	this->updatePos(t);
+	this->updateWorldGraph(world_graph);
+}
+
+void Player::updateCollision(Assets &assets,int playerIDNum, Player &otherPlayer,float t)
 {
 	//Check collisions against the other player
 	checkOtherPlayer(otherPlayer);
@@ -231,9 +251,88 @@ void Player::update(Assets &assets, int playerIDNum,float t, Player &otherPlayer
 			hitFloor = false;
 		}
 	}
+}
 
+void Player::updateWorldGraph(NodeGraph &world_graph){
+    int temp_xsize = (int)(playerObject.getHitBox().getSize().x/2);
+    int temp_ysize = (int)(playerObject.getHitBox().getSize().y/2);
+
+    for(int i = -temp_xsize; i < temp_xsize; ++i){
+        for(int j = -temp_ysize; j < temp_ysize; ++j){
+            int temp_row = ((2+i+prevpos.x + world_graph.size)/2);
+            int temp_col = ((2+j+prevpos.y + world_graph.size)/2);
+
+            if((temp_row < 0) || (temp_row > world_graph.size-1))
+                temp_row = 0;
+            if((temp_col < 0) || (temp_col > world_graph.size-1))
+                temp_col = 0;
+
+            world_graph.graph[temp_row][temp_col]->visited = false;
+        }
+    }
+
+	int targetxpos;
+	if(faceDirection == 1)
+		targetxpos = ((position.x+world_graph.size)/2) - (playerObject.getHitBox().getSize().x/2) + 1;
+	else
+		targetxpos = ((position.x+world_graph.size)/2)  + (playerObject.getHitBox().getSize().x/2) - 1;
+	int targetypos = 1+((position.y+world_graph.size)/2);
+	targetNode = world_graph.graph[targetxpos][targetypos];
+
+    for(int i = -temp_xsize; i < temp_xsize; ++i){
+        for(int j = -temp_ysize; j < temp_ysize; ++j){
+            int temp_row = ((2+i+position.x + world_graph.size)/2);
+            int temp_col = ((2+j+position.y + world_graph.size)/2);
+
+            if((temp_row < 0) || (temp_row > world_graph.size-1))
+                temp_row = 0;
+            if((temp_col < 0) || (temp_col > world_graph.size-1))
+                temp_col = 0;
+
+            world_graph.graph[temp_row][temp_col]->visited = true;
+        }
+    }
+}
+
+void Player::updateCooldown(){
+    if(onCooldown > 0){
+        --onCooldown;
+    }
+    if(isBlocking > 0){
+        --isBlocking;
+        blockBox.setPos(position);
+    } else {
+        blockBox.setPos(0,0,500);
+    }
+    if(blockCooldown > 0){
+        --blockCooldown;
+    }
+    if(boosterCooldown > 0){
+        --boosterCooldown;
+    }
+    if(isDashing > 0){
+        --isDashing;
+    }
+    if(jumpCooldown > 0){
+        --jumpCooldown;
+    }
+    if(stunCooldown > 0){
+        --stunCooldown;    
+    }
+    if(wasHit > 0){
+        --wasHit;
+    }
+    if(invincibleFrames > 0){
+        --invincibleFrames;
+    }
+    if(rangeCooldown > 0){
+        --rangeCooldown;
+    }
+}
+
+void Player::updateAttack(){
 	if(isAttacking == 6){
-		if(!hitWall){
+		if((!hitWall) && (isBlocking == 0) && (isDashing == 0)){
 			if(dt<1){
 				dt += tInterval;
 				if(faceDirection == 1){
@@ -261,7 +360,7 @@ void Player::update(Assets &assets, int playerIDNum,float t, Player &otherPlayer
 		}
 	}
 	if(isAttacking == 8){
-		if(!hitWall){
+		if((!hitWall) && (isBlocking == 0) && (isDashing == 0)){
 			if(dt<1){
 				dt += tInterval;
 				if(faceDirection == 1){
@@ -299,18 +398,132 @@ void Player::update(Assets &assets, int playerIDNum,float t, Player &otherPlayer
 		}
 	}
 
-	this->updatePos(t);
+	if(isAttacking == 11)
+	{
+		if(dt < 1)
+		{
+			dt += tInterval;
+			rangeAttackPath.Update(tInterval);
+			attackRange.setPos(rangeAttackPath.GetCurrentState());
+		}
+		else
+		{
+			rangeAttackPath.Stop();
+			rangeAttackPath.Reset();
+			rangeAttackPath.RemoveAllWaypoints();
+			internalWorldgraph->reset();
 
-	//if(this->getPosY() < 0){
- 	//	position.y = 0;
-	//	this->stopVelY();
-	//	jumpCount = 0;
-	//	gravityForce = glm::vec3(0,-1000,0);
-	//}
+			isAttacking = 0;
+			dt			= 0.0f;
+			tInterval	= 0.0f;
+			attackRange.setPos(0,0,500);
+		}
+	}
+}
 
-	//update object and hitbox
-	playerObject.setPos(position.x,position.y,position.z);
-	playerObject.getHitBox().setPos(position.x,position.y,position.z);
+std::vector<CollisionNode*> Player::rangeAStar(Player &otherPlayer, NodeGraph &world_graph){
+	std::vector<CollisionNode*> closedset;
+	std::vector<CollisionNode*> openset;
+	openset.push_back(targetNode);
+ 
+	std::vector<CollisionNode*> failed_path;
+	failed_path.push_back(targetNode);
+
+	float distance;
+
+	targetNode->fromstart = 0;
+	targetNode->starttogoal = targetNode->fromstart + distanceBetween(targetNode,otherPlayer.targetNode);
+ 
+	while(openset.size() > 0){
+		CollisionNode* temp_current = openset[0];
+		for(int i = 0, size = openset.size(); i<size;++i){
+			if(openset[i]->starttogoal < temp_current->starttogoal){
+				temp_current = openset[i];
+			}
+		}
+		if((temp_current->row == otherPlayer.targetNode->row)&&(temp_current->column == otherPlayer.targetNode->column)){
+			return reconstructPath(otherPlayer.targetNode);
+		}
+
+		for(int i = 0;i<openset.size();++i){
+			if((temp_current->row == openset[i]->row)&&(temp_current->column == openset[i]->column)){
+				openset.erase(openset.begin()+(i));
+			}
+		}
+
+		closedset.push_back(temp_current);
+
+		for(int i = 0, size = temp_current->neighbours.size(); i < size; ++i){
+			float temp_fromstart = temp_current->fromstart + distanceBetween(temp_current,temp_current->neighbours[i]);
+			float temp_starttogoal = temp_fromstart + distanceBetween(temp_current->neighbours[i], otherPlayer.targetNode);
+			int inClosed = 0;
+			int inOpen = 0;
+			for(int j = 0, size = closedset.size(); j<size;++j){
+				if((temp_current->neighbours[i]->row == closedset[j]->row)&&(temp_current->neighbours[i]->column==closedset[j]->column)){
+					inClosed = 1;
+				}
+			}
+			for(int j = 0, size = openset.size(); j<size;++j){
+				if((temp_current->neighbours[i]->row == openset[j]->row)&&(temp_current->neighbours[i]->column==openset[j]->column)){
+					inOpen = 1;
+				}
+			}
+		   temp_current->neighbours[i]->starttogoal = distanceBetween(temp_current->neighbours[i],otherPlayer.targetNode);
+		   if((inClosed == 1) &&(temp_starttogoal >= temp_current->neighbours[i]->starttogoal)){
+       
+			} else if((inOpen != 1)||(temp_starttogoal < temp_current->neighbours[i]->starttogoal)){
+			    temp_current->neighbours[i]->camefrom = temp_current;
+			    temp_current->neighbours[i]->hasParent = 1;
+			    temp_current->neighbours[i]->fromstart = temp_fromstart;
+			    temp_current->neighbours[i]->starttogoal = temp_starttogoal;
+			    if(inOpen != 1)
+					openset.push_back(temp_current->neighbours[i]);
+			}
+		}
+	}
+	return failed_path;
+}
+
+float Player::distanceBetween(CollisionNode* a, CollisionNode* b){
+	if((a->visited)||(b->visited))
+		return 100000000000000000;
+	else{
+		int xdist = abs(a->row-b->row);
+		int ydist = abs(a->column-b->column);
+		int i = 0;
+		while((xdist>0) || (ydist>0)){
+			if((xdist>0)&&(ydist>0)){
+				xdist -= 1;
+				ydist -= 1;
+				++i;
+				++i;
+			} else if(xdist > 0){
+			    xdist -= 1;
+			    ++i;
+			} else if(ydist > 0){
+			    ydist -= 1;
+			    ++i;
+			}
+		}
+		return i;
+	}
+}
+
+std::vector<CollisionNode*> Player::reconstructPath( CollisionNode* current_node){
+	std::vector<CollisionNode*> shortest_path;
+
+	if(current_node->hasParent != 0){
+		int a = current_node->row;
+		int b = current_node->column;
+		int c = current_node->camefrom->row;
+		int d = current_node->camefrom->column;
+		shortest_path = reconstructPath(current_node->camefrom);
+		shortest_path.push_back(current_node);
+		return shortest_path;
+	} else {
+		shortest_path.push_back(current_node);
+		return shortest_path;
+	}
 }
 
 void Player::checkOtherPlayer(Player &otherPlayer)
@@ -414,7 +627,7 @@ void Player::checkOtherPlayer(Player &otherPlayer)
 }
 
 void Player::updatePos(float t){
-	
+	prevpos = position;
 	if(velocity.y > maxVelY){
 			jumpForce = glm::vec3(0,0,0);
 	}
@@ -422,6 +635,12 @@ void Player::updatePos(float t){
 		resistanceForce.x = -1 * velocity.x;
 	} else {
 		resistanceForce.x = -200 * velocity.x;
+	}
+
+	if((!hitFloor)||((moveForce.z < 0)&&(velocity.z < 0))||((moveForce.z>0)&&(velocity.z > 0))){
+	    resistanceForce.z = -1 * velocity.z;
+	} else {
+	    resistanceForce.z = -200 * velocity.z;
 	}
 
 	if(!hitFloor)
@@ -456,6 +675,10 @@ void Player::updatePos(float t){
 	}
 
 	totalForce = impactForce + gravityForce + moveForce + resistanceForce + jumpForce + pushForce;
+
+	acceleration.z = t*totalForce.z;
+	velocity.z += t*acceleration.z;
+	position.z += t*velocity.z + 0.5f*acceleration.z*t*t;
 	
 	if(!hitFloor)
 	{
@@ -510,6 +733,10 @@ void Player::updatePos(float t){
 		acceleration.x	= 0.0f;
 		velocity.x		= 0.0f;
 	}
+
+	//Update object and hitbox
+	playerObject.setPos(position.x, position.y, position.z);
+	playerObject.getHitBox().setPos(position.x, position.y, position.z);
 }
 
 //draw player
@@ -615,6 +842,22 @@ void Player::updateAction(int numAction){
 					isAttacking = numAction;
 					isMoving = 0;
 				}
+				 break;
+			case 9:
+			    moveForce = glm::vec3(0,0,2000);
+			    isMoving = numAction;
+			    break;
+			case 10:
+			    moveForce = glm::vec3(0,0,-2000);
+			    isMoving = numAction;
+			    break;
+			case 11:
+			    if(rangeCooldown == 0){
+			        this->attackAction(numAction);
+			        isAttacking = numAction;
+			        isMoving = 0;
+			    }
+			    break;
 			default:
 				isMoving = 0;
 				break;
@@ -631,6 +874,7 @@ void Player::moveAction(int numAction){
 	    moveForce = glm::vec3(-2000,0,0);
 	} else if (numAction == 3){
 	    boosterCooldown = 60;
+		isDashing = 2;
 		ParticleEmitter newemitter;
         Range tempRange[3];
         newemitter.setNumOfParticles(1000);
@@ -669,6 +913,7 @@ void Player::moveAction(int numAction){
 		moveForce = glm::vec3(150000,0,0);
 	} else if (numAction == 4){
 		boosterCooldown = 60;
+		isDashing = 2;
 		ParticleEmitter newemitter;
 		Range tempRange[3];
 		newemitter.setNumOfParticles(1000);
@@ -763,12 +1008,28 @@ void Player::attackAction(int numAction){
         onCooldown = 40;
 		isKicking = 1;
 
-    }
+    } else if (numAction == 11){
+
+		//Generate path from A* to be used for the tragectory of the ranged attack
+		std::vector<CollisionNode *> V;	//TEMP to be replaced with the return from A*
+		V =  rangeAStar(*internalOtherPlayer,*internalWorldgraph);
+		for(unsigned int i = 0; i < V.size(); ++i)
+		{
+			rangeAttackPath.AddWaypointToEnd(V[i]->position);
+		}
+		V.clear();
+		rangeAttackPath.Start();
+
+	    tInterval = 0.005f;
+	    attackRange.setPos(position.x+5,position.y+5,position.z);
+	    attackStartPos = attackRange.getPos();
+	    rangeCooldown = 60;
+	}
 }
 
 void Player::blockAction(int numAction){
     isBlocking = 20;
-    onCooldown = 30;
+    blockCooldown = 30;
 	blockBox.setPos(position);
 }
 

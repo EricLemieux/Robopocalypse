@@ -3,13 +3,20 @@
 Path::Path()
 {
 	totalTime = 1.0f;
-	looping = true;
+	looping = false;
 	cycling = false;
 	running = false;
 
-	currentWaypointIndex = 0;
-	nextWaypointIndex = 1;
+	previousWaypointIndex = 0;
+	currentWaypointIndex = 1;
+	nextWaypointIndex = 2;
+	nextNextWaypointIndex = 3;
+
+	segmentTime = 0.01f;
 	currentTime = t = 0.0f;
+
+	usingLERP		= false;
+	usingCatmullrom	= true;
 }
 
 Path::Path(float time, bool loop, bool cycle)
@@ -19,14 +26,19 @@ Path::Path(float time, bool loop, bool cycle)
 	cycling = cycle;
 	running = false;
 
-	currentWaypointIndex = 0;
-	nextWaypointIndex = 1;
+	previousWaypointIndex = 0;
+	currentWaypointIndex = 1;
+	nextWaypointIndex = 2;
+	nextNextWaypointIndex = 3;
 	currentTime = t = 0.0f;
+
+	usingLERP		= false;
+	usingCatmullrom	= true;
 }
 
 
 
-void Path::AddWaypointToEnd(const sf::Vector2f newWaypoint)
+void Path::AddWaypointToEnd(const glm::vec3 newWaypoint)
 {
 	if(!running)
 		waypoints.push_back(newWaypoint);
@@ -63,8 +75,11 @@ void Path::Reset()
 {
 	running = false;
 
-	currentWaypointIndex = 0;
-	nextWaypointIndex = 1;
+	previousWaypointIndex = 0;
+	currentWaypointIndex = 1;
+	nextWaypointIndex = 2;
+	nextNextWaypointIndex = 3;
+
 	currentTime = t = 0.0f;
 
 	if(waypoints.size())
@@ -85,7 +100,16 @@ void Path::Update(float dt)
 
 		t = currentTime / segmentTime;	//[0,1]
 
-		currentState = LERP(waypoints[currentWaypointIndex], waypoints[nextWaypointIndex], t);
+		if(usingLERP)
+		{
+			currentState = LERP(waypoints[currentWaypointIndex], waypoints[nextWaypointIndex], t);
+		}
+		else if(usingCatmullrom)
+		{
+			currentState.x = CatmullRom(waypoints[previousWaypointIndex].x, waypoints[currentWaypointIndex].x, waypoints[nextWaypointIndex].x, waypoints[nextNextWaypointIndex].x, t);
+			currentState.y = CatmullRom(waypoints[previousWaypointIndex].y, waypoints[currentWaypointIndex].y, waypoints[nextWaypointIndex].y, waypoints[nextNextWaypointIndex].y, t);
+			currentState.z = CatmullRom(waypoints[previousWaypointIndex].z, waypoints[currentWaypointIndex].z, waypoints[nextWaypointIndex].z, waypoints[nextNextWaypointIndex].z, t);
+		}
 	}
 }
 
@@ -94,16 +118,19 @@ void Path::NextWaypoint()
 {
 	currentTime = currentTime - segmentTime;
 
+	previousWaypointIndex = currentWaypointIndex;
 	currentWaypointIndex = nextWaypointIndex;
+	nextWaypointIndex = nextNextWaypointIndex;
 	
-	if(currentWaypointIndex < (waypoints.size()-1))
-		nextWaypointIndex+=1;
+	if(currentWaypointIndex < (waypoints.size()-2))
+		nextNextWaypointIndex+=1;
 	else if(cycling)
-		nextWaypointIndex = 0;
+		nextNextWaypointIndex = 0;
 	else if(looping)
 	{
-		currentWaypointIndex	= 0;
-		nextWaypointIndex		= 1;
+		//This should be used for something but I am not really sure what
+		//currentWaypointIndex	= 0;
+		nextNextWaypointIndex	= 0;
 	}
 	else
 	{
