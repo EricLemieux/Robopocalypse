@@ -50,6 +50,15 @@ void Assets::LoadAssets(char fileName[256])
 
 			assetFile.ignore(256,'\n');
 		}
+		if(!_stricmp(firstWord, "store"))
+		{
+			//Load OBJ
+			OBJModel newOBJ(objectName, textureName);
+
+			objects.push_back(newOBJ);
+
+			assetFile.ignore(256,'\n');
+		}
 		if(!_stricmp(firstWord ,"load"))
 		{
 			//Load OBJ

@@ -1,6 +1,45 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+class PlayerAnimation{
+
+private:
+    int currentAnimation;
+    int currentFrame;
+    int nextFrame;
+    std::vector<std::vector<int>> animations;
+    Assets morphTargets;
+    OBJModel playerObject;
+    float dt;
+
+public:
+    PlayerAnimation(OBJModel &object, Assets &targets);
+    ~PlayerAnimation(void){};
+
+    //Initialization stuff
+    //////////////////////////////////////////////////////////
+    //Load Player Model
+    //inline void loadObject(OBJModel object){playerObject = object;}
+    //Pass morphtarget reference to animation class
+    //inline void loadMorphTargets(Assets targets){morphTargets = targets;}
+    //Create animations
+    inline void createAnimation(int start, int end)
+    {
+        std::vector <int> animationFrames;
+        for(; start <= end; start++)
+            animationFrames.push_back(start);
+        animations.push_back(animationFrames);
+    }
+
+    inline void setAnimation(int setAnimation){currentAnimation = setAnimation; currentFrame = 0; nextFrame = 1;}
+
+    void itsMorphingTime();
+    
+    void update(float t);
+
+    OBJModel getOBJ(){return playerObject;}
+};
+
 class Player{
 public:
 	Player();
@@ -116,9 +155,13 @@ public:
 	collisionObjects attackRange;
 	collisionObjects blockBox;
 
+	int isExploding;
+
 
 private:
 	OBJModel playerObject;
+	Assets playerMorphs;
+
 	//collisionObjects playerHitBox;
 	int input;
 
@@ -153,7 +196,7 @@ private:
 	glm::vec3 resistanceForce;
 	glm::vec3 jumpForce;
 
-	
+	int rangeCount;
 	
 	//check for is moving, used to reset movement if button isn't held
 	int isMoving;
@@ -207,6 +250,9 @@ private:
 
 	//missile path
     Path rangePath;
+
+	bool animate;
+	PlayerAnimation *Animations;
 };
 
 

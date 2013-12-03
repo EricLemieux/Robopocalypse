@@ -15,6 +15,7 @@ public:
 
 	//getter setters
 	glm::vec3 getVertex(int i);
+	inline void setVertex(glm::vec3 in, int i){ out_vertices[i] = in; }
 	glm::vec2 getUV(int i);
 	glm::vec3 getNormal(int i);
 

@@ -18,6 +18,31 @@ Player::Player(OBJModel object){
 	playerObject = object;
 	//playerHitBox = object.getHitBox();
 
+	//playerMorphs = new Assets();
+	playerMorphs.objects.clear();
+	playerMorphs.LoadAssets("assetsPlayerMorphs.txt");
+	
+	//TODO hardcode animations initialization and frame presets
+	Animations = new PlayerAnimation(playerObject, playerMorphs);
+	//Animations.loadObject(playerObject);
+	//Animations.loadMorphTargets(playerMorphs);
+	//Animations
+	///////////////////////////////
+	//Idle
+	Animations->createAnimation(0,1);
+	//Punch
+	Animations->createAnimation(2,4);
+	//Kick
+	Animations->createAnimation(5,7);
+	//JumpKick
+	Animations->createAnimation(8,9);
+	//Block
+	Animations->createAnimation(10,11);
+	//Dash
+	Animations->createAnimation(12,13);
+	
+	Animations->setAnimation(0);
+
 	velocity = glm::vec3(0,0,0);
 	maxVelY = 64;
 
@@ -78,6 +103,9 @@ Player::Player(OBJModel object){
 	health			= 100;
 	shield			= 50;
 
+	isExploding		= 0;
+	rangeCount		= 0;
+
 	//rangeAttackPath
 }
 
@@ -111,10 +139,14 @@ void Player::update(Assets &assets, int playerIDNum,float t, Player &otherPlayer
 {
 	internalOtherPlayer = &otherPlayer;
 	internalWorldgraph = &world_graph;
-
-	this->updateCollision(assets,playerIDNum,otherPlayer,t);
+	
+	
 	this->updateCooldown();
 	this->updateAttack();
+	this->updateCollision(assets,playerIDNum,otherPlayer,t);
+	
+	Animations->update(t);
+	playerObject = Animations->getOBJ();
 	
 	this->updatePos(t);
 	this->updateWorldGraph(world_graph);
@@ -140,34 +172,6 @@ void Player::updateCollision(Assets &assets,int playerIDNum, Player &otherPlayer
 	bool hitAnything = false;
 	int whatHit;
 
-	
-	
-
-
-	if(onCooldown > 0){
-		--onCooldown;
-	}
-	if(isBlocking > 0){
-		--isBlocking;
-		blockBox.setPos(position);
-	} else {
-		blockBox.setPos(0,0,500);
-	}
-	if(boosterCooldown > 0){
-		--boosterCooldown;
-	}
-	if(jumpCooldown > 0){
-		--jumpCooldown;
-	}
-	if(stunCooldown >  0){
-		--stunCooldown;	
-	}
-	if(wasHit > 0){
-		--wasHit;
-	}
-	if(invincibleFrames > 0){
-		--invincibleFrames;
-	}
 	//Checking X values
 	hitAnything = false;
 	
@@ -328,6 +332,9 @@ void Player::updateCooldown(){
     if(rangeCooldown > 0){
         --rangeCooldown;
     }
+	if(isExploding > 0){
+		--isExploding;
+	}
 }
 
 void Player::updateAttack(){
@@ -397,26 +404,33 @@ void Player::updateAttack(){
 			isKicking = 0;
 		}
 	}
+	if(isAttacking == 0){
+		isKicking = 0;
+	}
 
 	if(isAttacking == 11)
 	{
-		if(dt < 1)
+		if((dt < 1)&&(isExploding == 0))
 		{
 			dt += tInterval;
 			rangeAttackPath.Update(tInterval);
 			attackRange.setPos(rangeAttackPath.GetCurrentState());
 		}
-		else
-		{
+		else if (isExploding != 0){
+			dt = 1;
+		} 
+		else {
 			rangeAttackPath.Stop();
 			rangeAttackPath.Reset();
 			rangeAttackPath.RemoveAllWaypoints();
 			internalWorldgraph->reset();
-
+			attackRange.setSize(1,1,1);
+			
 			isAttacking = 0;
-			dt			= 0.0f;
-			tInterval	= 0.0f;
+			dt   = 0.0f;
+			tInterval = 0.0f;
 			attackRange.setPos(0,0,500);
+			rangeCount = 0;
 		}
 	}
 }
@@ -592,8 +606,26 @@ void Player::checkOtherPlayer(Player &otherPlayer)
 		//Check to see if the player is being hit with a ranged attack
 		if(isBoxBoxColliding(playerObject.getHitBox().getPos(),playerObject.getHitBox().getSize(), otherPlayer.attackRange.getPos(), otherPlayer.attackRange.getSize()))
 		{
-			//Player is getting hit with a range attack
-			//TODO
+			if((isBlocking>0) && (shield !=0)){
+				if(shield > 40)
+					shield -= 40;
+				else if (shield > 0)
+					shield = 0;
+			} else {
+				if(health > 5)
+					health -= 5;
+			}
+   
+			stunCooldown = 50;
+			invincibleFrames = 10;
+			wasHit = 2;
+
+			otherPlayer.attackRange.setSize(20,20,5);
+			otherPlayer.isExploding = 30;
+
+			glm::vec3 normForce = glm::normalize(glm::vec3(position - otherPlayer.targetNode->position));
+
+			impactForce=glm::vec3(normForce.x*500000,normForce.y*500000,0);
 		}
 	}
 	//if player is colliding with another player
@@ -755,6 +787,10 @@ void Player::draw(){
 	glBindTexture(GL_TEXTURE_2D, this->getObject().getTex());           
 
 	glTranslatef(position.x, position.y, position.z);
+	if(faceDirection == 1)
+	    glRotatef(90,0,1,0);
+	else
+	    glRotatef(-90,0,1,0);
 	//glTranslatef(this->playerObject.getHitBox().getPos().x, this->playerObject.getHitBox().getPos().y, this->playerObject.getHitBox().getPos().z);
 
 	
@@ -997,11 +1033,16 @@ void Player::moveAction(int numAction){
 void Player::attackAction(int numAction){
     isAttacking = numAction;
     if(numAction == 6){
+		Animations->setAnimation(1);
         tInterval = 0.15f;
         attackFist.setPos(position.x+8,position.y+3.5,position.z);
         attackStartPos = attackFist.getPos();
         onCooldown = 20;
     } else if(numAction == 8){
+		if(hitFloor)
+			Animations->setAnimation(2);//If on floor, ground kick
+		else
+			Animations->setAnimation(3);//If in air, air kick
         tInterval = 0.05f;
         attackKick.setPos(position.x+8,position.y-3.5,position.z);
         attackStartPos = attackKick.getPos();
@@ -1010,20 +1051,24 @@ void Player::attackAction(int numAction){
 
     } else if (numAction == 11){
 
-		//Generate path from A* to be used for the tragectory of the ranged attack
-		std::vector<CollisionNode *> V;	//TEMP to be replaced with the return from A*
-		V =  rangeAStar(*internalOtherPlayer,*internalWorldgraph);
-		for(unsigned int i = 0; i < V.size(); ++i)
+		if(rangeCount == 0)
 		{
-			rangeAttackPath.AddWaypointToEnd(V[i]->position);
-		}
-		V.clear();
-		rangeAttackPath.Start();
+			rangeCount = 1;
+			//Generate path from A* to be used for the tragectory of the ranged attack
+			std::vector<CollisionNode *> V;	//TEMP to be replaced with the return from A*
+			V =  rangeAStar(*internalOtherPlayer,*internalWorldgraph);
+			for(unsigned int i = 0; i < V.size(); ++i)
+			{
+				rangeAttackPath.AddWaypointToEnd(V[i]->position);
+			}
+			V.clear();
+			rangeAttackPath.Start();
 
-	    tInterval = 0.005f;
-	    attackRange.setPos(position.x+5,position.y+5,position.z);
-	    attackStartPos = attackRange.getPos();
-	    rangeCooldown = 60;
+			tInterval = 0.005f;
+			attackRange.setPos(position.x+5,position.y+5,position.z);
+			attackStartPos = attackRange.getPos();
+			rangeCooldown = 60;
+		}
 	}
 }
 
@@ -1031,6 +1076,8 @@ void Player::blockAction(int numAction){
     isBlocking = 20;
     blockCooldown = 30;
 	blockBox.setPos(position);
+	Animations->setAnimation(4);
+
 }
 
 void Player::Death()
@@ -1151,4 +1198,44 @@ void setShield();
 
 glm::vec3 Player::getTotalForce(){
 	return totalForce;
+}
+
+//Animations
+PlayerAnimation::PlayerAnimation(OBJModel &object, Assets &targets)
+{
+	currentAnimation = 0;
+	currentFrame = 0;
+	nextFrame = 1;
+	playerObject = object;
+	morphTargets = targets;
+	dt = 0.0f;
+}
+
+void PlayerAnimation::update(float t)
+{
+	dt += t;
+
+	itsMorphingTime();
+
+	if(dt >= 1.0f){
+		currentFrame = nextFrame;
+		nextFrame++;
+		dt = 0.0f;
+	}
+
+	if(nextFrame == animations[currentAnimation].size())
+	{
+		setAnimation(0);
+	}
+		
+}
+
+void PlayerAnimation::itsMorphingTime()
+{
+	int size = morphTargets.objects[currentFrame].getVerSize();  //TODO Implementing size check of objects interpolating to
+	for(int i=0; i<size ;i++){
+		int p0 = animations[currentAnimation][currentFrame];
+		int p1 = animations[currentAnimation][nextFrame];
+		playerObject.setVertex(LERP(morphTargets.objects[p0].getVertex(i),morphTargets.objects[p1].getVertex(i),dt),i);
+	}	
 }

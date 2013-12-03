@@ -1,0 +1,60 @@
+obj resources\Shputnik-Idle1.obj
+tex resources\Shputnik_Texture.png
+pos -75 20 -50
+store
+obj resources\Shputnik-Idle2.obj
+tex resources\Shputnik_Texture.png
+pos -75 20 -50
+store
+obj resources\Shputnik-Punch1.obj
+tex resources\Shputnik_Texture.png
+pos -75 20 -50
+store
+obj resources\Shputnik-Punch2.obj
+tex resources\Shputnik_Texture.png
+pos -75 20 -50
+store
+obj resources\Shputnik-Punch3.obj
+tex resources\Shputnik_Texture.png
+pos -75 20 -50
+store
+obj resources\Shputnik-Kick0.obj
+tex resources\Shputnik_Texture.png
+pos -75 20 -50
+store
+obj resources\Shputnik-Kick1.obj
+tex resources\Shputnik_Texture.png
+pos -75 20 -50
+store
+obj resources\Shputnik-Kick2.obj
+tex resources\Shputnik_Texture.png
+pos -75 20 -50
+store
+obj resources\Shputnik-JumpKick1.obj
+tex resources\Shputnik_Texture.png
+pos -75 20 -50
+store
+obj resources\Shputnik-JumpKick2.obj
+tex resources\Shputnik_Texture.png
+pos -75 20 -50
+store
+obj resources\Shputnik-JumpKick3.obj
+tex resources\Shputnik_Texture.png
+pos -75 20 -50
+store
+obj resources\Shputnik-Block1.obj
+tex resources\Shputnik_Texture.png
+pos -75 20 -50
+store
+obj resources\Shputnik-Block1.obj
+tex resources\Shputnik_Texture.png
+pos -75 20 -50
+store
+obj resources\Shputnik-Dash.obj
+tex resources\Shputnik_Texture.png
+pos -75 20 -50
+store
+obj resources\Shputnik-Dash.obj
+tex resources\Shputnik_Texture.png
+pos -75 20 -50
+store
