@@ -91,6 +91,38 @@ void ParticleEmitter::draw(void)
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable (GL_DEPTH_TEST);
 
+
+	
+	//for(unsigned int i = 0; i < particleList.size(); ++i)
+	//{
+	//	glPushMatrix();
+	//
+	//	glTranslatef(particleList[i].position.x, particleList[i].position.y, particleList[i].position.z);
+	//	glScalef(particleList[i].size.x, particleList[i].size.y, particleList[i].size.z);
+	//
+	//	glBegin(GL_QUADS);
+	//	if(particleList[i].life > 0.0f)
+	//	{
+	//		glColor3f(particleList[i].colour.x/256, particleList[i].colour.y/256, particleList[i].colour.z/256);
+	//			
+	//		glTexCoord2f(0.0f,0.0f);
+	//		glVertex3f(-1,+1, 1);
+	//			
+	//		glTexCoord2f(1.0f,0.0f);
+	//		glVertex3f(+1,+1, 1);
+	//			
+	//		glTexCoord2f(1.0f,1.0f);
+	//		glVertex3f(+1,-1, 1);
+	//			
+	//		glTexCoord2f(0.0f,1.0f);
+	//		glVertex3f(-1,-1, 1);
+	//	}
+	//	glEnd();
+	//
+	//	glPopMatrix();
+	//}
+	
+
 	glBegin(GL_QUADS);
 		for(unsigned int i = 0; i < particleList.size(); ++i)
 		{

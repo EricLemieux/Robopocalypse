@@ -43,7 +43,7 @@ Game::Game(float fps)
 
 	//Debuging tools
 	//Should all be false in releases
-	debugTools = true;
+	debugTools = false;
 	if(debugTools)
 	{
 		shouldDrawHitboxes = true;

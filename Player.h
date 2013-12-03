@@ -250,9 +250,13 @@ private:
 
 	//missile path
     Path rangePath;
+	CollisionNode* opponentTarget;
+	NodeGraph local_graph;
 
 	bool animate;
 	PlayerAnimation *Animations;
+
+	int exploded;
 };
 
 
