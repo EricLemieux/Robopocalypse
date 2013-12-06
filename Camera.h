@@ -11,7 +11,10 @@ public:
 	//compute camera and target position
 	void setFocus(Player player1, Player player2);							//Focus between the to characters
 	void setFocus(Player player1);											//Target the one player in a face on shot.
-	void setFocus(glm::vec3 pos1, glm::vec3 pos2, float dt, float maxT);	//Animated camera for cutscenes, ment to be used with LERP
+	void setPos(glm::vec3 pos1, glm::vec3 pos2, float dt, float maxT);		//Animated camera for cutscenes, used with LERP
+
+	void setTarget(glm::quat q1, glm::quat q2, float dt, float maxT);		//Setting the target for the camera using SLERP
+	void setTarget(glm::vec3 target);
 
 	//gluLookAt in here
 	void update();

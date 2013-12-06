@@ -29,7 +29,7 @@ void Camera::setFocus(Player player1, Player player2){
 	playerToCenter = sqrt(pow(player1.getPosX() - playerCenter.x,2)+pow(player1.getPosY() - playerCenter.y,2)+pow(player1.getPosZ() - playerCenter.z,2));
 
 	camPos.x = targetPos.x = playerCenter.x;
-	camPos.y = targetPos.y = 10;
+	camPos.y = targetPos.y = 40;
 	camPos.z = 1.2f * playerToCenter * tanf(PI/5);
 }
 
@@ -44,16 +44,27 @@ void Camera::setFocus(Player player1)
 	camPos.z = player1.getPos().z;
 }
 
-void Camera::setFocus(glm::vec3 pos1, glm::vec3 pos2, float dt, float maxT)
+void Camera::setPos(glm::vec3 pos1, glm::vec3 pos2, float dt, float maxT)
 {
-	//Set the target
-	targetPos	 = (pos1 + pos2)/glm::vec3(2,2,2);
-	targetPos.z -= 30.0f;
-
-
 	//Set the position
 	dt *= 1/maxT;
 	camPos = LERP(pos1,pos2,dt);
+}
+
+void Camera::setTarget(glm::quat q1, glm::quat q2, float dt, float maxT)
+{
+	//Set the target
+	dt *= 1/maxT;
+	glm::quat qf = SLERP(q1, q2, dt);
+	
+	targetPos.x = qf.x;
+	targetPos.y = qf.y;
+	targetPos.z = qf.z;
+}
+
+void Camera::setTarget(glm::vec3 target)
+{
+	targetPos = target;
 }
 
 void Camera::update(){

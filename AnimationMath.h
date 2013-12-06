@@ -28,37 +28,33 @@ inline catmullromClass CatmullRom(const catmullromClass p_i_1,
       const float t)
 {
  catmullromClass result = 0.5f *
-  ( 2*p_i + 
+  ( 2.0f*p_i + 
   t*(-p_i_1 + p_i1) +
-  t*t*(2*p_i_1 - 5*p_i + 4*p_i1 - p_i2) +
-  t*t*t*(-p_i_1 + 3*p_i - 3*p_i1 + p_i2) );
+  t*t*(2.0f*p_i_1 - 5.0f*p_i + 4.0f*p_i1 - p_i2) +
+  t*t*t*(-p_i_1 + 3.0f*p_i - 3.0f*p_i1 + p_i2) );
 
  return result;
 }
 
 //Quaternion SLERP
-inline glm::quat quatSLERP(glm::quat q0, glm::quat q1, float t)
+inline glm::quat SLERP(glm::quat q0, glm::quat q1, float t)
 {
-	//glm::vec3 q0v = glm::vec3(q0.x, q0.y, q0.z);
-	//glm::vec3 q1v = glm::vec3(q1.x, q1.y, q1.z);
+	//store the lenth of the quaternions
+	float length = glm::length(q0);
 
-	//float top = (glm::dot(q0, q1));
-	//float bot = (glm::dot(glm::l2Norm(q0v),glm::l2Norm(q1v)));
-
+	//Store the l2 norms
 	float q0l2norm = sqrt(q0.w*q0.w + q0.x*q0.x + q0.y*q0.y + q0.z*q0.z);
 	float q1l2norm = sqrt(q1.w*q1.w + q1.x*q1.x + q1.y*q1.y + q1.z*q1.z);
-
+	
+	//Normalize
 	q0 = q0/q0l2norm;
 	q1 = q1/q1l2norm;
 
-	float angle = acos(glm::dot(q0, q1)	/	glm::dot(q0l2norm,q1l2norm));
-	//angle *= PI/180;	//Convert to degrees
+	//Compute the angle
+	float angle = acos(glm::dot(q0, q1)	/	(q0l2norm * q1l2norm));
 
-	glm::quat newQuat;
-
-	newQuat = (sin((1-t) * angle) / sin(angle))*q0 + (sin(t * angle) / sin(angle))*q1;
-
-	return newQuat;
+	//Multiply and return the new quaternion
+	return ((sin((1-t) * angle) / sin(angle))*q0 + (sin(t * angle) / sin(angle))*q1) * length;
 }
 
 template<typename bezierClass>

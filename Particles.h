@@ -145,6 +145,19 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
+		//Shield Texture
+		sf::Image shieldParticleImageMap;
+		if(!shieldParticleImageMap.loadFromFile("resources/shield.png"))
+		{
+			std::cout<<"error loading shield texture for particle\n";
+		}
+
+		glGenTextures(1,&shieldTex);
+		glBindTexture(GL_TEXTURE_2D,shieldTex);
+		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, shieldParticleImageMap.getSize().x, shieldParticleImageMap.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, shieldParticleImageMap.getPixelsPtr());
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
 		//Default Texture
 		sf::Image defaultParticleImageMap;
 		if(!defaultParticleImageMap.loadFromFile("resources/default.bmp"))
@@ -201,6 +214,7 @@ public:
 	GLuint sparkTex;
 	GLuint defaultTex;
 	GLuint smokeTex;
+	GLuint shieldTex;
 };
 
 //////////

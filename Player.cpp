@@ -83,6 +83,8 @@ Player::Player(OBJModel object){
 	rangeCooldown	= 0;
 	dt				= 0.f;
 	tInterval		= 0.f;
+	rdt				= 0.0f;
+	rtInterval		= 0.0f;
 	
 	isBlocking		= 0;
 	blockCooldown	= 0;
@@ -311,6 +313,49 @@ void Player::updateCooldown(){
         --onCooldown;
     }
     if(isBlocking > 0){
+		//Show a shield particle
+		ParticleEmitter shieldParticle;
+
+		shieldParticle.setNumOfParticles(1);
+
+		shieldParticle.setLifeRange(Range(2,2));
+
+		Range szeRange[3];
+		szeRange[0] = Range(15,15);
+		szeRange[1] = Range(15,15);
+		szeRange[2] = Range(15,15);
+		shieldParticle.setSizeRange(szeRange);
+
+		Range clrRange[3];
+		clrRange[0] = Range(255,256);
+		clrRange[1] = Range(255,256);
+		clrRange[2] = Range(255,256);
+		shieldParticle.setColourRange(clrRange);
+	
+		Range posRange[3];
+		posRange[0] = Range(position.x,position.x);
+		posRange[1] = Range(position.y,position.y);
+		posRange[2] = Range(position.z,position.z);
+		shieldParticle.setPosRange(posRange);
+
+		Range aclRange[3];
+		aclRange[0] = Range(0,0);
+		aclRange[1] = Range(0,0);
+		aclRange[2] = Range(0,0);
+		shieldParticle.setAcelRange(aclRange);
+
+		Range velRange[3];
+		velRange[0] = Range(0,0);
+		velRange[1] = Range(0,0);
+		velRange[2] = Range(0,0);
+		shieldParticle.setVelRange(velRange);
+
+		shieldParticle.initialise();
+
+		shieldParticle.parent = &particlemanager;
+		shieldParticle.particleTexture = shieldParticle.parent->shieldTex;
+
+		particlemanager.addEmmiter(shieldParticle);	
         --isBlocking;
         blockBox.setPos(position);
     } else {
@@ -416,12 +461,12 @@ void Player::updateAttack(){
 		isKicking = 0;
 	}
 
-	if(isAttacking == 11)
+	if(isAttacking == 11 ||(rangeCount == 1))
 	{
-		if((dt < 1)&&(isExploding == 0))
+		if((rdt < 1)&&(isExploding == 0))
 		{
-			dt += tInterval;
-			rangeAttackPath.Update(tInterval);
+			rdt = rangeAttackPath.Update(rtInterval);
+
 			attackRange.setPos(rangeAttackPath.GetCurrentState());
 
 			//Create a particle effect for the range attack during it's flight
@@ -471,7 +516,7 @@ void Player::updateAttack(){
 			particlemanager.addEmmiter(rangeAttackParticle);
 		}
 		else if (isExploding != 0){
-			dt = 1;
+			rdt = 1;
 
 			//Create a particle effect for the range attack for when it explodes
 			ParticleEmitter rangeAttackParticle;
@@ -521,25 +566,28 @@ void Player::updateAttack(){
 		} 
 		else {
 			if(exploded != 1){
-				internalOtherPlayer->attackRange.setSize(20,20,5);
-				if(internalOtherPlayer->isExploding == 0)
-					internalOtherPlayer->isExploding = 10;
+				attackRange.setSize(20,20,5);
+				if(isExploding == 0)
+					isExploding = 10;
 				exploded = 1;
 			}
-			exploded = 0;
+			else
+			{
+				exploded = 0;
 
-			rangeAttackPath.Stop();
-			rangeAttackPath.Reset();
-			rangeAttackPath.RemoveAllWaypoints();
-			internalWorldgraph->reset();
-			local_graph.reset();
-			attackRange.setSize(1,1,1);
+				rangeAttackPath.Stop();
+				rangeAttackPath.Reset();
+				rangeAttackPath.RemoveAllWaypoints();
+				internalWorldgraph->reset();
+				local_graph.reset();
+				attackRange.setSize(1,1,1);
 			
-			isAttacking = 0;
-			dt   = 0.0f;
-			tInterval = 0.0f;
-			attackRange.setPos(0,0,500);
-			rangeCount = 0;
+				isAttacking = 0;
+				rdt   = 0.0f;
+				rtInterval = 0.0f;
+				attackRange.setPos(0,0,500);
+				rangeCount = 0;
+			}
 		}
 	}
 }
@@ -636,12 +684,12 @@ std::vector<CollisionNode*> Player::reconstructPath( CollisionNode* current_node
 	std::vector<CollisionNode*> shortest_path;
 
 	if(current_node->hasParent != 0){
-		std::cout<<current_node->hasParent<<" 1 : "<<current_node->row<<" : "<<current_node->column<<std::endl;
+		//std::cout<<current_node->hasParent<<" 1 : "<<current_node->row<<" : "<<current_node->column<<std::endl;
 		shortest_path = reconstructPath(current_node->camefrom);
 		shortest_path.push_back(current_node);
 		return shortest_path;
 	} else {
-		std::cout<<current_node->hasParent<<" 2 : "<<current_node->row<<" : "<<current_node->column<<std::endl;
+		//std::cout<<current_node->hasParent<<" 2 : "<<current_node->row<<" : "<<current_node->column<<std::endl;
 		shortest_path.push_back(current_node);
 		return shortest_path;
 	}
@@ -1152,9 +1200,10 @@ void Player::attackAction(int numAction){
 				rangeAttackPath.AddWaypointToEnd(V[i]->position);
 			}
 			V.clear();
+			rangeAttackPath.genCatmullTable();
 			rangeAttackPath.Start();
 
-			tInterval = 0.005f;
+			rtInterval = 0.02f;
 			attackRange.setPos(position.x+5,position.y+5,position.z);
 			attackStartPos = attackRange.getPos();
 			rangeCooldown = 60;

@@ -148,7 +148,7 @@ void Game::initializeMainMenu()
 	glLoadIdentity();
 	
 	sf::Image mainmenuImageMap;
-	if(!mainmenuImageMap.loadFromFile("resources/mainMenu.jpg")){
+	if(!mainmenuImageMap.loadFromFile("resources/Menu_with_Buttons.png")){
 		std::cout<<"error loading main menu texture Game.cpp in void Game::initializeGame();\n";
 	}
 	glGenTextures(1,&mainMenuTex);
@@ -301,11 +301,17 @@ void Game::gameEvent(){
 
 //draw
 void Game::draw(){
+	//Clear the depth and colour buffers
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glDisableClientState(GL_COLOR_ARRAY);
 
-
+	//Draw the HUD in it's own 
+	if(shouldDrawHUD)
+	{
+		drawHUD();
+	}
 
 	DrawGame();
-
 }
 
 
@@ -313,14 +319,6 @@ void Game::draw(){
 //draw game
 void Game::DrawGame()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glDisableClientState(GL_COLOR_ARRAY);
-
-	if(shouldDrawHUD)
-	{
-		drawHUD();
-	}
-
 	glViewport(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);
 	glEnable(GL_TEXTURE_2D);
 	
@@ -727,7 +725,9 @@ void Game::update()
 		{
 			player1.setStunCooldown(2.0 * 30);
 			player2.setStunCooldown(2.0 * 30);
-			camera.setFocus(glm::vec3(50, 10, 10), glm::vec3(-50, 10, 10), gameTime, 1.0f);
+			camera.setPos(glm::vec3(50, 10, 10), glm::vec3(-50, 10, 10), gameTime, 1.0f);
+			camera.setTarget(glm::quat(0,player1.getPos()), glm::quat(0,player2.getPos()), gameTime, 1.0f);
+			//camera.setTarget(glm::quat(0,player1.getPos()), glm::quat(0,player1.getPos()), gameTime, 1.0f);
 		}
 		else if(gameTime <= 1.5f)
 		{
@@ -772,7 +772,9 @@ void Game::update()
 			player1.Death();
 		}
 		
-		camera.setFocus(camera.getCamPos(), player2.getPos(), gameTime, 1.0f);
+		//Set the camera infront of player 2
+		camera.setPos(camera.getCamPos(), glm::vec3(player2.getPos().x, player2.getPos().y, player2.getPos().z + 20), gameTime, 1.0f);
+		camera.setTarget(player2.getPos());
 	}
 	else if(player2.getHealth() <= 0)
 	{
@@ -796,7 +798,9 @@ void Game::update()
 			player2.Death();
 		}
 
-		camera.setFocus(camera.getCamPos(), glm::vec3(player1.getPos().x, player1.getPos().y, player1.getPos().z + 10), gameTime, 1.0f);
+		//Set the camera infront of player 1
+		camera.setPos(camera.getCamPos(), glm::vec3(player1.getPos().x, player1.getPos().y, player1.getPos().z + 20), gameTime, 1.0f);
+		camera.setTarget(player1.getPos());
 	}
 
 	//drawHUD();

@@ -4,6 +4,13 @@
 
 
 
+struct ParaTable{
+	std::vector<float> arc_length;
+	std::vector<float> u;
+	float ustep;
+	
+};
+
 // want to create a class that is responsible for managing 
 //	a path comprised of several 2D waypoints; an object can 
 //	use this path and get the current position
@@ -46,10 +53,12 @@ public:
 	void Reset();
 
 	// actually update over time!
-	void Update(float dt);
+	float Update(float dt);
 
 	// **** get our current state!!!!
 	inline glm::vec3 GetCurrentState(){ return currentState;}
+
+	void genCatmullTable();
 
 
 private: 
@@ -58,8 +67,17 @@ private:
 	void NextWaypoint();
 
 
+
+	float current_arc_length;
+	ParaTable catmull_table;
+	glm::vec2 speed_profile[4];
+	float totalT;
+	float ut;
+	float currentTimeCmR;
+	
 	// **** need something to store our waypoints
 	std::vector<glm::vec3> waypoints;
+	glm::vec3 prevState;//for speed control
 
 	// **** how do we know our current point of reference?
 	// i.e. our current 'p0' and 'p1' for use in any algorithm
@@ -79,6 +97,7 @@ private:
 	// **** how do we know our relative state at the 
 	//	current frame?
 	float t;
+	
 
 	// **** what is our current state?
 	glm::vec3 currentState;

@@ -156,7 +156,7 @@ public:
 	collisionObjects blockBox;
 
 	int isExploding;
-
+	int exploded;
 
 private:
 	OBJModel playerObject;
@@ -227,6 +227,8 @@ private:
 	float dt;
 	//using this for temp speed control, put actual speed control later
 	float tInterval;
+
+	float rdt, rtInterval;
 	
 	int isBlocking;
 
@@ -255,8 +257,6 @@ private:
 
 	bool animate;
 	PlayerAnimation *Animations;
-
-	int exploded;
 };
 
 
