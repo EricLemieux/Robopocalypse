@@ -1,12 +1,19 @@
+//This is used to store information that is being used by several other files, such as the window height or other header files
+
 #ifndef ENGINE_H
 #define ENGINE_H
 
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
-#include<SFML/OpenGL.hpp>
+#include "glm\glm.hpp"
+#include "glm\ext.hpp"
+#include "GL\glew.h"
+#include "GLFW\glfw3.h"
 
-#include <glm\glm.hpp>
-#include <glm\ext.hpp>
+#undef _UNICODE
+#include <IL\il.h>
+#include <IL\ilu.h>
+#include <IL\ilut.h>
+
+//SFML window and graphics used to be here
 
 #include <iostream>
 #include <fstream>
@@ -14,7 +21,7 @@
 #include <cmath>
 #include <math.h>
 
-#define PI  3.14159265f
+//#define PI  3.14159265f
 #define DTR 0.01745329f
 #define RTD 57.2957795f
 
@@ -26,7 +33,6 @@
 
 #include "Particles.h"
 #include "OBJModel.h"
-#include "Animation.h"
 #include "AnimationMath.h"
 #include "LoadAssets.h"
 #include "Path.h"
@@ -37,7 +43,5 @@
 
 #include "Collisions.h"
 #include "UserInput.h"
-
-
 
 #endif

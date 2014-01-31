@@ -9,78 +9,120 @@ OBJModel::OBJModel(const char *path, const char *texPath){
 	std::vector<glm::vec2> vv2temp_uvs;
 	std::vector<glm::vec3> vv3temp_normals;
 
-	//load image
-	ILuint texName;
-	ilGenImages(1, &texName);
-	ilBindImage(texName);
-
-	//char *filePath = "cat.jpg";
-	ilLoadImage(texPath);
-	ILubyte *bytes	= ilGetData();	
-	if(!bytes)
+	sf::Image texMap;
+	if(!texMap.loadFromFile(texPath))
 	{
-		std::cout<<"error opening image file";
-
-		//Clean up memory
-		ilBindImage(0);
-		ilDeleteImages(1, &texName);
+		//The image didn't load, close the program!
+		std::cout<<"PANIC, COULDN'T LOAD TEXTURE I'M SO SORRY\n";
 	}
-	else
-	{
-		glGenTextures(1, &texture);
-		glBindTexture(GL_TEXTURE_2D, texture);
+
 	
-		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT), ilGetInteger(IL_IMAGE_FORMAT), ilGetInteger(IL_IMAGE_TYPE), ilGetData());
+	glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, texMap.getSize().x, texMap.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, texMap.getPixelsPtr());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	
+	//FILE *file = fopen(path, "r");
+	std::ifstream file;
+	file.open(path);
 
-		//Image is now OpenGL's problem
-		ilBindImage(0);
-		ilDeleteImages(1, &texName);
+	//if(file == NULL){
+	//	std::cout<<"FILE ERROR /n";
+	//}
+	if(!file.is_open()){
+		std::cout<<"OBJECT LOADING ERROR /n";
 	}
 
-	//Open the file
-	FILE *file = fopen(path, "r");
-	if(file == NULL){
-		std::cout<<"FILE ERROR /n";
-	}
-
-	char lineHeader[128];
-
+	char lineHeader;
 	//read file, convert from string to vector
-	while(fscanf(file, "%s", lineHeader) != EOF){
+	//while(fscanf(file, "%s", lineHeader) != EOF){
+	while(!file.eof()){
 
-		//add vertices
-		if(strcmp(lineHeader,"v")==0){
-			glm::vec3 vertex;
-			fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
-			vv3temp_vertex.push_back(vertex);
-		} 
-		// add texture vertices
-		else if(strcmp(lineHeader, "vt")==0){
-			glm::vec2 uv;
-			fscanf(file, "%f %f\n", &uv.x, &uv.y);
-			uv.y = 1-uv.y;
-			vv2temp_uvs.push_back(uv);
+		file.get(lineHeader);
+
+		if(lineHeader == '#' || lineHeader == '/'){
+			file.ignore(256,'\n');
 		}
-		//add normal vertices
-		else if(strcmp(lineHeader,"vn")==0){
-			glm::vec3 normal;
-			fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
-			vv3temp_normals.push_back(normal);
+
+		else if(lineHeader == 'c'){
+		
 		}
-		//add face indices: vertex, uv, normal
-		else if(strcmp(lineHeader,"f")==0){
+
+		else if(lineHeader == 'v'){
+			char secondChar;
+			file.get(secondChar);
+			//vertices
+			if(secondChar==' '){
+				char input[256];
+				glm::vec3 num;
+		
+				file>>input;
+				num.x = atof(input);
+				file>>input;
+				num.y=atof(input);
+				file>>input;
+				num.z=atof(input);
+
+				vv3temp_vertex.push_back(num);
+			}
+			//UV, texture
+			else if(secondChar == 't'){
+				char input[256];
+				glm::vec2 num;
+
+				file>>input;
+				num.x=atof(input);
+				file>>input;
+				num.y=atof(input);
+
+				vv2temp_uvs.push_back(num);
+			}
+			//normals
+			else if(secondChar == 'n'){
+				char input[256];
+				glm::vec3 num;
+		
+				file>>input;
+				num.x = atof(input);
+				file>>input;
+				num.y=atof(input);
+				file>>input;
+				num.z=atof(input);
+
+				vv3temp_normals.push_back(num);
+			}
+
+			else if (secondChar == 'p'){
+			}
+		}
+			//faces
+		else if (lineHeader == 'f'){
 			std::string sVertex1,sVertex2,Vertex3;
 			unsigned int uiVertexIndex[3], uiUVIndex[3], uiNormalIndex[3];
-			int matches = fscanf(file,"%d/%d/%d %d/%d/%d %d/%d/%d\n",
-									&uiVertexIndex[0],&uiUVIndex[0],&uiNormalIndex[0], 
-									&uiVertexIndex[1],&uiUVIndex[1],&uiNormalIndex[1], 
-									&uiVertexIndex[2],&uiUVIndex[2],&uiNormalIndex[2]);
-			if(matches != 9){
-				std::cout<<"File can't be read";
+				
+			std::string input;
+			//file>>input;
+
+			for(int i = 0; i < 3; ++i){
+				//if(i!= 0)
+				file>>input;
+
+				int n = input.find('/');
+				int m = input.find('/',2);
+
+				std::string vi = input.substr(0,n);
+				std::string uvi = input.substr(n+1,m);
+				std::string ni = input.substr(m+1);
+
+				if((atoi(vi.c_str()) != 0)||(atoi(uvi.c_str()) != 0)||(atoi(ni.c_str()) != 0)){
+					uiVertexIndex[i] = atoi(vi.c_str());
+					uiUVIndex[i] = atoi(uvi.c_str());
+					uiNormalIndex[i] = atoi(ni.c_str());
+				}
 			}
+
 			vuiVertexIndex.push_back(uiVertexIndex[0]);
 			vuiVertexIndex.push_back(uiVertexIndex[1]);
 			vuiVertexIndex.push_back(uiVertexIndex[2]);
@@ -91,9 +133,25 @@ OBJModel::OBJModel(const char *path, const char *texPath){
 			vuiNormalIndex.push_back(uiNormalIndex[1]);
 			vuiNormalIndex.push_back(uiNormalIndex[2]);
 		}
+		else if(lineHeader == 'm'){
+		}
+		else if(lineHeader == 'u'){
+		}
+		else if(lineHeader == 'o'){
+		}
+		else if(lineHeader == 'g'){
+		}
+		else if(lineHeader == 's'){
+		}
+		else {
+			file.ignore(256,'\n');
+		}
+		file.ignore(256,'\n');
 	}
+		
+	file.close();
 
-	//changing vectors into set of flm::vec3 for opengl
+	//changing vectors into set of glm::vec3 for opengl
 	for(unsigned int i=0; i<vuiVertexIndex.size();i++){
 		unsigned int vertexIndex = vuiVertexIndex[i];
 		glm::vec3 vertex = vv3temp_vertex[vertexIndex-1];
@@ -125,14 +183,13 @@ void OBJModel::drawOBJ(){
 	int b = this->getUVSize();
 	int c = this->getNormSize();
 
-	glLoadIdentity();
+
 	glPushMatrix();
 
 	glEnable(GL_TEXTURE_2D);
-	//replace?
 	glBindTexture(GL_TEXTURE_2D, this->getTex());
 
-	//glRotatef(-90.f,0,1,0);
+	glRotatef(-90.f,0,1,0);
 
 	glTranslatef(this->getPosX(), this->getPosY(), this->getPosZ());
 
@@ -154,6 +211,7 @@ void OBJModel::drawOBJ(){
 	glEnd();
 	glPopMatrix();
 }
+
 
 glm::vec3 OBJModel::getVertex(int i){
 	return out_vertices[i];
@@ -202,9 +260,4 @@ GLfloat OBJModel::getTex(){
 
 collisionObjects OBJModel::getHitBox(){
 	return boundingBox;
-}
-
-void OBJModel::setBoundingBox(collisionObjects newBoundBox)
-{
-	boundingBox = newBoundBox;
 }

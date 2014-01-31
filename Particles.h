@@ -1,14 +1,3 @@
-////////////////////
-//Particles system
-//
-//Particles.h
-//	-Ranges for a limit on what the particle can generate
-//	-ParticleManager manages all particle emitters
-//		-particleEmitter manages a vector of particles
-//			-Particle the most basic form of the system
-//
-//Eric Lemieux, 2013
-////////////////////
 
 #pragma once
 
@@ -17,9 +6,10 @@
 //////////
 #include <vector>
 #include <glm\glm.hpp>
-#include <SFML\OpenGL.hpp>
+//#include <SFML\OpenGL.hpp>
 #include "Random.h"
-#include <SFML\Graphics.hpp>
+//#include <SFML\Graphics.hpp>
+#include "GLFW\glfw3.h"
 struct Range;
 struct Particle;
 class ParticleEmitter;
@@ -119,57 +109,58 @@ public:
 	{
 		//init some textures for particles
 
+		//replace?
 		//Spark Texture
-		sf::Image sparkParticleImageMap;
-		if(!sparkParticleImageMap.loadFromFile("resources/spark.png"))
-		{
-			std::cout<<"error loading spark texture for particle\n";
-		}
+		//sf::Image sparkParticleImageMap;
+		//if(!sparkParticleImageMap.loadFromFile("resources/spark.png"))
+		//{
+		//	std::cout<<"error loading spark texture for particle\n";
+		//}
 
-		glGenTextures(1,&sparkTex);
-		glBindTexture(GL_TEXTURE_2D,sparkTex);
-		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, sparkParticleImageMap.getSize().x, sparkParticleImageMap.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, sparkParticleImageMap.getPixelsPtr());
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-		//Smoke Texture
-		sf::Image smokeParticleImageMap;
-		if(!smokeParticleImageMap.loadFromFile("resources/smoke.png"))
-		{
-			std::cout<<"error loading smoke texture for particle\n";
-		}
-
-		glGenTextures(1,&smokeTex);
-		glBindTexture(GL_TEXTURE_2D,smokeTex);
-		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, smokeParticleImageMap.getSize().x, smokeParticleImageMap.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, smokeParticleImageMap.getPixelsPtr());
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-		//Shield Texture
-		sf::Image shieldParticleImageMap;
-		if(!shieldParticleImageMap.loadFromFile("resources/shield.png"))
-		{
-			std::cout<<"error loading shield texture for particle\n";
-		}
-
-		glGenTextures(1,&shieldTex);
-		glBindTexture(GL_TEXTURE_2D,shieldTex);
-		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, shieldParticleImageMap.getSize().x, shieldParticleImageMap.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, shieldParticleImageMap.getPixelsPtr());
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-		//Default Texture
-		sf::Image defaultParticleImageMap;
-		if(!defaultParticleImageMap.loadFromFile("resources/default.bmp"))
-		{
-			std::cout<<"error loading default texture for particle\n";
-		}
-
-		glGenTextures(1,&defaultTex);
-		glBindTexture(GL_TEXTURE_2D,defaultTex);
-		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, defaultParticleImageMap.getSize().x, defaultParticleImageMap.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, defaultParticleImageMap.getPixelsPtr());
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		//glGenTextures(1,&sparkTex);
+		//glBindTexture(GL_TEXTURE_2D,sparkTex);
+		//gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, sparkParticleImageMap.getSize().x, sparkParticleImageMap.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, sparkParticleImageMap.getPixelsPtr());
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		//
+		////Smoke Texture
+		//sf::Image smokeParticleImageMap;
+		//if(!smokeParticleImageMap.loadFromFile("resources/smoke.png"))
+		//{
+		//	std::cout<<"error loading smoke texture for particle\n";
+		//}
+		//
+		//glGenTextures(1,&smokeTex);
+		//glBindTexture(GL_TEXTURE_2D,smokeTex);
+		//gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, smokeParticleImageMap.getSize().x, smokeParticleImageMap.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, smokeParticleImageMap.getPixelsPtr());
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		//
+		////Shield Texture
+		//sf::Image shieldParticleImageMap;
+		//if(!shieldParticleImageMap.loadFromFile("resources/shield.png"))
+		//{
+		//	std::cout<<"error loading shield texture for particle\n";
+		//}
+		//
+		//glGenTextures(1,&shieldTex);
+		//glBindTexture(GL_TEXTURE_2D,shieldTex);
+		//gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, shieldParticleImageMap.getSize().x, shieldParticleImageMap.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, shieldParticleImageMap.getPixelsPtr());
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		//
+		////Default Texture
+		//sf::Image defaultParticleImageMap;
+		//if(!defaultParticleImageMap.loadFromFile("resources/default.bmp"))
+		//{
+		//	std::cout<<"error loading default texture for particle\n";
+		//}
+		//
+		//glGenTextures(1,&defaultTex);
+		//glBindTexture(GL_TEXTURE_2D,defaultTex);
+		//gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, defaultParticleImageMap.getSize().x, defaultParticleImageMap.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, defaultParticleImageMap.getPixelsPtr());
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	}
 
 	//Add an emmiter to the list of particle systems

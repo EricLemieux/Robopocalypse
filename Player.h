@@ -1,6 +1,22 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+//player states
+enum playerActions
+{
+	playerActionMoveLeft = 1,
+	playerActionMoveRight,
+	playerActionDashLeft,
+	playerActionDashRight,
+	playerActionJump,
+	playerActionAttackPunch,
+	playerActionBlock,
+	playerActionAttackKick,
+	NULL1,
+	NULL2,
+	playerActionAttackRange,
+};
+
 class PlayerAnimation{
 
 private:
@@ -225,10 +241,11 @@ private:
 	int isKicking;
 	glm::vec3 attackStartPos;
 	float dt;
+	float rdt;//for range
 	//using this for temp speed control, put actual speed control later
 	float tInterval;
-
-	float rdt, rtInterval;
+	float rtInterval;//for range
+	
 	
 	int isBlocking;
 

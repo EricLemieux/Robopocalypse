@@ -1,11 +1,3 @@
-obj resources\ShputnikMeshFinal.obj
-tex resources\Shputnik_Texture.png
-pos -50 -10 -90
-load
-obj resources\ShputnikMeshFinal.obj
-tex resources\Shputnik_Texture_BLUE.jpg
-pos 50 -10 -90
-load
 obj resources\flatLevel.obj
 tex resources\groundTexture1.png
 pos 0 -30 -100

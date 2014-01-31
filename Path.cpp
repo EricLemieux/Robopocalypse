@@ -97,6 +97,7 @@ float Path::Update(float dt)
 	if(running)
 	{
 		currentTime += dt;
+		//speed control
 		currentTimeCmR += dt;
 
 		if(currentTime > segmentTime)
@@ -105,6 +106,7 @@ float Path::Update(float dt)
 		}
 		
 		t = currentTime / segmentTime;	//[0,1]
+		//speed control
 		ut = currentTimeCmR / totalT;
 		
 		//std::cout<<totalT<<std::endl;
@@ -116,17 +118,17 @@ float Path::Update(float dt)
 		}
 		else if(usingCatmullrom)
 		{
+			//find how far we should be along the curve by arc length
 			current_arc_length = catmull_table.arc_length[catmull_table.arc_length.size()-1] * Bezier(speed_profile[0],speed_profile[1],speed_profile[2],speed_profile[3],ut).y;
-			//std::cout<<ut<<std::endl;
-			//std::cout<<Bezier(speed_profile[0],speed_profile[1],speed_profile[2],speed_profile[3],ut).x<< " : "<<Bezier(speed_profile[0],speed_profile[1],speed_profile[2],speed_profile[3], ut).y<<std::endl;
 			int i = 0;
 			float tempu;
-			//std::cout<<"1 : "<<current_arc_length<<" : "<<catmull_table.arc_length[i]<<" : "<<catmull_table.arc_length[catmull_table.arc_length.size()-1]<<std::endl;
-		
+
+			//find the index number nearest to current arc length
 			while (current_arc_length > catmull_table.arc_length[i]){
 				++i;
 			}
 			
+			//increment way points if necessary, find the u value at index
 			if( i != 0){
 				int j = i/10;
 				while (j > 0){
@@ -138,13 +140,12 @@ float Path::Update(float dt)
 				tempu = 0;
 			}
 			
+			//find u value if current distance doesn't match something in table
 			if(current_arc_length != catmull_table.arc_length[i]){
 				tempu = LERP(catmull_table.u[(i%10)-1],catmull_table.u[(i%10)],(current_arc_length - catmull_table.arc_length[i])/(catmull_table.arc_length[i]-catmull_table.arc_length[i-1]));
 			}
 
-			//std::cout<<"2 : "<<current_arc_length<<" : "<<catmull_table.arc_length[i]<<" : "<<catmull_table.arc_length[catmull_table.arc_length.size()-1]<<std::endl;
 			currentState = CatmullRom(waypoints[previousWaypointIndex], waypoints[currentWaypointIndex], waypoints[nextWaypointIndex], waypoints[nextNextWaypointIndex], tempu);
-			//std::cout<<tempu<<std::endl;
 		}
 		return 0;
 	}
@@ -166,18 +167,16 @@ void Path::NextWaypoint()
 		nextNextWaypointIndex = 0;
 	else if(looping)
 	{
-		//This should be used for something but I am not really sure what
-		//currentWaypointIndex	= 0;
 		nextNextWaypointIndex	= 0;
 	}
 	else
 	{
-		//Its done, make computer explode
 		this->Stop();
 	}
 
 }
 
+//for speed control along curve
 void Path::genCatmullTable(){
 	catmull_table.arc_length.clear();
 	catmull_table.arc_length.push_back(0.f);
@@ -192,10 +191,12 @@ void Path::genCatmullTable(){
 
 	std::vector<glm::vec3> temp_catmullpoints;
 
+	//fill u intervals
 	for(int i = 0; i<10;++i){
 		catmull_table.u.push_back((float)catmull_table.ustep * i);
 	}
 
+	//find points along curve
 	for(int i = 1, size = waypoints.size()-2; i<size; ++i){
 		temp_catmullpoints.push_back(waypoints[i-1]);
 		for(int j = 1; j < 10; ++j){
@@ -209,10 +210,11 @@ void Path::genCatmullTable(){
 		
 		temp_catmullpoints.push_back(CatmullRom(waypoints[waypoints.size()-3],waypoints[waypoints.size()-2],waypoints[waypoints.size()-1],waypoints[waypoints.size()-1],catmull_table.u[i]));
 	}
-
+	//calculate arc length between points
 	for(int i = 1, size = temp_catmullpoints.size(); i < size; ++i){
 		float temp_arclength = abs(glm::l2Norm(temp_catmullpoints[i]-temp_catmullpoints[i-1]));
 		catmull_table.arc_length.push_back(temp_arclength+catmull_table.arc_length[i-1]);
 	}
+	//time it should take to run the curve
 	totalT = catmull_table.arc_length[catmull_table.arc_length.size()-1]/200;
 }

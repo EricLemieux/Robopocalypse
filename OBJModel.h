@@ -44,7 +44,8 @@ private:
 
 	collisionObjects boundingBox;
 
-	sf::Image texMap;
+	//replace?
+	//sf::Image texMap;
 	//std::vector<std::vector<int>> out_faces;
 	std::vector<std::vector<int>> out_faces;
 	std::vector<glm::vec3> out_vertices;

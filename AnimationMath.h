@@ -6,10 +6,7 @@
 //LERP
 template<typename lerpClass>
 inline lerpClass LERP(const lerpClass p0, const lerpClass p1, const float t){
-	//blending
 	return ((1-t)*p0) + ((t)*p1);
-	//faster
-	//return ((p1-p0)*t +p0);
 }
 
 //NLERP

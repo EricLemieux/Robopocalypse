@@ -14,6 +14,7 @@ void NodeGraph::init(){
 		std::vector<CollisionNode*> new_row;
 		graph.push_back(new_row);
 
+		//initialize values for each node
 		for(int j = -(size/2), col = size/2; j < col; ++j){
 			CollisionNode* new_node = new CollisionNode;
 			new_node->row = i + (size/2);

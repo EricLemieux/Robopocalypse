@@ -20,6 +20,8 @@ Camera::Camera(){
 }
 Camera::~Camera(){}
 
+//Sets the focus of the camera between the two players
+//using trig
 void Camera::setFocus(Player player1, Player player2){
 	float playerToCenter;
 	playerCenter.x = (player1.getPosX() + player2.getPosX()) / 2;
@@ -28,6 +30,9 @@ void Camera::setFocus(Player player1, Player player2){
 
 	playerToCenter = sqrt(pow(player1.getPosX() - playerCenter.x,2)+pow(player1.getPosY() - playerCenter.y,2)+pow(player1.getPosZ() - playerCenter.z,2));
 
+	//set x to between players
+	//y to fixed height
+	//adjust z based on how far players are from eachother on the x axis
 	camPos.x = targetPos.x = playerCenter.x;
 	camPos.y = targetPos.y = 40;
 	camPos.z = 1.2f * playerToCenter * tanf(PI/5);

@@ -1,5 +1,7 @@
 #include "Engine.h"
 
+//check if there is a box-box collision betweent the boxes given
+//Used frequently by the player class
 bool isBoxBoxColliding(float box1CenterX, float box1CenterY, float box1CenterZ,
                         float box1Width, float box1Height, float box1Depth,
                         float box2CenterX, float box2CenterY, float box2CenterZ,
@@ -18,6 +20,7 @@ bool isBoxBoxColliding(float box1CenterX, float box1CenterY, float box1CenterZ,
                 return false;
 }
 
+//Same as above except using vectors 
 bool isBoxBoxColliding(glm::vec3 box1Center, glm::vec3 box1Size, glm::vec3 box2Center, glm::vec3 box2Size)
 {
 	return isBoxBoxColliding(box1Center.x, box1Center.y, box1Center.z,
@@ -26,6 +29,7 @@ bool isBoxBoxColliding(glm::vec3 box1Center, glm::vec3 box1Size, glm::vec3 box2C
 							box2Size.x, box2Size.y, box2Size.z);
 }
 
+//checks to see if two circles are within eachothers radius
 bool isCircleCircleColliding(float circle1CenterX, float circle1CenterY, float circle1CenterZ, float circle1Radius,
                                                         float circle2CenterX, float circle2CenterY, float circle2CenterZ, float circle2Radius)
 {

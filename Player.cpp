@@ -4,30 +4,26 @@ Player::Player(){}
 
 Player::Player(OBJModel object){
 
+	//position of player
 	position.x = object.getPosX();
 	position.y = object.getPosY();
 	position.z = object.getPosZ();
 	prevpos = position;
 
-	
+	//orientation of player
 	rotation.x = 0.f;
 	rotation.y = 0.f;
 	rotation.z= 0.f;
 
 	
 	playerObject = object;
-	//playerHitBox = object.getHitBox();
 
-	//playerMorphs = new Assets();
 	playerMorphs.objects.clear();
 	playerMorphs.LoadAssets("assetsPlayerMorphs.txt");
 	
-	//TODO hardcode animations initialization and frame presets
+	//set what animations are available
 	Animations = new PlayerAnimation(playerObject, playerMorphs);
-	//Animations.loadObject(playerObject);
-	//Animations.loadMorphTargets(playerMorphs);
-	//Animations
-	///////////////////////////////
+
 	//Idle
 	Animations->createAnimation(0,1);
 	//Punch
@@ -43,6 +39,7 @@ Player::Player(OBJModel object){
 	
 	Animations->setAnimation(0);
 
+	
 	velocity	= glm::vec3(0,0,0);
 	maxVelY		= 64;
 
@@ -74,6 +71,7 @@ Player::Player(OBJModel object){
 
 	attackStartPos = glm::vec3(0,0,500);
 	
+	//cooldowns
 	isMoving		= 0;
 	isDashing		= 0;
 
@@ -82,9 +80,9 @@ Player::Player(OBJModel object){
 	onCooldown		= 0;
 	rangeCooldown	= 0;
 	dt				= 0.f;
+	rdt				= 0.f;
 	tInterval		= 0.f;
-	rdt				= 0.0f;
-	rtInterval		= 0.0f;
+	rtInterval		= 0.f;
 	
 	isBlocking		= 0;
 	blockCooldown	= 0;
@@ -112,42 +110,16 @@ Player::Player(OBJModel object){
 
 	local_graph.init();
 
-
-	//rangeAttackPath
 }
 
 Player::~Player(){}
 
-	//player input
-	//TODO put speed things here
-//void Player::increaseVelX(float vt){
-//	velocity.x += vt;
-//}
-//void Player::decreaseVelX(float vt){	
-//	velocity.x -=vt;
-//}
-
-void Player::increaseVel(glm::vec3 vt)
-{
-	velocity += vt;
-	velocity = velocity;
-}
-
-void Player::stopVelX(){
-	velocity.x = 0;
-}
-
-void Player::stopVelY(){
-	velocity.y = 0;
-}
-
-//Update the player's position
+//Update the player
 void Player::update(Assets &assets, int playerIDNum,float t, Player &otherPlayer, NodeGraph &world_graph)
 {
+	//allowing other methods in class to affect the world_graph and other player
 	internalOtherPlayer = &otherPlayer;
 	internalWorldgraph = &world_graph;
-	//local_graph = world_graph;
-	
 	
 	this->updateCooldown();
 	this->updateAttack();
@@ -170,12 +142,12 @@ void Player::updateCollision(Assets &assets,int playerIDNum, Player &otherPlayer
 	{
 		tempBoundBoxes.push_back(assets.objects[i].getHitBox());
 	}
-	floorPos = tempBoundBoxes[0].getPos().y;
-	leftWallPos = tempBoundBoxes[1].getPos().x;
-	rightWallPos = tempBoundBoxes[2].getPos().x;
-	floorSize = tempBoundBoxes[0].getSize().y;
-	leftWallSize = tempBoundBoxes[1].getSize().x;
-	rightWallSize = tempBoundBoxes[2].getSize().x;
+	floorPos		= tempBoundBoxes[0].getPos().y;
+	leftWallPos		= tempBoundBoxes[1].getPos().x;
+	rightWallPos	= tempBoundBoxes[2].getPos().x;
+	floorSize		= tempBoundBoxes[0].getSize().y;
+	leftWallSize	= tempBoundBoxes[1].getSize().x;
+	rightWallSize	= tempBoundBoxes[2].getSize().x;
 
 	bool hitAnything = false;
 	int whatHit;
@@ -269,6 +241,7 @@ void Player::updateWorldGraph(NodeGraph &world_graph){
     int temp_xsize = (int)(playerObject.getHitBox().getSize().x/2);
     int temp_ysize = (int)(playerObject.getHitBox().getSize().y/2);
 
+	//clear previous player location on world graph
     for(int i = -temp_xsize; i < temp_xsize; ++i){
         for(int j = -temp_ysize; j < temp_ysize; ++j){
             int temp_row = ((2+i+prevpos.x + world_graph.size)/2);
@@ -284,6 +257,7 @@ void Player::updateWorldGraph(NodeGraph &world_graph){
         }
     }
 
+	//set target for range attack
 	int targetxpos;
 	if(faceDirection == 1)
 		targetxpos = ((position.x+world_graph.size)/2) - (playerObject.getHitBox().getSize().x/2) + 1;
@@ -292,6 +266,7 @@ void Player::updateWorldGraph(NodeGraph &world_graph){
 	int targetypos = 1+((position.y+world_graph.size)/2);
 	targetNode = local_graph.graph[targetxpos][targetypos];
 
+	//set current player position on graph
     for(int i = -temp_xsize; i < temp_xsize; ++i){
         for(int j = -temp_ysize; j < temp_ysize; ++j){
             int temp_row = ((2+i+position.x + world_graph.size)/2);
@@ -313,49 +288,6 @@ void Player::updateCooldown(){
         --onCooldown;
     }
     if(isBlocking > 0){
-		//Show a shield particle
-		ParticleEmitter shieldParticle;
-
-		shieldParticle.setNumOfParticles(1);
-
-		shieldParticle.setLifeRange(Range(2,2));
-
-		Range szeRange[3];
-		szeRange[0] = Range(15,15);
-		szeRange[1] = Range(15,15);
-		szeRange[2] = Range(15,15);
-		shieldParticle.setSizeRange(szeRange);
-
-		Range clrRange[3];
-		clrRange[0] = Range(255,256);
-		clrRange[1] = Range(255,256);
-		clrRange[2] = Range(255,256);
-		shieldParticle.setColourRange(clrRange);
-	
-		Range posRange[3];
-		posRange[0] = Range(position.x,position.x);
-		posRange[1] = Range(position.y,position.y);
-		posRange[2] = Range(position.z,position.z);
-		shieldParticle.setPosRange(posRange);
-
-		Range aclRange[3];
-		aclRange[0] = Range(0,0);
-		aclRange[1] = Range(0,0);
-		aclRange[2] = Range(0,0);
-		shieldParticle.setAcelRange(aclRange);
-
-		Range velRange[3];
-		velRange[0] = Range(0,0);
-		velRange[1] = Range(0,0);
-		velRange[2] = Range(0,0);
-		shieldParticle.setVelRange(velRange);
-
-		shieldParticle.initialise();
-
-		shieldParticle.parent = &particlemanager;
-		shieldParticle.particleTexture = shieldParticle.parent->shieldTex;
-
-		particlemanager.addEmmiter(shieldParticle);	
         --isBlocking;
         blockBox.setPos(position);
     } else {
@@ -391,8 +323,11 @@ void Player::updateCooldown(){
 }
 
 void Player::updateAttack(){
+	//if punching
 	if(isAttacking == 6){
+		//allow block or dash cancelling
 		if((!hitWall) && (isBlocking == 0) && (isDashing == 0)){
+			//set hitbox position if dt is under 1 else reset everything
 			if(dt<1){
 				dt += tInterval;
 				if(faceDirection == 1){
@@ -413,14 +348,18 @@ void Player::updateAttack(){
 				attackFist.setPos(0,0,500);
 			}
 		} else {
+			//reset on dash or block cancel
 			isAttacking = 0;
 			dt = 0.f;
 			tInterval = 0.f;
 			attackFist.setPos(0,0,500);
 		}
 	}
+	//if kicking
 	if(isAttacking == 8){
+		//dash or block cancel
 		if((!hitWall) && (isBlocking == 0) && (isDashing == 0)){
+			//update kick hitbox position
 			if(dt<1){
 				dt += tInterval;
 				if(faceDirection == 1){
@@ -434,6 +373,7 @@ void Player::updateAttack(){
 					attackStartPos = attackKick.getPos();
 					attackKick.setPos(LERP(attackStartPos,glm::vec3(attackStartPos.x-10,attackStartPos.y+5,attackStartPos.z),dt));
 				}
+				//check to see if they should be rising or diving on the kick
 				if(hitFloor){
 					isKicking += 1;
 				} else {
@@ -461,12 +401,14 @@ void Player::updateAttack(){
 		isKicking = 0;
 	}
 
-	if(isAttacking == 11 ||(rangeCount == 1))
+	//range attack
+	if((isAttacking == 11)||(rangeCount == 1))
 	{
+		//if particle has not traveled full path or hit anything, update position
 		if((rdt < 1)&&(isExploding == 0))
 		{
 			rdt = rangeAttackPath.Update(rtInterval);
-
+			
 			attackRange.setPos(rangeAttackPath.GetCurrentState());
 
 			//Create a particle effect for the range attack during it's flight
@@ -515,6 +457,7 @@ void Player::updateAttack(){
 
 			particlemanager.addEmmiter(rangeAttackParticle);
 		}
+		//if particle is exploding, set appropriate cooldowns and set rdt to 1
 		else if (isExploding != 0){
 			rdt = 1;
 
@@ -565,13 +508,14 @@ void Player::updateAttack(){
 			particlemanager.addEmmiter(rangeAttackParticle);
 		} 
 		else {
+			//if it has reached end of path and hasn't exploded, explode
 			if(exploded != 1){
 				attackRange.setSize(20,20,5);
 				if(isExploding == 0)
 					isExploding = 10;
 				exploded = 1;
 			}
-			else
+			else // reset
 			{
 				exploded = 0;
 
@@ -593,56 +537,65 @@ void Player::updateAttack(){
 }
 
 std::vector<CollisionNode*> Player::rangeAStar(Player &otherPlayer, NodeGraph &local_graph){
-	std::vector<CollisionNode*> closedset;
-	std::vector<CollisionNode*> openset;
-	openset.push_back(targetNode);
-	opponentTarget = local_graph.graph[otherPlayer.targetNode->row][otherPlayer.targetNode->column];
-	std::vector<CollisionNode*> failed_path;
+	std::vector<CollisionNode*> closedset;//nodes we've already been to
+	std::vector<CollisionNode*> openset;//nodes we are going to check
+	openset.push_back(targetNode);//start at the beginning, in this case targetNode = behind the player position
+	opponentTarget = local_graph.graph[otherPlayer.targetNode->row][otherPlayer.targetNode->column];//the end goal, behind the opponent player
+	std::vector<CollisionNode*> failed_path;//return just the start node if this fails
 	failed_path.push_back(targetNode);
 
-	float distance;
-
-	targetNode->fromstart = 0;
-	targetNode->starttogoal = targetNode->fromstart + distanceBetween(targetNode,opponentTarget);
+	targetNode->fromstart = 0;//g score of start node is 0
+	targetNode->starttogoal = targetNode->fromstart + distanceBetween(targetNode,opponentTarget);//f score of start node is g score + distance to the end
  
+	//run while there are nodes left to check
 	while(openset.size() > 0){
 		CollisionNode* temp_current = openset[0];
+		//find the node with the smallest f score and set temporary current node to it
 		for(int i = 0, size = openset.size(); i<size;++i){
 			if(openset[i]->starttogoal < temp_current->starttogoal){
 				temp_current = openset[i];
 			}
 		}
+		//if we found what we're looking for, return path. Find matches by matching index numbers
 		if((temp_current->row == opponentTarget->row)&&(temp_current->column == opponentTarget->column)){
 			return reconstructPath(opponentTarget);
 		}
-
+		//remove current node from open set since we're checking it
 		for(int i = 0;i<openset.size();++i){
 			if((temp_current->row == openset[i]->row)&&(temp_current->column == openset[i]->column)){
 				openset.erase(openset.begin()+(i));
 			}
 		}
 
+		//add current node to list of checked nodes
 		closedset.push_back(temp_current);
 
+		//check all neighbours
 		for(int i = 0, size = temp_current->neighbours.size(); i < size; ++i){
 			float temp_fromstart = temp_current->fromstart + distanceBetween(temp_current,temp_current->neighbours[i]);
 			float temp_starttogoal = temp_fromstart + distanceBetween(temp_current->neighbours[i], opponentTarget);
 			int inClosed = 0;
 			int inOpen = 0;
+			//check if a neighbour is in the closed set
 			for(int j = 0, size = closedset.size(); j<size;++j){
 				if((temp_current->neighbours[i]->row == closedset[j]->row)&&(temp_current->neighbours[i]->column==closedset[j]->column)){
 					inClosed = 1;
 				}
 			}
+			//check if a neighbour is in the open set
 			for(int j = 0, size = openset.size(); j<size;++j){
 				if((temp_current->neighbours[i]->row == openset[j]->row)&&(temp_current->neighbours[i]->column==openset[j]->column)){
 					inOpen = 1;
 				}
 			}
+			//calculate f_score for all neighbours
 		   temp_current->neighbours[i]->starttogoal = distanceBetween(temp_current->neighbours[i],opponentTarget);
+		   //if a neighbour is in the closed set, do nothing
 		   if((inClosed == 1) &&(temp_starttogoal >= temp_current->neighbours[i]->starttogoal)){
        
-			} else if((inOpen != 1)||(temp_starttogoal < temp_current->neighbours[i]->starttogoal)){
+			} 
+		   //if neighbour is not in the open set or if distance between current to neighbout to goal is smaller than distance between neighbour and goal, set parents and the f and g scores.
+		   else if((inOpen != 1)||(temp_starttogoal < temp_current->neighbours[i]->starttogoal)){
 			    temp_current->neighbours[i]->camefrom = temp_current;
 			    temp_current->neighbours[i]->hasParent = 1;
 			    temp_current->neighbours[i]->fromstart = temp_fromstart;
@@ -656,9 +609,11 @@ std::vector<CollisionNode*> Player::rangeAStar(Player &otherPlayer, NodeGraph &l
 }
 
 float Player::distanceBetween(CollisionNode* a, CollisionNode* b){
+	//if a node is occupied, can't go there
 	if((a->visited)||(b->visited))
 		return 100000000000000000;
 	else{
+		//if node is diagonal then distance is 2, adjacent is 1
 		int xdist = abs(a->row-b->row);
 		int ydist = abs(a->column-b->column);
 		int i = 0;
@@ -683,6 +638,7 @@ float Player::distanceBetween(CollisionNode* a, CollisionNode* b){
 std::vector<CollisionNode*> Player::reconstructPath( CollisionNode* current_node){
 	std::vector<CollisionNode*> shortest_path;
 
+	//recursively backtrack through the node parents and push them into a list ot create a path
 	if(current_node->hasParent != 0){
 		//std::cout<<current_node->hasParent<<" 1 : "<<current_node->row<<" : "<<current_node->column<<std::endl;
 		shortest_path = reconstructPath(current_node->camefrom);
@@ -713,7 +669,6 @@ void Player::checkOtherPlayer(Player &otherPlayer)
 		if(isBoxBoxColliding(playerObject.getHitBox().getPos(),playerObject.getHitBox().getSize(), otherPlayer.attackFist.getPos(), otherPlayer.attackFist.getSize()))
 		{
 			//Player is getting punched
-			//TODO
 			if((isBlocking > 0) && (shield != 0)){
 				if(shield > 0)
 					shield -= 10;
@@ -793,58 +748,62 @@ void Player::checkOtherPlayer(Player &otherPlayer)
 
 void Player::updatePos(float t){
 	prevpos = position;
+	//if going t0o fast, no more jumping allowed
 	if(velocity.y > maxVelY){
 			jumpForce = glm::vec3(0,0,0);
 	}
+	//change drag force depending on whether or not you're on the ground
 	if((!hitFloor)||((moveForce.x < 0)&&(velocity.x < 0))||((moveForce.x>0)&&(velocity.x > 0))){
 		resistanceForce.x = -1 * velocity.x;
 	} else {
 		resistanceForce.x = -200 * velocity.x;
 	}
-
 	if((!hitFloor)||((moveForce.z < 0)&&(velocity.z < 0))||((moveForce.z>0)&&(velocity.z > 0))){
 	    resistanceForce.z = -1 * velocity.z;
 	} else {
 	    resistanceForce.z = -200 * velocity.z;
 	}
 
+	//if you aren't on the ground, gravity is immense, otherwise meh
 	if(!hitFloor)
 	{
 		gravityForce.y = -5000.0f;
 	} else {
 		gravityForce.y = 0.f;
 	}
+	//at top of jump, make gravity stronger to avoid floating
 	if((velocity.y > -1.f) && (velocity.y < 1.f)&&(jumpCount != 0)){
 		gravityForce = glm::vec3(0,-5000,0);
 	} else if (jumpCount != 0) {
 		gravityForce += glm::vec3(0,-100,0);
 	}
 	
-
+	//if player isn't recieving move input, kill move force
 	if(isMoving == 0){
 	    moveForce = glm::vec3(0,0,0);
 	}
-	
+	//damp all forces if currently blocking
 	if(isBlocking > 0){
 	    jumpForce = jumpForce * 0.01f;
 	    moveForce = moveForce*0.01f;
 	    impactForce = impactForce*0.1f;
 	}
-
+	//if you aren't hit set impact to 0
 	if(wasHit == 0){
 		impactForce = glm::vec3(0,0,0);
 	}
-
+	//not using this but it's supposed to be for player -> player collisions
 	if(bodyTobody == 0){
 		pushForce = glm::vec3(0,0,0);
 	}
-
+	//total force
 	totalForce = impactForce + gravityForce + moveForce + resistanceForce + jumpForce + pushForce;
-
+	//z axis position
 	acceleration.z = t*totalForce.z;
 	velocity.z += t*acceleration.z;
 	position.z += t*velocity.z + 0.5f*acceleration.z*t*t;
 	
+	//if you aren't on ground, update position accordingly
 	if(!hitFloor)
 	{
 		jumpCount = 1;
@@ -852,31 +811,34 @@ void Player::updatePos(float t){
 		velocity.y += t*acceleration.y;
 		position.y += t*velocity.y + 0.5f*acceleration.y*t*t;
 	}
-	else if(hitFloor)
+	else if(hitFloor)//if on the ground
 	{
 		
-		//position.y		= position.y - t*velocity.y - 0.5f*acceleration.y*t*t;
-		//hack, gross
+		//set position, using force for this creates skittering on the ground
 		position.y = floorPos + (floorSize/2) + (playerObject.getHitBox().getSize().y/2);
 
 		gravityForce.y	= 0.0f;
-		//totalForce.y	= 0.0f;
 		acceleration.y	= 0.0f;
+		
+		//disgusting, I know, but this is where player velocity changes if they are kicking
 		if(isKicking == 1)
 			isKicking = 0;
 		if(isKicking == 0)
 			velocity.y	= 0.0f;
 		else if (isKicking > 1)
 			velocity.y = 75.f;
+
+		//to prevent player from holding down jump and having them rocket into space
 		if(jumpCount > 0){
 			acceleration.y = t*totalForce.y;
 			velocity.y += t*acceleration.y;
 			position.y += t*velocity.y + 0.5f*acceleration.y*t*t;
 		}
-		
+		//reset jump count
 		jumpCount		= 0;
 	}
 
+	//wall collision
 	if(!hitWall)
 	{
 		acceleration.x = t*totalForce.x;
@@ -886,15 +848,8 @@ void Player::updatePos(float t){
 	else if(hitWall)
 	{
 		position.x = position.x - t*velocity.x - 0.5f*acceleration.x*t*t;
-		//hackhackhack
-		//if(position.x < 0){
-		//	position.x = leftWallPos+(leftWallSize/2)+(playerObject.getHitBox().getSize().x/2);
-		//} else {
-		//	position.x = rightWallPos-(rightWallSize/2)-(playerObject.getHitBox().getSize().x/2);
-		//}
 
 		totalForce.x	= impactForce.x = gravityForce.x = moveForce.x = resistanceForce.x = jumpForce.x = 0.0f;
-		//totalForce.x = 0.0f;
 		acceleration.x	= 0.0f;
 		velocity.x		= 0.0f;
 	}
@@ -924,7 +879,6 @@ void Player::draw(){
 	    glRotatef(90,0,1,0);
 	else
 	    glRotatef(-90,0,1,0);
-	//glTranslatef(this->playerObject.getHitBox().getPos().x, this->playerObject.getHitBox().getPos().y, this->playerObject.getHitBox().getPos().z);
 
 	
 	glBegin(GL_TRIANGLES);
@@ -1037,11 +991,12 @@ void Player::updateAction(int numAction){
 
 //movement + any collisions
 void Player::moveAction(int numAction){
+	//set movement forces
 	if(numAction == 1){
 		 moveForce = glm::vec3(2000,0,0);
 	} else if (numAction == 2){
 	    moveForce = glm::vec3(-2000,0,0);
-	} else if (numAction == 3){
+	} else if (numAction == 3){// set boost forces and particles
 	    boosterCooldown = 60;
 		isDashing = 2;
 
@@ -1123,7 +1078,7 @@ void Player::moveAction(int numAction){
 		newemitter.initialise();
 		particlemanager.addEmmiter(newemitter);
 		moveForce = glm::vec3(-150000,0,0);
-	} else if (numAction == 5){
+	} else if (numAction == 5){//set jump force and particles
 		if(jumpCount == 0){
 			jumpCooldown = 60;
 
@@ -1170,13 +1125,13 @@ void Player::moveAction(int numAction){
 
 void Player::attackAction(int numAction){
     isAttacking = numAction;
-    if(numAction == 6){
+    if(numAction == 6){//punch
 		Animations->setAnimation(1);
         tInterval = 0.15f;
         attackFist.setPos(position.x+8,position.y+3.5,position.z);
         attackStartPos = attackFist.getPos();
         onCooldown = 20;
-    } else if(numAction == 8){
+    } else if(numAction == 8){//kick
 		if(hitFloor)
 			Animations->setAnimation(2);//If on floor, ground kick
 		else
@@ -1187,7 +1142,7 @@ void Player::attackAction(int numAction){
         onCooldown = 40;
 		isKicking = 1;
 
-    } else if (numAction == 11){
+    } else if (numAction == 11){//range
 
 		if(rangeCount == 0)
 		{
@@ -1218,7 +1173,7 @@ void Player::blockAction(int numAction){
 	Animations->setAnimation(4);
 
 }
-
+//set particles on death
 void Player::Death()
 {
 	ParticleEmitter deathEmitter;
@@ -1275,7 +1230,7 @@ void Player::Death()
 	particlemanager.addEmmiter(deathEmitter);
 }
 
-//getters and setters
+//getters and setters, good chunk of these are unused
 
 //object
 OBJModel Player::getObject(){
@@ -1350,6 +1305,7 @@ PlayerAnimation::PlayerAnimation(OBJModel &object, Assets &targets)
 	dt = 0.0f;
 }
 
+//update animation
 void PlayerAnimation::update(float t)
 {
 	dt += t;
@@ -1369,6 +1325,7 @@ void PlayerAnimation::update(float t)
 		
 }
 
+//morph target
 void PlayerAnimation::itsMorphingTime()
 {
 	int size = morphTargets.objects[currentFrame].getVerSize();  //TODO Implementing size check of objects interpolating to

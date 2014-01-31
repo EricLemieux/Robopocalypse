@@ -1,31 +1,19 @@
+//This is the main core of the game where most of the game actually happens
+
 #pragma once
 
 #include "Engine.h"
+#include "HUD.h"
 
-/* these are enumerated types (just names) of game states
-   that the game can be in at any moment.  These help you
-   manage the flow of the game.  Especially if you want 
-   to do different updates (call different update functions)
-   or have different behaviour for input (i.e. mouse and keyboard
-   functions might have different behaviour in-game (STATE_GAMEPLAY)
-   versus when in the Menu (STATE_MAINMENU)
-*/
+
+
+//Stores the game states
 enum {
 	STATE_GAMEPLAY=0, 
-	STATE_MAINMENU, 
-	STATE_CREDITS
+	STATE_MAINMENU
 };
 
-// input information related to mouse
-// you could add keyboard info in here too if you need to know if a key is currently pressed down
-typedef struct _InputInfo
-{
-	bool mouseDown; // is the mouse down?
-	int button; // which mouse button
-	float clickX,clickY; // where the mouse was clicked
-	float currentX,currentY;
-}InputInfo;
-
+//Stores the information about the game, such as the window size and what the frames per second should be.
 typedef struct _GameStateInfo
 {
 	int gameState; // the game state, see enum's above
@@ -41,9 +29,11 @@ typedef struct _GameStateInfo
 
 	float ratioWidth,ratioHeight;
 
+	//Frames per second
 	float FPS;
 }GameStateInfo;
 
+//The actual game class, this is where eveything happens.
 class Game
 {
 	public:
@@ -53,7 +43,7 @@ class Game
 	int gameState;
 
 	//Initialize
-	void initializeWindow();
+	void initializeWindow();//glew is also init here
 	void initializeGame();
 	void initializeMainMenu();
 
@@ -64,7 +54,7 @@ class Game
 	void mainMenuLoop();
 
 
-		/* convenience functions */
+	/* convenience functions */
 	// screen size is the apparent size in pixels
 	// i.e. this is what your game calculations should use
 	void setScreenSize(int w, int h)
@@ -88,22 +78,16 @@ class Game
 		stateInfo.windowHeight = height;
 	}
 
-	/* draw/rendering routines */
-	void draw(); // called from the main
-	void drawHUD();
+	//All of the drawing functions
+	void draw();							//Main draw function, calls the other draw functions
+	void drawHUD();							//Draws the HUD
+	void DrawGame();						//Draws the players 
+	void drawAssetList(Assets assetlist);	//Draws the world
 
 	void healthManagement(float dt); // manages health
 
-	//void PreDraw(); // prior to drawing   //TEMP DEL, replace with sf::window display in one draw function
-	void DrawGame(); // actual drawing the frame
-	//void PostDraw(); // cleanup and prepare for next frame
-	
-
-	/* update routines, the game loop */
-	void update(); // called from main frequently  //TEMP call physics, draw and functions
-
-
-	void drawFunc(Assets assetlist);
+	//Update the game elements
+	void update(); 
 
 
 	/*********************************/
@@ -112,24 +96,25 @@ class Game
 
 	
 	// Create a clock for measuring the time elapsed TEMP
-    sf::Clock clock;
-	sf::Time frameTime;
+	//replace?
+    //sf::Clock clock;
+	//sf::Time frameTime;
+	float frameTime;
 
 	/* game state info */
 	GameStateInfo stateInfo;
-
-	InputInfo input;
+	//window width/height
+	int width,height;
 
 	float gameTime;
-	bool cutsceneTest; //TEMP variable delete
 
 
-	sf::ContextSettings contextSettings;
-	sf::RenderWindow window;
+	//sf::ContextSettings contextSettings;
+	//sf::RenderWindow window;
+	GLFWwindow* window;
 
 	//Should the game use the debug tools?
 	bool debugTools;
-
 
 	//Should the game draw the hitboxes?
     bool shouldDrawHitboxes;
@@ -139,57 +124,31 @@ class Game
 	
 	//Drawing obj
 	std::vector<glm::vec3> vertices;
-	std::vector<sf::Vector2f> uvs;
+	std::vector<glm::vec2> uvs;
 	std::vector<glm::vec3> normals;
 
 	//In the main menu what item is selected
 	int mainMenuSelection;
 
-	sf::Mouse mouse;
+	//replace? this is made obsolete with key_callback
+	//sf::Mouse mouse;
 
-	sf::Vector2f Position;
+	glm::vec2 Position;
 
 	Camera camera;
 
 	//contains everything that isn't a player
 	Assets assetList;
+	Assets playerList;
 	//player objects
 	Player player1;
 	Player player2;
 
-	//1/30 for speed assuming FPS 30
-	float t;
-
-	//what were we using this for?
-	GLfloat yspeed; 
-	GLfloat zstep;
-	GLfloat xspeed; 
-	GLfloat xstep;
-	GLfloat x2step; 
-	GLfloat z2step; 
-	GLfloat camDist;
-
+	float timeBetweenFrames;
+	
 	/* HUD COMPONENTS */
+	HUD gameHUD;
 
-	float playerOneCurrentHealth;
-	float playerOneLastHealth;
-	float playerOneHealthDecayTimer;
-
-	float playerTwoCurrentHealth;
-	float playerTwoLastHealth;
-	float playerTwoHealthDecayTimer;
-
-	float playerOneCurrentSpecial;
-	float playerOneLastSpecial;
-	float playerOneSpecialDecayTimer;
-
-	float playerTwoCurrentSpecial;
-	float playerTwoLastSpecial;
-	float playerTwoSpecialDecayTimer;
-
-	bool healthCountdown;
-
-	GLuint hudTex;
 	GLuint mainMenuTex;
 
 	NodeGraph graph;

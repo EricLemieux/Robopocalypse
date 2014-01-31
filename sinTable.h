@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glm\glm.hpp>	
-#include <glm\ext.hpp>	
+#include "glm\glm\ext.hpp"
 
 template <class T> 
 class TSingleton
@@ -63,20 +63,3 @@ private:
 
 
 };
-
-//TO USE
-//In game init, declare 
-//
-//sinTable *c = SINGLETONGETINSTANCE(sinTable);
-//	c->fillTable();
-//
-//this fills table once, and only once at start up
-//then whenever you need to access chart, use
-//
-//sinTable *c = SINGLETONGETINSTANCE(sinTable);
-//  c->searchTableSin(angle)
-//
-//Quaternion example
-//	float w = c->searchTableCos(angle/2);
-//	float nsin = c->searchTableSin(angle/2);
-//   q( w, x*nsin, y*nsin, z*nsin );

@@ -1,3 +1,5 @@
+//This is unfortunatly not being used at the moment but will be used when we upgrade everything to modern openGL
+
 #pragma once
 
 #include <vector>		//vector list

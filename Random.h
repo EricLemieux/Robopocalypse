@@ -1,8 +1,6 @@
-////////////////////
-//Random.h
-//
-//Eric Lemieux, 2013
-////////////////////
+//This is used to generate random numbers
+//used by the particle class mostly
+//it works by generating a integer between the max and min values given
 
 #pragma once
 

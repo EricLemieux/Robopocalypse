@@ -1,47 +1,25 @@
 #include "Game.h"
 
+//glfw callbacks
+static void error_callback(int error, const char* description)
+{
+    fputs(description, stderr);
+}
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, GL_TRUE);
+}
 
 /* constructor */
 Game::Game(float fps)
 {
-	gameState = STATE_MAINMENU;
-
-	/* init state */
-	//stateInfo.gameState = STATE_GAMEPLAY;
-	//stateInfo.FPS=fps;
+	gameState = STATE_GAMEPLAY;
 
 	//init onscreen graph
 	graph.init();
 
-	yspeed = 0.0f;
-	zstep = 0.0f;
-	xspeed = 0.0f;
-	xstep = 0.0f;
-	x2step = 0.0f;
-	z2step = 0.0f;
-	camDist = -5.0f;
-
-	// health stuff
-	playerOneHealthDecayTimer = 0.0f;
-	playerOneCurrentHealth = 100.0f;
-	playerOneLastHealth = playerOneCurrentHealth;
-
-	playerTwoHealthDecayTimer = 0.0f;
-	playerTwoCurrentHealth = 100.0f;
-	playerTwoLastHealth = playerTwoCurrentHealth;
-
-	// special stuff
-	playerOneSpecialDecayTimer = 0.0f;
-	playerOneCurrentSpecial = 50.0f;
-	playerOneLastSpecial = playerOneCurrentSpecial;
-
-	playerTwoLastSpecial = 0.0f;
-	playerTwoCurrentSpecial = 50.0f;
-	playerTwoLastSpecial = playerTwoCurrentSpecial;
-
-	healthCountdown = false;
-
-	//Debuging tools
+	//Debugging tools
 	//Should all be false in releases
 	debugTools = false;
 	if(debugTools)
@@ -53,28 +31,52 @@ Game::Game(float fps)
 		shouldDrawHitboxes = false;
 	}
 
-	t = 0.03f;
+	//TODO make more exact, maybe get the difference in time each update from sfml.
+	timeBetweenFrames = 1.0f/30.0f;
 }
 
-/* destructor */
+// destructor
 Game::~Game(void)
 {
-	/* deallocate memory and clean up here. if needed */
 }
 
 void Game::initializeWindow()
 {
+	//replaced
 	// Request a 32-bits depth buffer when creating the window
-    contextSettings.depthBits = 32;
-
+    //contextSettings.depthBits = 32;
     // Create the main window
-	window.create(sf::VideoMode(stateInfo.windowWidth, stateInfo.windowHeight), "RoboPocalypse", sf::Style::Default, contextSettings);
-    window.setVerticalSyncEnabled(true);
+	//window.create(sf::VideoMode(stateInfo.windowWidth, stateInfo.windowHeight), "RoboPocalypse", sf::Style::Default, contextSettings);
+    //window.setVerticalSyncEnabled(true);
+	//
+	//window.setFramerateLimit(stateInfo.FPS);//TODO bring fps from main
+	//
+	//// Make it the active window for OpenGL calls
+    //window.setActive();
 
-	window.setFramerateLimit(stateInfo.FPS);//TODO bring fps from main
+	glfwSetErrorCallback(error_callback);
+    if (!glfwInit())
+        exit(EXIT_FAILURE);
+	window = glfwCreateWindow(stateInfo.windowWidth, stateInfo.windowHeight, "Robobopocalypse", NULL, NULL);
+    if (!window)
+    {
+        glfwTerminate();
+        exit(EXIT_FAILURE);
+    }
+    glfwMakeContextCurrent(window);
+    glfwSetKeyCallback(window, key_callback);
 
-	// Make it the active window for OpenGL calls
-    window.setActive();
+	//init glew
+	glewExperimental = GL_TRUE;
+	if(glewInit() != GLEW_OK){
+		fprintf(stderr,"Failed to init GLEW\n");
+	}
+
+	//Init DevIL
+	ilInit();
+	iluInit();
+	ilutInit();
+	ilutRenderer(ILUT_OPENGL);
 }
 
 /* 
@@ -88,11 +90,12 @@ void Game::initializeGame()
 	assetList.objects.clear();
 	assetList.LoadAssets("assets.txt");
 
+	playerList.objects.clear();
+	playerList.LoadAssets("assetsPlayers.txt");
+
 	//add object to player
-	player1 = Player(assetList.objects[0]);
-	player2 = Player(assetList.objects[1]);
-	assetList.objects.erase(assetList.objects.begin(),assetList.objects.begin()+2);
-	//assetList.boundingBoxes.erase(assetList.boundingBoxes.begin(),assetList.boundingBoxes.begin()+2);
+	player1 = Player(playerList.objects[0]);
+	player2 = Player(playerList.objects[1]);
 
 	glClearDepth(1.f);
 	glClearColor(0.5f, 0.5f,0.5f,1.0f);
@@ -102,31 +105,36 @@ void Game::initializeGame()
 	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
 
+	//change this to glfwGetFramebufferSize later
+	glfwGetWindowSize(window,&width, &height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(90.0f, float(window.getSize().x)/float(window.getSize().y),2.f,2000.f);
-	//gluLookAt(0,0,0,0,0,-10,0,1,0);
+	gluPerspective(90.f,width/height,2.f,2000.f);
+	//gluPerspective(90.0f, float(window.getSize().x)/float(window.getSize().y),2.f,2000.f);
 	glMatrixMode(GL_MODELVIEW);
 
-	sf::Image hudMap;
-	if(!hudMap.loadFromFile("resources/HUDback.jpg")){
-		std::cout<<"error loading hud texture Game.cpp in void Game::initializeGame();\n";
-	};
+	//replace?
+	//load health bar background
+	//sf::Image hudMap;
+	//if(!hudMap.loadFromFile("resources/HUDback.jpg")){
+	//	std::cout<<"error loading hud texture Game.cpp in void Game::initializeGame();\n";
+	//};
 
-	glGenTextures(1,&hudTex);
-	glBindTexture(GL_TEXTURE_2D,hudTex);
-	gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, hudMap.getSize().x, hudMap.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, hudMap.getPixelsPtr());
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	
+	//ILuint *texName;
+	//ilGenImages(1, texName);
+	//ilBindImage(*texName);
+	//ilutGLBindTexImage();
+	//
+	//char *filePath = "cat.jpg";
+	//if(!ilLoadImage(filePath))
+	//	std::cout<<"error opening image file";
+	//ILubyte *bytes = ilGetData();
+		
 	//Disable the HUD until the cutscene is done
 	shouldDrawHUD = false;
 
-	//TEMP
-	//TODO DELETE
-	cutsceneTest = false;
+	//for debugging
 	gameTime = 0.0f;
-	
 }
 
 void Game::initializeMainMenu()
@@ -140,22 +148,25 @@ void Game::initializeMainMenu()
 	glEnable(GL_LINEAR_MIPMAP_LINEAR);
 	glDepthFunc(GL_LESS);
 	
+	glfwGetWindowSize(window,&width, &height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	//gluPerspective(90.0f, float(window.getSize().x)/float(window.getSize().y),2.f,2000.f);
-	gluOrtho2D(0,window.getSize().x,0,window.getSize().y);
+	gluOrtho2D(0,width,0,height);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	
-	sf::Image mainmenuImageMap;
-	if(!mainmenuImageMap.loadFromFile("resources/Menu_with_Buttons.png")){
-		std::cout<<"error loading main menu texture Game.cpp in void Game::initializeGame();\n";
-	}
-	glGenTextures(1,&mainMenuTex);
-	glBindTexture(GL_TEXTURE_2D,mainMenuTex);
-	gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, mainmenuImageMap.getSize().x, mainmenuImageMap.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, mainmenuImageMap.getPixelsPtr());
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//replace?
+	//main menu background
+	//sf::Image mainmenuImageMap;
+	//if(!mainmenuImageMap.loadFromFile("resources/Menu_with_Buttons.png")){
+	//	std::cout<<"error loading main menu texture Game.cpp in void Game::initializeGame();\n";
+	//}
+
+	//glGenTextures(1,&mainMenuTex);
+	//glBindTexture(GL_TEXTURE_2D,mainMenuTex);
+	//gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, mainmenuImageMap.getSize().x, mainmenuImageMap.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, mainmenuImageMap.getPixelsPtr());
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 }
 
 void Game::gameLoop()
@@ -163,9 +174,6 @@ void Game::gameLoop()
 	gameEvent();
 	update();
 	draw();
-
-	if(!cutsceneTest)
-		cutsceneTest = true;
 }
 
 void Game::mainMenuLoop()
@@ -182,20 +190,22 @@ void Game::mainMenuLoop()
 	glLoadIdentity();
 	glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 
+	glfwGetWindowSize(window,&width, &height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(90.0f, 1400/800, 1, 1000);
+	gluPerspective(90.0f, width/height, 1, 1000);
 	gluLookAt(0,0,0,
 			0,0,-50,
 			0,1,0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
+	//replace?
 	//Draw the background
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, mainMenuTex);
-	drawSquare(glm::vec3(0,0,0.5), glm::vec3(100,100,100));
-	glDisable(GL_TEXTURE_2D);
+	//glEnable(GL_TEXTURE_2D);
+	//glBindTexture(GL_TEXTURE_2D, mainMenuTex);
+	//drawSquare(glm::vec3(0,0,0.5), glm::vec3(100,100,100));
+	//glDisable(GL_TEXTURE_2D);
 
 	glEnable (GL_BLEND);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -214,20 +224,33 @@ void Game::mainMenuLoop()
 	drawSquare(pos, glm::vec3(1.1,2.2,0));
 	glColor4f(1,1,1,1);
 
-	window.display();
+	//replaced
+	glfwSwapBuffers(window);
+	//window.display();
 }
 
 void Game::gameEvent(){
-		sf::Event event; 
+	//replaced
+
+	
+
+	glfwPollEvents();
+	if(gameState == STATE_GAMEPLAY){
+		gameTime = 5.f;
+	}
+		//sf::Event event; 
+
+	//the while loop below should happen in key_callback at top of game.cpp
 		// Process events
-        while (window.pollEvent(event))
+       /* while (window.pollEvent(event))
         {
-			//close window if event returns closed
-			if(event.type == sf::Event::Closed || sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) || sf::Joystick::isButtonPressed(0,6)){
-				window.close();
-			} else if (event.type == sf::Event::Resized){
-				glViewport(0,0,event.size.width, event.size.height);
-			}
+			//below is obsolete, covered in key_callback
+			////close window if event returns closed
+			//if(event.type == sf::Event::Closed || sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) || sf::Joystick::isButtonPressed(0,6)){
+			//	window.close();
+			//} else if (event.type == sf::Event::Resized){
+			//	glViewport(0,0,event.size.width, event.size.height);
+			//}
 
 			//if ((event.type == sf::Event::MouseButtonPressed)&&(event.mouseButton.button == mouse.Left)){  //TODO MOUSE
 			//
@@ -287,15 +310,8 @@ void Game::gameEvent(){
 					gameTime = 5.0f;
 				}
 			}
-
-			//TEMP
-			//TODO DELETE
-			if(sf::Keyboard::isKeyPressed(sf::Keyboard::P))
-			{
-				cutsceneTest = true;
-			}
-
-		}
+		}*/
+	
 }
 
 
@@ -305,10 +321,11 @@ void Game::draw(){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glDisableClientState(GL_COLOR_ARRAY);
 
-	//Draw the HUD in it's own 
+	//Draw the HUD in it's own viewport
 	if(shouldDrawHUD)
 	{
-		drawHUD();
+		//drawHUD();
+		gameHUD.draw();
 	}
 
 	DrawGame();
@@ -325,29 +342,25 @@ void Game::DrawGame()
 	
 
 	glPushMatrix();
-	//glMatrixMode(GL_PROJECTION);
-	//glLoadIdentity();
-	//gluPerspective(90.f,WINDOW_WIDTH/WINDOW_HEIGHT,1.f,1000.f);
 	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 
-	
-	//camera.setFocus(player1, player2);
+	//camera update is in here in order to track player position
 	camera.update();
 
-	drawFunc(assetList);
+	drawAssetList(assetList);
 
-	//if(player1.getHealth() > 0)
-		player1.draw();
-	//if(player2.getHealth() > 0)
-		player2.draw();
+	player1.draw();
+	player2.draw();
 
 	if(shouldDrawHitboxes)
 	{
-		//drawHitboxes(ass);
+		//Draw the graph used by A*
 		graph.draw();
+
+		//Draw the hit boxes
 		drawHitboxes(player1, player2, assetList);
 	}
 
@@ -355,367 +368,44 @@ void Game::DrawGame()
 
 	glDisable(GL_TEXTURE_2D);
 	
-	/* this makes it actually show up on the screen */
-	//glutSwapBuffers();
-	window.display();
+	//replaced
+	//Display to the SFML window
+	//window.display();
+	glfwSwapBuffers(window);
 }
 
-//hardcoded get rid of it, currently draws the 3rd item in assets.txt which for the purposes of this method is the level
-void Game::drawFunc(Assets assetList){
+//TODO: KILL
+//Draws the asset list full of objects
+void Game::drawAssetList(Assets assetList){
 	for(int i = 0, size = assetList.objects.size(); i<size; ++i){
 		assetList.objects[i].drawOBJ();
 	}
 }
 
-
-//draw HUD
-void Game::drawHUD(){
-	glViewport(0,WINDOW_HEIGHT-HUD_HEIGHT,WINDOW_WIDTH,HUD_HEIGHT);
-	glEnable(GL_TEXTURE_2D);
-
-	glPushMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(-10,10,-10,10,1,1000);
-	glLoadIdentity();
-	glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-	glDisable(GL_CULL_FACE);
-
-	glDisable(GL_TEXTURE_2D);
-
-	playerOneCurrentHealth = player1.getHealth();
-	playerOneCurrentSpecial = player1.getShield();
-
-	playerTwoCurrentHealth = player2.getHealth();
-	playerTwoCurrentSpecial = player2.getShield();
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-
-	GLubyte halftone[] = {
-    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
-    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
-    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
-    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
-    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
-    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
-    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
-    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
-    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
-    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
-    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
-    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
-    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
-    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
-    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
-    0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55};
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
-	/* PLAYER ONE HEALTH */
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	// ratios for player health on the bar
-	// 0 hp = -0.85 ratio on the hud
-	// full hp = -0.127 ratio on the hud
-	// fitting in the bars is 0.7 and 0.2
-
-	// Sets the bar size to the health
-	float temp1 = -0.127f;
-	float temp2 = temp1 - 0.723f*(playerOneCurrentHealth/100);
-
-	glEnable(GL_POLYGON_STIPPLE);
-	
-	// Make the health red
-	
-
-	glPolygonStipple(halftone);
-
-	glColor3f(1.0, 0.0, 0.0);
-
-	// Draw the health bar
-	glBegin(GL_QUADS);
-		glNormal3f( 0.f, 0.f, 1.f);
-		glTexCoord2f(0.f,0.f);
-		glVertex3f(temp1, 0.7f, -1.f);
-		glTexCoord2f(1.f,0.f);
-		glVertex3f(temp2,  0.7f, -1.f);
-		glTexCoord2f(1.f,1.f);
-		glVertex3f(temp2,  0.2f, -1.f);
-		glTexCoord2f(0.f,1.f);
-		glVertex3f(temp1, 0.2f, -1.f);
-	glEnd();
-
-	// Make the lost health yellow
-	glColor3f(1.0, 1.0, 0.0);
-
-	temp2 = temp1 - 0.723f*(playerOneLastHealth/100);
-
-	// Draw the health bar
-	glBegin(GL_QUADS);
-		glNormal3f( 0.f, 0.f, 1.f);
-		glTexCoord2f(0.f,0.f);
-		glVertex3f(temp1, 0.7f, -1.f);
-		glTexCoord2f(1.f,0.f);
-		glVertex3f(temp2,  0.7f, -1.f);
-		glTexCoord2f(1.f,1.f);
-		glVertex3f(temp2,  0.2f, -1.f);
-		glTexCoord2f(0.f,1.f);
-		glVertex3f(temp1, 0.2f, -1.f);
-	glEnd();
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-
-	/* PLAYER ONE SPECIAL */
-
-	// ratios for player health on the bar
-	// 0 hp = -0.85 ratio on the hud
-	// full hp = -0.127 ratio on the hud
-	// fitting in the bars is 0.7 and 0.2
-
-	// Sets the borders based on health
-	temp1 = -0.127f;
-	temp2 = temp1 - 0.723f*(playerOneCurrentSpecial/50);
-
-	glColor3f(0.0, 0.0, 1.0);
-
-	// Draws the special bar
-	glBegin(GL_QUADS);
-		glNormal3f( 0.f, 0.f, 1.f);
-		glTexCoord2f(0.f,0.f);
-		glVertex3f(temp1, -0.7f, -1.f);
-		glTexCoord2f(1.f,0.f);
-		glVertex3f(temp2, -0.7f, -1.f);
-		glTexCoord2f(1.f,1.f);
-		glVertex3f(temp2, -0.2f, -1.f);
-		glTexCoord2f(0.f,1.f);
-		glVertex3f(temp1, -0.2f, -1.f);
-	glEnd();
-
-	temp2 = temp1 - 0.723f*(playerOneLastSpecial/50);
-
-	glColor3f(0.0, 1.0, 1.0);
-
-	// Draws the lost health bar
-	glBegin(GL_QUADS);
-		glNormal3f( 0.f, 0.f, 1.f);
-		glTexCoord2f(0.f,0.f);
-		glVertex3f(temp1, -0.7f, -1.f);
-		glTexCoord2f(1.f,0.f);
-		glVertex3f(temp2, -0.7f, -1.f);
-		glTexCoord2f(1.f,1.f);
-		glVertex3f(temp2, -0.2f, -1.f);
-		glTexCoord2f(0.f,1.f);
-		glVertex3f(temp1, -0.2f, -1.f);
-	glEnd();
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-
-	/* PLAYER TWO HEALTH */
-
-	// ratios for player health on the bar
-	// 0 hp = -0.85 ratio on the hud
-	// full hp = -0.127 ratio on the hud
-	// fitting in the bars is 0.7 and 0.2
-
-	// Sets the borders based on health
-	temp1 = 0.127f;
-	temp2 = temp1 + 0.723f*(playerTwoCurrentHealth/100);
-
-	glColor3f(1.0, 0.0, 0.0);
-
-	// Draws the health bar
-	glBegin(GL_QUADS);
-		glNormal3f( 0.f, 0.f, 1.f);
-		glTexCoord2f(0.f,0.f);
-		glVertex3f(temp1, 0.7f, -1.f);
-		glTexCoord2f(1.f,0.f);
-		glVertex3f(temp2,  0.7f, -1.f);
-		glTexCoord2f(1.f,1.f);
-		glVertex3f(temp2,  0.2f, -1.f);
-		glTexCoord2f(0.f,1.f);
-		glVertex3f(temp1, 0.2f, -1.f);
-	glEnd();
-
-	temp2 = temp1 + 0.723f*(playerTwoLastHealth/100);
-
-	glColor3f(1.0, 0.0, 0.0);
-
-	// Draws the lost health bar
-	glBegin(GL_QUADS);
-		glNormal3f( 0.f, 0.f, 1.f);
-		glTexCoord2f(0.f,0.f);
-		glVertex3f(temp1, 0.7f, -1.f);
-		glTexCoord2f(1.f,0.f);
-		glVertex3f(temp2,  0.7f, -1.f);
-		glTexCoord2f(1.f,1.f);
-		glVertex3f(temp2,  0.2f, -1.f);
-		glTexCoord2f(0.f,1.f);
-		glVertex3f(temp1, 0.2f, -1.f);
-	glEnd();
-
-	/////////////////////////////////////////////////
-
-	/* PLAYER TWO SPECIAL */
-
-	// ratios for player health on the bar
-	// 0 hp = -0.85 ratio on the hud
-	// full hp = -0.127 ratio on the hud
-	// fitting in the bars is 0.7 and 0.2
-
-	// Sets the borders based on health
-	temp1 = 0.127f;
-	temp2 = temp1 + 0.723f*(playerTwoCurrentSpecial/50);
-
-	glColor3f(0.0, 0.0, 1.0);
-
-	// Draws the health bar
-	glBegin(GL_QUADS);
-		glNormal3f( 0.f, 0.f, 1.f);
-		glTexCoord2f(0.f,0.f);
-		glVertex3f(temp1, -0.7f, -1.f);
-		glTexCoord2f(1.f,0.f);
-		glVertex3f(temp2, -0.7f, -1.f);
-		glTexCoord2f(1.f,1.f);
-		glVertex3f(temp2, -0.2f, -1.f);
-		glTexCoord2f(0.f,1.f);
-		glVertex3f(temp1, -0.2f, -1.f);
-	glEnd();
-
-	temp2 = temp1 + 0.723f*(playerTwoLastSpecial/50);
-
-	glColor3f(0.0, 1.0, 1.0);
-
-	// Draws the lost special bar
-	glBegin(GL_QUADS);
-		glNormal3f( 0.f, 0.f, 1.f);
-		glTexCoord2f(0.f,0.f);
-		glVertex3f(temp1, -0.7f, -1.f);
-		glTexCoord2f(1.f,0.f);
-		glVertex3f(temp2, -0.7f, -1.f);
-		glTexCoord2f(1.f,1.f);
-		glVertex3f(temp2, -0.2f, -1.f);
-		glTexCoord2f(0.f,1.f);
-		glVertex3f(temp1, -0.2f, -1.f);
-	glEnd();
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-	glDisable(GL_POLYGON_STIPPLE);
-	/////////////////////////////////////////////////
-	glEnable(GL_TEXTURE_2D);
-
-	glBindTexture(GL_TEXTURE_2D,hudTex);
-
-	glColor3f(1.0, 1.0, 1.0);
-
-	glBegin(GL_QUADS);
-		glNormal3f( 0.f, 0.f, 1.f);
-		glTexCoord2f(0.f,0.f);
-		glVertex3f(-1.f, 1.f,  -1.f);
-		glTexCoord2f(1.f,0.f);
-		glVertex3f( 1.f, 1.f,  -1.f);
-		glTexCoord2f(1.f,1.f);
-		glVertex3f( 1.f,  -1.f,  -1.f);
-		glTexCoord2f(0.f,1.f);
-		glVertex3f(-1.f,  -1.f,  -1.f);
-	glEnd();
-
-//////////////////////////////////////////////////////////
-
-	glEnable(GL_CULL_FACE);
-	glPopMatrix();
-}
-
-void Game::healthManagement(float dt)
-{
-	
-	if (playerOneLastHealth != playerOneCurrentHealth)
-	{
-		playerOneHealthDecayTimer += dt*0.2f;
-
-		playerOneLastHealth = ((1-playerOneHealthDecayTimer)*playerOneLastHealth) + ((playerOneHealthDecayTimer)*playerOneCurrentHealth);
-
-	}
-
-	if (playerOneHealthDecayTimer >= 1)
-	{
-		playerOneHealthDecayTimer = 0.0f;
-
-		playerOneLastHealth = playerOneLastHealth;
-	}
-
-	if (playerTwoLastHealth != playerTwoCurrentHealth)
-	{
-		playerTwoHealthDecayTimer += dt*0.2f;
-
-		playerTwoLastHealth = ((1-playerTwoHealthDecayTimer)*playerTwoLastHealth) + ((playerTwoHealthDecayTimer)*playerTwoCurrentHealth);
-
-	}
-
-	if (playerTwoHealthDecayTimer >= 1)
-	{
-		playerTwoHealthDecayTimer = 0.0f;
-
-		playerTwoLastHealth = playerOneLastHealth;
-	}
-
-	if (playerOneLastSpecial != playerOneCurrentSpecial)
-	{
-		playerOneSpecialDecayTimer += dt*0.2f;
-
-		playerOneLastSpecial = ((1-playerOneSpecialDecayTimer)*playerOneLastSpecial) + ((playerOneSpecialDecayTimer)*playerOneCurrentSpecial);
-
-	}
-
-	if (playerOneSpecialDecayTimer >= 1)
-	{
-		playerOneSpecialDecayTimer = 0.0f;
-
-		playerOneLastSpecial = playerOneCurrentSpecial;
-	}
-
-	if (playerTwoLastSpecial != playerTwoCurrentSpecial)
-	{
-		playerTwoSpecialDecayTimer += dt*0.2f;
-
-		playerTwoLastSpecial = ((1-playerTwoSpecialDecayTimer)*playerTwoLastSpecial) + ((playerTwoSpecialDecayTimer)*playerTwoCurrentSpecial);
-
-	}
-
-	if (playerTwoSpecialDecayTimer >= 1)
-	{
-		playerTwoHealthDecayTimer = 0.0f;
-
-		playerTwoLastSpecial = playerTwoCurrentSpecial;
-	}
-}
-
-
-
-
-//UPDATE gamestate
+//UPDATE
 void Game::update()
 {
 	//controller input
-	checkLeftJoystick(0, player1);
-    checkLeftJoystick(1, player2); 
+	checkController(0, player1);
+    checkController(1, player2); 
 
-	//Assets emptyList;
-	//player1.update(assetList, 0,t);
-	player1.update(assetList, 0,t, player2, graph);
-	player2.update(assetList, 1,t, player1, graph);
+	//Update the players
+	player1.update(assetList, 0,timeBetweenFrames, player2, graph);
+	player2.update(assetList, 1,timeBetweenFrames, player1, graph);
 
+	frameTime = glfwGetTime();
+	glfwSetTime(0);
+	//replaced
+	//frameTime = clock.getElapsedTime();
+	//clock.restart();
 
-	//TODO Animations stuff/Interpolation
-	frameTime = clock.getElapsedTime();
-	clock.restart();
-
-	float dt = frameTime.asSeconds();
+	//float dt = frameTime.asSeconds();
 
 	//Animate the camera for the cutscenes
-	if(cutsceneTest && gameTime <= 5.0f)
-		gameTime += dt/5;
+	if(gameTime <= 5.0f)
+	{
+		gameTime += frameTime/5;
+	}
 
 
 	//Animate the intro cutscene
@@ -727,7 +417,6 @@ void Game::update()
 			player2.setStunCooldown(2.0 * 30);
 			camera.setPos(glm::vec3(50, 10, 10), glm::vec3(-50, 10, 10), gameTime, 1.0f);
 			camera.setTarget(glm::quat(0,player1.getPos()), glm::quat(0,player2.getPos()), gameTime, 1.0f);
-			//camera.setTarget(glm::quat(0,player1.getPos()), glm::quat(0,player1.getPos()), gameTime, 1.0f);
 		}
 		else if(gameTime <= 1.5f)
 		{
@@ -803,9 +492,12 @@ void Game::update()
 		camera.setTarget(player1.getPos());
 	}
 
+	gameHUD.update(&player1, &player2, timeBetweenFrames/2.0f);
+
 	//drawHUD();
 
-	healthManagement(dt);
+	//TODO kill
+	//healthManagement(dt);
 	
 }
 
