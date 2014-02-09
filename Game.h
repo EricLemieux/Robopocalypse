@@ -4,6 +4,8 @@
 
 #include "Engine.h"
 #include "HUD.h"
+#include "GLSL.h"
+
 
 //Stores the game states
 enum {
@@ -160,6 +162,13 @@ class Game
 	GLuint mainMenuTex;
 
 	NodeGraph graph;
+
+	//Program and Shader data
+	GLSLProgram *passProgram;
+	GLSLShader passShader_v, passShader_f;
+
+	//Uniform handle
+	int handle_MVP;
 };
 
 //extern void drawHitboxes(std::vector<collisionObjects>  objects);

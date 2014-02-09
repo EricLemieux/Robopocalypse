@@ -119,6 +119,18 @@ void Game::initializeGame()
 
 	//for debugging
 	gameTime = 0.0f;
+
+	//Init program and shaders
+	passProgram = new GLSLProgram;
+	int result = 1;	//Used for debugging to see where compile fails
+	result *= passShader_v.CreateShaderFromFile(GLSL_VERTEX_SHADER,		"Shaders/pass_v.glsl");
+	result *= passShader_f.CreateShaderFromFile(GLSL_FRAGMENT_SHADER,	"Shaders/pass_f.glsl");
+	result *= passProgram->AttachShader(&passShader_v);
+	result *= passProgram->AttachShader(&passShader_f);
+	result *= passProgram->LinkProgram();
+	result *= passProgram->ValidateProgram();
+
+	handle_MVP = passProgram->GetUniformLocation("MVP");
 }
 
 void Game::initializeMainMenu()
@@ -327,8 +339,18 @@ void Game::DrawGame()
 
 	drawAssetList(assetList);
 
+	//Draw players
+	passProgram->Activate();
+	player1.getObject().updateModelMatrix(viewMat, projectionMat);
+	glUniformMatrix4fv(handle_MVP, 1, 0, glm::value_ptr(modelViewProjectionMat));
 	player1.draw();
+	passProgram->Deactivate();
+
+	passProgram->Activate();
+	player1.getObject().updateModelMatrix(viewMat, projectionMat);
+	glUniformMatrix4fv(handle_MVP, 1, 0, glm::value_ptr(modelViewProjectionMat));
 	player2.draw();
+	passProgram->Deactivate();
 
 	if(shouldDrawHitboxes)
 	{
