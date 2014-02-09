@@ -48,7 +48,7 @@ local.properties
 *_p.c
 *.ilk
 *.meta
-*.obj
+#*.obj	#we are using this for models
 *.pch
 *.pdb
 *.pgc

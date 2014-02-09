@@ -13,6 +13,36 @@ OBJModel::OBJModel(const char *modelPath, const char *texurePath)
 	std::vector<int> facesTexCoords;
 	std::vector<int> facesNormals;
 
+	//load image
+	ILuint texName;
+	ilGenImages(1, &texName);
+	ilBindImage(texName);
+
+	//char *filePath = "cat.jpg";
+	ilLoadImage(texurePath);
+	ILubyte *bytes = ilGetData();
+	if (!bytes)
+	{
+		std::cout << "error opening image file";
+
+		//Clean up memory
+		ilBindImage(0);
+		ilDeleteImages(1, &texName);
+	}
+	else
+	{
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+
+		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT), ilGetInteger(IL_IMAGE_FORMAT), ilGetInteger(IL_IMAGE_TYPE), ilGetData());
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+		//Image is now OpenGL's problem
+		ilBindImage(0);
+		ilDeleteImages(1, &texName);
+	}
 
 	char* firstWord = new char();
 	char* data = new char();
@@ -137,7 +167,7 @@ OBJModel::OBJModel(const char *modelPath, const char *texurePath)
 	}
 
 	//Init and add data
-	VBO.Initialize(finalVerts.size() / 3, false, false);
+	VBO.Initialize(finalVerts.size() / 3, true, true);
 	VBO.AddVerticies(&finalVerts[0]);
 	VBO.AddNormals(&finalNormals[0]);
 	VBO.AddTexCoords(&finalTexCoords[0]);
@@ -146,15 +176,6 @@ OBJModel::~OBJModel(){}
 
 void OBJModel::drawOBJ(){
 	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	
-	glm::vec3 tempVertex;
-	glm::vec2 tempUV;
-	glm::vec3 tempNorm;
-	//for debugging
-	int a = this->getVerSize();
-	int b = this->getUVSize();
-	int c = this->getNormSize();
 
 	glLoadIdentity();
 	glPushMatrix();
@@ -163,27 +184,13 @@ void OBJModel::drawOBJ(){
 	//replace?
 	glBindTexture(GL_TEXTURE_2D, this->getTex());
 
-	//glRotatef(-90.f,0,1,0);
-
 	glTranslatef(this->getPosX(), this->getPosY(), this->getPosZ());
 
-	glBegin(GL_TRIANGLES);
-
+	VBO.Render();
 	
-	for(int j = 0; j < this->getVerSize(); j++){
-		tempVertex = this->getVertex(j);
-		tempUV = this->getUV(j);
-		tempNorm = this->getNormal(j);
-		
-		glNormal3f( tempNorm.x,tempNorm.y,tempNorm.z);
-		
-		glTexCoord2f(tempUV.x,tempUV.y);
-		
-		glVertex3f( tempVertex.x,tempVertex.y,tempVertex.z);
-	}
-	
-	glEnd();
 	glPopMatrix();
+
+	glDisable(GL_TEXTURE_2D);
 }
 
 glm::vec3 OBJModel::getVertex(int i){
