@@ -72,11 +72,7 @@ void Camera::setTarget(glm::vec3 target)
 	targetPos = target;
 }
 
-void Camera::update(){
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(90.f,1.f,1.f,1000.f);
-	gluLookAt(camPos.x, camPos.y, camPos.z, targetPos.x, targetPos.y, targetPos.z, orientation.x, orientation.y, orientation.z);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+glm::mat4 Camera::update(void)
+{
+	return glm::lookAt(camPos, targetPos, orientation);
 }

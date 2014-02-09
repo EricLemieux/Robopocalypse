@@ -5,9 +5,7 @@ Player::Player(){}
 Player::Player(OBJModel object){
 
 	//position of player
-	position.x = object.getPosX();
-	position.y = object.getPosY();
-	position.z = object.getPosZ();
+	position = object.getPos();
 	prevpos = position;
 
 	//orientation of player
@@ -854,50 +852,27 @@ void Player::updatePos(float t){
 		velocity.x		= 0.0f;
 	}
 
+	//Update the rotation based on what direction the player is facing
+	if (faceDirection == 1)
+		rotation = glm::vec3(0, 90, 0);
+	else
+		rotation = glm::vec3(0, -90, 0);
+
 	//Update object and hitbox
-	playerObject.setPos(position.x, position.y, position.z);
+	playerObject.setPos(position);
+	playerObject.setRotation(rotation);
 	playerObject.getHitBox().setPos(position.x, position.y, position.z);
 }
 
 //draw player
-void Player::draw(){
-	
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	
-	
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-	glPushMatrix();
-
+void Player::draw()
+{
 	//Bind the texture
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, this->getObject().getTex());           
+	glBindTexture(GL_TEXTURE_2D, this->getObject().getTex());          //TODO: Not sure if this is needed for shader texturing, will leave for now 
 
-	glTranslatef(position.x, position.y, position.z);
-	if(faceDirection == 1)
-	    glRotatef(90,0,1,0);
-	else
-	    glRotatef(-90,0,1,0);
-
-	
-	glBegin(GL_TRIANGLES);
-
-	
-	for(int j = 0; j < playerObject.getVerSize(); j++){
-		
-		glNormal3f( playerObject.getNormal(j).x,playerObject.getNormal(j).y,playerObject.getNormal(j).z);
-		
-		glTexCoord2f(playerObject.getUV(j).x,playerObject.getUV(j).y);
-		
-		glVertex3f( playerObject.getVertex(j).x,playerObject.getVertex(j).y,playerObject.getVertex(j).z);
-	}
-	
-	glEnd();
-	glPopMatrix();
-
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glDisable(GL_TEXTURE_2D);
+	//Render VBO
+	playerObject.drawOBJ();
 
 	particlemanager.update(1.f);
 	particlemanager.draw();

@@ -174,21 +174,15 @@ OBJModel::OBJModel(const char *modelPath, const char *texurePath)
 }
 OBJModel::~OBJModel(){}
 
-void OBJModel::drawOBJ(){
-	glMatrixMode(GL_MODELVIEW);
-
-	glLoadIdentity();
-	glPushMatrix();
-
+void OBJModel::drawOBJ()
+{
+	//TODO: Not sure if this is needed when texturing changes to being done on shader
 	glEnable(GL_TEXTURE_2D);
 	//replace?
 	glBindTexture(GL_TEXTURE_2D, this->getTex());
 
-	glTranslatef(this->position.x, this->position.y, this->position.z);
-
 	VBO.Render();
 	
-	glPopMatrix();
 
 	glDisable(GL_TEXTURE_2D);
 }
@@ -211,11 +205,30 @@ void OBJModel::setBoundingBox(collisionObjects newBoundBox)
 }
 
 //Get the texture handle
-GLfloat OBJModel::getTex(){
+GLfloat OBJModel::getTex()
+{
 	return texture;
 }
 
 //get the hitbox of the model
-collisionObjects OBJModel::getHitBox(){
+collisionObjects OBJModel::getHitBox()
+{
 	return boundingBox;
+}
+
+//Update the model matrix
+glm::mat4 OBJModel::updateModelMatrix(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix)
+{
+	//Translate the object
+	glm::mat4 modelMatTranslation = glm::mat4(1);
+	modelMatTranslation[3] = glm::vec4(position, 1.0f);
+
+	//Rotate the object
+	glm::mat4 modelMatRotation = glm::yawPitchRoll(rotation.x, rotation.y, rotation.z);
+
+	//Find the model matrix by combining the above data
+	glm::mat4 modelMat = glm::mat4(modelMatRotation[0], modelMatRotation[1], modelMatRotation[2], modelMatTranslation[3]);
+	
+	//Return the Model View Projection Matrix(MVP)
+	return projectionMatrix * viewMatrix * modelMat;
 }

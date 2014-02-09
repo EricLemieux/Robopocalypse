@@ -107,29 +107,13 @@ void Game::initializeGame()
 
 	//change this to glfwGetFramebufferSize later
 	glfwGetWindowSize(window,&width, &height);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(90.f,width/height,2.f,2000.f);
-	//gluPerspective(90.0f, float(window.getSize().x)/float(window.getSize().y),2.f,2000.f);
-	glMatrixMode(GL_MODELVIEW);
+	
+	//Set up the camera and projection matrix
+	camFOV					= 90.0f;
+	camNearClippingPlane	= 0.1f;
+	camFarClippingPlane		= 1000.0f;
+	projectionMat = glm::perspective(camFOV, (float)stateInfo.screenHeight / (float)stateInfo.screenHeight, camNearClippingPlane, camFarClippingPlane);
 
-	//replace?
-	//load health bar background
-	//sf::Image hudMap;
-	//if(!hudMap.loadFromFile("resources/HUDback.jpg")){
-	//	std::cout<<"error loading hud texture Game.cpp in void Game::initializeGame();\n";
-	//};
-
-	//ILuint *texName;
-	//ilGenImages(1, texName);
-	//ilBindImage(*texName);
-	//ilutGLBindTexImage();
-	//
-	//char *filePath = "cat.jpg";
-	//if(!ilLoadImage(filePath))
-	//	std::cout<<"error opening image file";
-	//ILubyte *bytes = ilGetData();
-		
 	//Disable the HUD until the cutscene is done
 	shouldDrawHUD = false;
 
@@ -336,19 +320,10 @@ void Game::draw(){
 //draw game
 void Game::DrawGame()
 {
-	glViewport(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);
-	glEnable(GL_TEXTURE_2D);
+	glViewport(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);	
 	
-	
-
-	glPushMatrix();
-	
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-
 	//camera update is in here in order to track player position
-	camera.update();
+	viewMat = camera.update();
 
 	drawAssetList(assetList);
 
@@ -368,9 +343,7 @@ void Game::DrawGame()
 
 	glDisable(GL_TEXTURE_2D);
 	
-	//replaced
-	//Display to the SFML window
-	//window.display();
+	//Swap front and back buffers
 	glfwSwapBuffers(window);
 }
 

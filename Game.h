@@ -5,8 +5,6 @@
 #include "Engine.h"
 #include "HUD.h"
 
-
-
 //Stores the game states
 enum {
 	STATE_GAMEPLAY=0, 
@@ -94,6 +92,11 @@ class Game
 	/* DATA */
 	/*********************************/
 
+	//Matricies
+	static glm::mat4 viewMat;
+	static glm::mat4 projectionMat;
+	static glm::mat4 modelViewProjectionMat;
+
 	
 	// Create a clock for measuring the time elapsed TEMP
 	//replace?
@@ -107,6 +110,11 @@ class Game
 	int width,height;
 
 	float gameTime;
+
+
+	//Camera information
+	float camFOV;
+	float camNearClippingPlane, camFarClippingPlane;
 
 
 	//sf::ContextSettings contextSettings;

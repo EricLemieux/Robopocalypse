@@ -21,8 +21,8 @@ public:
 	void setTarget(glm::quat q1, glm::quat q2, float dt, float maxT);		//Setting the target for the camera using SLERP
 	void setTarget(glm::vec3 target);										//Setting the target to a specific position
 
-	//gluLookAt in here
-	void update();
+	//return the view matrix, using glm's look at function
+	glm::mat4 update(void);
 
 	//get/set time
 	inline void		setTime(float t){ time = t; }

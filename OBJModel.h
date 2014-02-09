@@ -24,6 +24,9 @@ public:
 	void setPos(float xtemp, float ytemp, float ztemp);
 	void setPos(glm::vec3 newPos);
 
+	//Set the rotation of the model
+	inline void setRotation(glm::vec3 newRotation){ rotation = newRotation; }
+
 	//Set the bounding box of the model
 	void setBoundingBox(collisionObjects newBoundBox);
 
@@ -40,8 +43,15 @@ public:
 	//Get the hitbox of the model
 	collisionObjects getHitBox();
 
+	//////////
+	//Updaters
+	//////////
+	glm::mat4 updateModelMatrix(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix);
+
 private:
 	glm::vec3 position;
+	glm::vec3 rotation;
+
 	float xspeed,yspeed,zspeed;
 	float xaccel,yaccel,zaccel;
 	float xforce,yforce,zforce;
