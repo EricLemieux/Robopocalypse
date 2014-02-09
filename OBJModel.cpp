@@ -68,15 +68,34 @@ OBJModel::OBJModel(const char *modelPath, const char *texurePath)
 			//X data
 			file >> data;
 			vertex.x = atof(data);
+			
+			//check max and min
+			if (vertex.x > maxVect.x)
+				maxVect.x = vertex.x;
+			else if (vertex.x < maxVect.x)
+				minVect.x = vertex.x;
 
 			//Y data
 			file >> data;
 			vertex.y = atof(data);
 
+			//check max and min
+			if (vertex.y > maxVect.y)
+				maxVect.y = vertex.y;
+			else if (vertex.y < maxVect.y)
+				minVect.y = vertex.y;
+
 			//Z data
 			file >> data;
 			vertex.z = atof(data);
 
+			//check max and min
+			if (vertex.z > maxVect.z)
+				maxVect.z = vertex.z;
+			else if (vertex.z < maxVect.z)
+				minVect.z = vertex.z;
+
+			//Add to verticies list
 			verts.push_back(vertex);
 		}
 		//Tex coord data

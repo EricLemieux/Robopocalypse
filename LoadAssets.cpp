@@ -67,22 +67,13 @@ void Assets::LoadAssets(char fileName[256])
 		{
 			//Load OBJ
 			OBJModel newOBJ(objectName, textureName);
-			
 
 			//Generate the size of the bounding box
 			glm::vec3 size, minPos, maxPos;
-			for(unsigned int i = 0; i < newOBJ.getVerSize(); ++i)
-			{
-				//Find the smallest position value
-				if (newOBJ.getVertex(i).x < minPos.x)	{	minPos.x = newOBJ.getVertex(i).x;	}
-				if (newOBJ.getVertex(i).y < minPos.y)	{	minPos.y = newOBJ.getVertex(i).y;	}
-				if (newOBJ.getVertex(i).z < minPos.z)	{ 	minPos.z = newOBJ.getVertex(i).z;	}
-																								
-				//Find the largest position value												
-				if (newOBJ.getVertex(i).x > maxPos.x)	{	maxPos.x = newOBJ.getVertex(i).x;	}
-				if (newOBJ.getVertex(i).y > maxPos.y)	{	maxPos.y = newOBJ.getVertex(i).y;	}
-				if (newOBJ.getVertex(i).z > maxPos.z)	{ 	maxPos.z = newOBJ.getVertex(i).z;	}
-			}
+			
+			maxPos = newOBJ.getMaxVect();
+			minPos = newOBJ.getMinVect();
+
 			size = maxPos - minPos;
 
 			glm::vec3 centerPos;

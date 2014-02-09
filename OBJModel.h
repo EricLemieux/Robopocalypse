@@ -43,6 +43,11 @@ public:
 	//Get the hitbox of the model
 	collisionObjects getHitBox();
 
+	//Get the max and min vectors
+	//Used for collision box
+	inline glm::vec3 getMaxVect(void){ return maxVect; }
+	inline glm::vec3 getMinVect(void){ return minVect; }
+	
 	//////////
 	//Updaters
 	//////////
@@ -57,6 +62,11 @@ private:
 	float xforce,yforce,zforce;
 	float orientation;
 	float dt;
+
+	//Max and min vectors
+	//used for the generation of the collision box
+	glm::vec3 maxVect;
+	glm::vec3 minVect;
 
 	//VBO for rendering
 	VertexBuffer VBO;
