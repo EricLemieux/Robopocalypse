@@ -87,9 +87,9 @@ int GLSLShader::CreateShaderFromFile(shaderType newType, const char *filePath)
 	std::ifstream file;
 	file.open(filePath, std::ifstream::in);
 
-	if(file == NULL)
+	if(!file)
 	{
-		std::cout<<"\n Error reading file.\n";
+		std::cout<<"\n Error Opening file.\n";
 	}
 
 	//find size of the file

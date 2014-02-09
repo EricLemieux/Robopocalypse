@@ -2,6 +2,7 @@
 #define OBJMODEL_H
 
 #include "Collisions.h"
+#include "VertexBuffer.h"
 
 class OBJModel{
 public:
@@ -40,6 +41,9 @@ private:
 	float xforce,yforce,zforce;
 	float orientation;
 	float dt;
+
+	VertexBuffer VBO;
+
 	GLuint texture;
 
 	collisionObjects boundingBox;

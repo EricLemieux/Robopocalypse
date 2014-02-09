@@ -3,113 +3,144 @@
 
 OBJModel::OBJModel(){}
 
-OBJModel::OBJModel(const char *path, const char *texPath){
-	std::vector<unsigned int> vuiVertexIndex,vuiUVIndex, vuiNormalIndex;
-	std::vector<glm::vec3> vv3temp_vertex;
-	std::vector<glm::vec2> vv2temp_uvs;
-	std::vector<glm::vec3> vv3temp_normals;
+OBJModel::OBJModel(const char *modelPath, const char *texurePath)
+{
+	std::vector<glm::vec3> verts;
+	std::vector<glm::vec3> normals;
+	std::vector<glm::vec2> texCoords;
 
-	//load image
-	ILuint texName;
-	ilGenImages(1, &texName);
-	ilBindImage(texName);
+	std::vector<int> facesVerts;
+	std::vector<int> facesTexCoords;
+	std::vector<int> facesNormals;
 
-	//char *filePath = "cat.jpg";
-	ilLoadImage(texPath);
-	ILubyte *bytes	= ilGetData();	
-	if(!bytes)
-	{
-		std::cout<<"error opening image file";
 
-		//Clean up memory
-		ilBindImage(0);
-		ilDeleteImages(1, &texName);
-	}
-	else
-	{
-		glGenTextures(1, &texture);
-		glBindTexture(GL_TEXTURE_2D, texture);
-	
-		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT), ilGetInteger(IL_IMAGE_FORMAT), ilGetInteger(IL_IMAGE_TYPE), ilGetData());
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-		//Image is now OpenGL's problem
-		ilBindImage(0);
-		ilDeleteImages(1, &texName);
-	}
+	char* firstWord = new char();
+	char* data = new char();
 
 	//Open the file
-	FILE *file = fopen(path, "r");
-	if(file == NULL){
-		std::cout<<"FILE ERROR /n";
+	std::ifstream file;
+	file.open(modelPath);
+	if (!file.is_open())
+	{
+		std::cout << "Error opening the file " << modelPath << "\n";
 	}
 
-	char lineHeader[128];
+	//Load data
+	while (!file.eof())
+	{
+		file >> firstWord;
 
-	//read file, convert from string to vector
-	while(fscanf(file, "%s", lineHeader) != EOF){
-
-		//add vertices
-		if(strcmp(lineHeader,"v")==0){
+		//Vertex data
+		if (!_stricmp(firstWord, "v"))
+		{
 			glm::vec3 vertex;
-			fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
-			vv3temp_vertex.push_back(vertex);
-		} 
-		// add texture vertices
-		else if(strcmp(lineHeader, "vt")==0){
-			glm::vec2 uv;
-			fscanf(file, "%f %f\n", &uv.x, &uv.y);
-			uv.y = 1-uv.y;
-			vv2temp_uvs.push_back(uv);
+
+			//X data
+			file >> data;
+			vertex.x = atof(data);
+
+			//Y data
+			file >> data;
+			vertex.y = atof(data);
+
+			//Z data
+			file >> data;
+			vertex.z = atof(data);
+
+			verts.push_back(vertex);
 		}
-		//add normal vertices
-		else if(strcmp(lineHeader,"vn")==0){
+		//Tex coord data
+		else if (!_stricmp(firstWord, "vt"))
+		{
+			glm::vec2 texCoord;
+
+			//X data
+			file >> data;
+			texCoord.x = atof(data);
+
+			//Y data
+			file >> data;
+			texCoord.y = atof(data);
+
+			texCoords.push_back(texCoord);
+		}
+
+		//normals data
+		else if (!_stricmp(firstWord, "vn"))
+		{
 			glm::vec3 normal;
-			fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
-			vv3temp_normals.push_back(normal);
+
+			//X data
+			file >> data;
+			normal.x = atof(data);
+
+			//Y data
+			file >> data;
+			normal.y = atof(data);
+
+			//Z data
+			file >> data;
+			normal.z = atof(data);
+
+			normals.push_back(normal);
 		}
-		//add face indices: vertex, uv, normal
-		else if(strcmp(lineHeader,"f")==0){
-			std::string sVertex1,sVertex2,Vertex3;
-			unsigned int uiVertexIndex[3], uiUVIndex[3], uiNormalIndex[3];
-			int matches = fscanf(file,"%d/%d/%d %d/%d/%d %d/%d/%d\n",
-									&uiVertexIndex[0],&uiUVIndex[0],&uiNormalIndex[0], 
-									&uiVertexIndex[1],&uiUVIndex[1],&uiNormalIndex[1], 
-									&uiVertexIndex[2],&uiUVIndex[2],&uiNormalIndex[2]);
-			if(matches != 9){
-				std::cout<<"File can't be read";
+
+		//faces data
+		else if (!_stricmp(firstWord, "f"))
+		{
+			for (unsigned int i = 0; i < 3; ++i)
+			{
+				int facesArray[3];
+
+				for (unsigned int i = 0; i < 3; ++i)
+				{
+					if (i == 2)
+						file >> data;
+					else
+						file.getline(data, 256, '/');
+					facesArray[i] = atoi(data);
+				}
+
+				facesVerts.push_back(facesArray[0] - 1);
+				facesTexCoords.push_back(facesArray[1] - 1);
+				facesNormals.push_back(facesArray[2] - 1);
 			}
-			vuiVertexIndex.push_back(uiVertexIndex[0]);
-			vuiVertexIndex.push_back(uiVertexIndex[1]);
-			vuiVertexIndex.push_back(uiVertexIndex[2]);
-			vuiUVIndex.push_back(uiUVIndex[0]);
-			vuiUVIndex.push_back(uiUVIndex[1]);
-			vuiUVIndex.push_back(uiUVIndex[2]);
-			vuiNormalIndex.push_back(uiNormalIndex[0]);
-			vuiNormalIndex.push_back(uiNormalIndex[1]);
-			vuiNormalIndex.push_back(uiNormalIndex[2]);
 		}
+
+		//skip to the end of the line
+		file.ignore(256, '\n');
 	}
 
-	//changing vectors into set of flm::vec3 for opengl
-	for(unsigned int i=0; i<vuiVertexIndex.size();i++){
-		unsigned int vertexIndex = vuiVertexIndex[i];
-		glm::vec3 vertex = vv3temp_vertex[vertexIndex-1];
-		out_vertices.push_back(vertex);
+	//create vertex data for faces
+	//float* finalVerts[];
+	std::vector<float> finalVerts;
+	for (unsigned int i = 0; i < facesVerts.size(); ++i)
+	{
+		finalVerts.push_back(verts[facesVerts[i]].x);
+		finalVerts.push_back(verts[facesVerts[i]].y);
+		finalVerts.push_back(verts[facesVerts[i]].z);
 	}
-	for(unsigned int j=0;j<vuiUVIndex.size();j++){
-		unsigned int uvIndex = vuiUVIndex[j];
-		glm::vec2 uv = vv2temp_uvs[uvIndex-1];
-		out_uvs.push_back(uv);
+
+	std::vector<float> finalTexCoords;
+	for (unsigned int i = 0; i < facesTexCoords.size(); ++i)
+	{
+		finalTexCoords.push_back(texCoords[facesTexCoords[i]].x);
+		finalTexCoords.push_back(texCoords[facesTexCoords[i]].y);
 	}
-	for(unsigned int k=0;k<vuiNormalIndex.size();k++){
-		unsigned int normalIndex = vuiNormalIndex[k];
-		glm::vec3 normal = vv3temp_normals[normalIndex-1];
-		out_normals.push_back(normal);
+
+	std::vector<float> finalNormals;
+	for (unsigned int i = 0; i < facesNormals.size(); ++i)
+	{
+		finalNormals.push_back(normals[facesNormals[i]].x);
+		finalNormals.push_back(normals[facesNormals[i]].y);
+		finalNormals.push_back(normals[facesNormals[i]].z);
 	}
-	
+
+	//Init and add data
+	VBO.Initialize(finalVerts.size() / 3, false, false);
+	VBO.AddVerticies(&finalVerts[0]);
+	VBO.AddNormals(&finalNormals[0]);
+	VBO.AddTexCoords(&finalTexCoords[0]);
 }
 OBJModel::~OBJModel(){}
 
