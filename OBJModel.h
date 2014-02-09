@@ -6,55 +6,56 @@
 
 class OBJModel{
 public:
+	//Constructors
 	OBJModel();
 	OBJModel(const char *path, const char *texPath);
+
+	//Destructor
 	~OBJModel();
 	
 	//draw
 	void drawOBJ();
 
+	//////////
+	//Setters
+	//////////
 
-	//getter setters
-	glm::vec3 getVertex(int i);
-	inline void setVertex(glm::vec3 in, int i){ out_vertices[i] = in; }
-	glm::vec2 getUV(int i);
-	glm::vec3 getNormal(int i);
-
-	int getVerSize();
-	int getUVSize();
-	int getNormSize();
-
+	//Set the position of the model
 	void setPos(float xtemp, float ytemp, float ztemp);
-	float getPosX();
-	float getPosY();
-	float getPosZ();
+	void setPos(glm::vec3 newPos);
 
-	GLfloat getTex();
-	collisionObjects getHitBox();
-
+	//Set the bounding box of the model
 	void setBoundingBox(collisionObjects newBoundBox);
 
+	//////////
+	//Getters
+	//////////
+
+	//Get the position of the model
+	inline glm::vec3 getPos(void){ return position; }
+
+	//Get the texture handle
+	GLfloat getTex();
+
+	//Get the hitbox of the model
+	collisionObjects getHitBox();
+
 private:
-	float x,y,z;
+	glm::vec3 position;
 	float xspeed,yspeed,zspeed;
 	float xaccel,yaccel,zaccel;
 	float xforce,yforce,zforce;
 	float orientation;
 	float dt;
 
+	//VBO for rendering
 	VertexBuffer VBO;
 
+	//Texture handle
 	GLuint texture;
 
+	//Bounding box for collisions
 	collisionObjects boundingBox;
-
-	//replace?
-	//sf::Image texMap;
-	//std::vector<std::vector<int>> out_faces;
-	std::vector<std::vector<int>> out_faces;
-	std::vector<glm::vec3> out_vertices;
-	std::vector<glm::vec2> out_uvs;
-	std::vector<glm::vec3> out_normals;
 };
 
 

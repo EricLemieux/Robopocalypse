@@ -184,7 +184,7 @@ void OBJModel::drawOBJ(){
 	//replace?
 	glBindTexture(GL_TEXTURE_2D, this->getTex());
 
-	glTranslatef(this->getPosX(), this->getPosY(), this->getPosZ());
+	glTranslatef(this->position.x, this->position.y, this->position.z);
 
 	VBO.Render();
 	
@@ -193,56 +193,29 @@ void OBJModel::drawOBJ(){
 	glDisable(GL_TEXTURE_2D);
 }
 
-glm::vec3 OBJModel::getVertex(int i){
-	return out_vertices[i];
-}
-
-glm::vec2 OBJModel::getUV(int i){
-	return out_uvs[i];
-}
-
-glm::vec3 OBJModel::getNormal(int i){
-	return out_normals[i];
-}
-
-int OBJModel::getVerSize(){
-	return out_vertices.size();
-}
-int OBJModel::getUVSize(){
-	return out_uvs.size();
-}
-int OBJModel::getNormSize(){
-	return out_normals.size();
-}
-
-void OBJModel::setPos(float xtemp, float ytemp, float ztemp){
-	x = xtemp;
-	y = ytemp;
-	z = ztemp;
+//Set the position of the model
+void OBJModel::setPos(float xtemp, float ytemp, float ztemp)
+{
+	position = glm::vec3(xtemp, ytemp, ztemp);
 	boundingBox.setPos(xtemp,ytemp,ztemp);
 }
-
-float OBJModel::getPosX(){
-	return x;
+void OBJModel::setPos(glm::vec3 newPos)
+{
+	position = newPos;
 }
 
-float OBJModel::getPosY(){
-	return y;
+//Set the bounding box of the model
+void OBJModel::setBoundingBox(collisionObjects newBoundBox)
+{
+	boundingBox = newBoundBox;
 }
 
-float OBJModel::getPosZ(){
-	return z;
-}
-
+//Get the texture handle
 GLfloat OBJModel::getTex(){
 	return texture;
 }
 
+//get the hitbox of the model
 collisionObjects OBJModel::getHitBox(){
 	return boundingBox;
-}
-
-void OBJModel::setBoundingBox(collisionObjects newBoundBox)
-{
-	boundingBox = newBoundBox;
 }
