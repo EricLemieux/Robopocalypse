@@ -1300,13 +1300,19 @@ void PlayerAnimation::update(float t)
 		
 }
 
+
+/*
+//Morph targets are going to be replaced with skeleten animation and this is currently blocking from complining
+//TODO: Replace with skeleten animation
+*/
+
 //morph target
 void PlayerAnimation::itsMorphingTime()
 {
-	int size = morphTargets.objects[currentFrame].getVerSize();  //TODO Implementing size check of objects interpolating to
-	for(int i=0; i<size ;i++){
-		int p0 = animations[currentAnimation][currentFrame];
-		int p1 = animations[currentAnimation][nextFrame];
-		playerObject.setVertex(LERP(morphTargets.objects[p0].getVertex(i),morphTargets.objects[p1].getVertex(i),dt),i);
-	}	
+	//int size = morphTargets.objects[currentFrame].getVerSize();  //TODO Implementing size check of objects interpolating to
+	//for(int i=0; i<size ;i++){
+	//	int p0 = animations[currentAnimation][currentFrame];
+	//	int p1 = animations[currentAnimation][nextFrame];
+	//	playerObject.setVertex(LERP(morphTargets.objects[p0].getVertex(i),morphTargets.objects[p1].getVertex(i),dt),i);
+	//}	
 }

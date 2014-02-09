@@ -93,9 +93,9 @@ class Game
 	/*********************************/
 
 	//Matricies
-	static glm::mat4 viewMat;
-	static glm::mat4 projectionMat;
-	static glm::mat4 modelViewProjectionMat;
+	glm::mat4 viewMat;
+	glm::mat4 projectionMat;
+	glm::mat4 modelViewProjectionMat;
 
 	
 	// Create a clock for measuring the time elapsed TEMP
