@@ -17,31 +17,31 @@ OBJModel::OBJModel(const char *modelPath, const char *texurePath)
 	ilGenImages(1, &texName);
 	ilBindImage(texName);
 
-	//char *filePath = "cat.jpg";
-	ilLoadImage(texurePath);
-	ILubyte *bytes = ilGetData();
-	if (!bytes)
-	{
-		std::cout << "error opening image file";
-
-		//Clean up memory
-		ilBindImage(0);
-		ilDeleteImages(1, &texName);
-	}
-	else
-	{
-		glGenTextures(1, &texture);
-		glBindTexture(GL_TEXTURE_2D, texture);
-
-		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT), ilGetInteger(IL_IMAGE_FORMAT), ilGetInteger(IL_IMAGE_TYPE), ilGetData());
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-		//Image is now OpenGL's problem
-		ilBindImage(0);
-		ilDeleteImages(1, &texName);
-	}
+	////char *filePath = "cat.jpg";
+	//ilLoadImage(texurePath);
+	//ILubyte *bytes = ilGetData();
+	//if (!bytes)
+	//{
+	//	std::cout << "error opening image file";
+	//
+	//	//Clean up memory
+	//	ilBindImage(0);
+	//	ilDeleteImages(1, &texName);
+	//}
+	//else
+	//{
+	//	glGenTextures(1, &texture);
+	//	glBindTexture(GL_TEXTURE_2D, texture);
+	//
+	//	gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT), ilGetInteger(IL_IMAGE_FORMAT), ilGetInteger(IL_IMAGE_TYPE), ilGetData());
+	//
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	//
+	//	//Image is now OpenGL's problem
+	//	ilBindImage(0);
+	//	ilDeleteImages(1, &texName);
+	//}
 
 	char* firstWord = new char();
 	char* data = new char();
@@ -192,7 +192,7 @@ OBJModel::OBJModel(const char *modelPath, const char *texurePath)
 }
 OBJModel::~OBJModel(){}
 
-void OBJModel::drawOBJ()
+void OBJModel::DrawOBJ()
 {
 	////TODO: Not sure if this is needed when texturing changes to being done on shader
 	//glEnable(GL_TEXTURE_2D);
@@ -207,7 +207,13 @@ void OBJModel::drawOBJ()
 
 
 //Get the texture handle
-GLfloat OBJModel::getTex()
+GLfloat OBJModel::GetTex()
 {
 	return texture;
+}
+
+//Get the VBO
+VertexBuffer OBJModel::GetVBO(void)
+{
+	return VBO;
 }

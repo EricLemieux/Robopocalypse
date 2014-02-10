@@ -40,6 +40,8 @@ int main()
 	//Init OpenGL
 	initOpenGL();
 
+	Robopocalypse->initGameplay();
+
 	//While the window is open run the game
 	while (Robopocalypse->GetIfRunning())
 	{
@@ -64,5 +66,5 @@ int main()
 //
 void initOpenGL(void)
 {
-	glClearColor(0.3f, 0.3f, 0.9f, 1.0f);
+	glClearColor(0.50f, 0.3f, 0.50f, 1.0f);
 }

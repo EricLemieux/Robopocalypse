@@ -3,9 +3,16 @@
 //////////
 //INCLUDES
 //////////
+#include <GL\glew.h>
+
 #include "GameObject.h"
+#include "GLSL.h"
 
 #include <GLFW\glfw3.h>
+
+#include <glm\glm.hpp>
+#include <glm\ext.hpp>
+#include <glm\gtx\euler_angles.hpp>
 
 #include <iostream>
 
@@ -39,6 +46,9 @@ public:
 	//////////
 	//INITIALISERS
 	//////////
+
+	//Initialises for gameplay
+	void initGameplay(void);
 
 	//Open a glfw window with defined size
 	void OpenWindow(int width, int height);
@@ -76,6 +86,9 @@ private:
 	//DATA
 	//////////
 
+	//Game Objects
+	GameObject player1;
+
 	//Stores if the game should be running
 	bool isRunning;
 
@@ -85,5 +98,16 @@ private:
 
 	//The Window the game uses
 	GLFWwindow *gameWindow;
+
+	//GLSL programs
+	GLSLProgram *passProgram;
+
+	//Matricies for use in the shader
+	glm::mat4 projectionMatrix;
+	glm::mat4 viewMatrix;
+	glm::mat4 modelViewProjectionMatrix;
+
+	//Shader uniform variables
+	int handle_MVP;
 };
 

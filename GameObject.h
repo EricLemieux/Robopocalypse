@@ -25,12 +25,21 @@ public:
 
 	glm::mat4 UpdateModelViewProjection(glm::mat4 &projectionMat, glm::mat4 &viewMat);
 
+	//Render the game object to the screen
+	void Render(void);
+
 	//////////
 	//ATTACHERS
 	//////////
 
 	//Attach a model to the game object
-	inline void AttachModel(VertexBuffer *model){ VBO = model; }
+	void AttachModel(VertexBuffer model);
+
+	//////////
+	//Setters
+	//////////
+	void setPosition(glm::vec3 newPos);
+	void setPosition(glm::mat4 newPosMat);
 
 private:
 	//////////
@@ -43,6 +52,6 @@ private:
 	glm::mat4 scale;
 	glm::mat4 modelMatrix;
 
-	VertexBuffer *VBO;
+	VertexBuffer VBO;
 };
 

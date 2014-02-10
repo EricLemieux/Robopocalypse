@@ -21,7 +21,7 @@ public:
 	~OBJModel();
 
 	//draw
-	void drawOBJ();
+	void DrawOBJ();
 
 	//////////
 	//Setters
@@ -32,13 +32,16 @@ public:
 	//Getters
 	//////////
 
+	//Get the VBO to attach to a game object
+	VertexBuffer GetVBO(void);
+
 	//Get the texture handle
-	GLfloat getTex();
+	GLfloat GetTex();
 	
 	//Get the max and min vectors
 	//Used for collision box
-	inline glm::vec3 getMaxVect(void){ return maxVect; }
-	inline glm::vec3 getMinVect(void){ return minVect; }
+	inline glm::vec3 GetMaxVect(void){ return maxVect; }
+	inline glm::vec3 GetMinVect(void){ return minVect; }
 
 private:
 	//Max and min vectors

@@ -1,5 +1,5 @@
-#include "VertexBuffer.h"
 #include <GL\glew.h>
+#include "VertexBuffer.h"
 
 //Constructor
 VertexBuffer::VertexBuffer(void)
