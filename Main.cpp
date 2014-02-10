@@ -29,7 +29,7 @@ int main()
 	Game *Robopocalypse = new Game;
 
 	//Open a window for the game
-	Robopocalypse->openWindow(1280, 720);
+	Robopocalypse->OpenWindow(1280, 720);
 
 	//Init GLEW
 	glewExperimental = GL_TRUE;
@@ -41,14 +41,14 @@ int main()
 	initOpenGL();
 
 	//While the window is open run the game
-	while (Robopocalypse->getIfRunning())
+	while (Robopocalypse->GetIfRunning())
 	{
-		if (Robopocalypse->getState() == STATE_GAMEPLAY)
+		if (Robopocalypse->GetState() == STATE_GAMEPLAY)
 		{
-			Robopocalypse->update();
-			Robopocalypse->render();
+			Robopocalypse->Update();
+			Robopocalypse->Render();
 		}
-		else if (Robopocalypse->getState() == STATE_MAINMENU)
+		else if (Robopocalypse->GetState() == STATE_MAINMENU)
 		{
 
 		}

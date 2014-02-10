@@ -41,7 +41,7 @@ public:
 	//////////
 
 	//Open a glfw window with defined size
-	void openWindow(int width, int height);
+	void OpenWindow(int width, int height);
 
 	//////////
 	//SETTERS
@@ -54,10 +54,10 @@ public:
 	//////////
 
 	//Get if the game is running
-	inline bool getIfRunning(void) { return isRunning; }
+	inline bool GetIfRunning(void) { return isRunning; }
 
 	//Get the game's current state
-	inline gameStates getState(void){ return GAME_STATE; }
+	inline gameStates GetState(void){ return GAME_STATE; }
 
 
 	//////////
@@ -65,10 +65,10 @@ public:
 	//////////
 
 	//Update the game
-	void update(void);
+	void Update(void);
 
 	//Render the game
-	void render(void);
+	void Render(void);
 
 private:
 
