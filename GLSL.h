@@ -30,8 +30,8 @@ public:
 	~GLSLShader(void);
 
 	//getters
-	inline shaderType GetType(void)		{ return type;	}
-	inline unsigned int GetHandle(void)	{ return handle;}
+	inline shaderType GetType(void)		{ return type; }
+	inline unsigned int GetHandle(void)	{ return handle; }
 
 	//remove from graphics memory
 	void Release(void);

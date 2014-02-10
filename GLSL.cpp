@@ -20,7 +20,7 @@ GLSLShader::~GLSLShader(void)
 //Release
 void GLSLShader::Release(void)
 {
-	if(handle)
+	if (handle)
 	{
 		glDeleteShader(handle);
 		handle = 0;
@@ -31,13 +31,13 @@ void GLSLShader::Release(void)
 int GLSLShader::CreateShaderFromString(shaderType newType, const char *source)
 {
 	//only create shader if one does not already exist
-	if(!handle)
+	if (!handle)
 	{
 		//Make sure there is something in the string to load
-		if(source)
+		if (source)
 		{
 			//changes our internal shader type to the type for use by openGL
-			const GLenum internalType[6] = 
+			const GLenum internalType[6] =
 			{
 				GL_VERTEX_SHADER,
 				GL_FRAGMENT_SHADER,
@@ -48,7 +48,7 @@ int GLSLShader::CreateShaderFromString(shaderType newType, const char *source)
 			handle = glCreateShader(internalType[type]);
 
 			//if handle was created sucessfuly
-			if(handle)
+			if (handle)
 			{
 				int status;
 
@@ -57,21 +57,21 @@ int GLSLShader::CreateShaderFromString(shaderType newType, const char *source)
 				glCompileShader(handle);
 
 				glGetShaderiv(handle, GL_COMPILE_STATUS, &status);
-				
+
 				//if the shader is compliled successfully
-				if(status)
+				if (status)
 				{
-					std::cout<<"\nShader compiled successfully.\n";
+					std::cout << "\nShader compiled successfully.\n";
 					return handle;
 				}
 				//if the shader was not compiled successfully output the error message
 				int logLength;
 				glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &logLength);
-				if(logLength > 0)
+				if (logLength > 0)
 				{
-					char log[sizeof(logLength) + 1];
+					char log[sizeof(logLength)+1];
 					glGetShaderInfoLog(handle, logLength, &logLength, log);
-					std::cout<<"\nShader failed to complile:\n"<<log<<std::endl;
+					std::cout << "\nShader failed to complile:\n" << log << std::endl;
 				}
 
 				//Finally release the failed shader from graphics memory
@@ -87,9 +87,9 @@ int GLSLShader::CreateShaderFromFile(shaderType newType, const char *filePath)
 	std::ifstream file;
 	file.open(filePath, std::ifstream::in);
 
-	if(!file)
+	if (!file)
 	{
-		std::cout<<"\n Error Opening file.\n";
+		std::cout << "\n Error Opening file.\n";
 	}
 
 	//find size of the file
@@ -98,20 +98,19 @@ int GLSLShader::CreateShaderFromFile(shaderType newType, const char *filePath)
 	file.seekg(0);
 
 	char* source;
-	source = (char *) malloc (size);
+	source = (char *)malloc(size);
 	unsigned int i = 0;
 
-	while(!file.eof())
+	while (!file.eof())
 	{
 		char c = file.get();
 		source[i] = c;
 		++i;
 	}
-	source[i-1] = '\0';
+	source[i - 1] = '\0';
 
-	std::cout<<source;
 	int ret = CreateShaderFromString(newType, source);
-	if(&source)
+	if (&source)
 	{
 		delete source;
 	}
@@ -138,7 +137,7 @@ GLSLProgram::~GLSLProgram(void)
 void GLSLProgram::Release(void)
 {
 	//if the handle actually exists
-	if(handle)
+	if (handle)
 	{
 		glDeleteProgram(handle);
 		handle = 0;
@@ -146,19 +145,19 @@ void GLSLProgram::Release(void)
 }
 
 //Attach the shader to the program
-int GLSLProgram:: AttachShader(GLSLShader *shader)
+int GLSLProgram::AttachShader(GLSLShader *shader)
 {
 	//only attach if there is a shader there
-	if(shader)
+	if (shader)
 	{
 		//If the handle has not yet been created, create one now
-		if(!handle)
+		if (!handle)
 		{
 			handle = glCreateProgram();
 		}
 
 		//Now if the handle exists attacht the shader to the program.
-		if(handle)
+		if (handle)
 		{
 			glAttachShader(this->handle, shader->GetHandle());	//No idea why this doesnt work...	//TODO Fix
 			return 1;
@@ -170,24 +169,24 @@ int GLSLProgram:: AttachShader(GLSLShader *shader)
 //Link the program
 int GLSLProgram::LinkProgram(void)
 {
-	if(handle)
+	if (handle)
 	{
 		int status;
 		glLinkProgram(handle);
 		glGetProgramiv(handle, GL_LINK_STATUS, &status);
-		if(status)
+		if (status)
 		{
-			std::cout<<"\nProgram linkled successfully\n";
+			std::cout << "\nProgram linkled successfully\n";
 			return 1;
 		}
 
 		int logLength;
 		glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &logLength);
-		if(logLength > 0)
+		if (logLength > 0)
 		{
 			char *log = new char[];
 			glGetProgramInfoLog(handle, logLength, &logLength, log);
-			std::cout<<"\nError in shader compile:\n"<<log<<std::endl;
+			std::cout << "\nError in shader compile:\n" << log << std::endl;
 			delete log;
 		}
 
@@ -199,7 +198,7 @@ int GLSLProgram::LinkProgram(void)
 //Validation
 int GLSLProgram::ValidateProgram(void)
 {
-	if(handle)
+	if (handle)
 	{
 		glValidateProgram(handle);
 		return handle;

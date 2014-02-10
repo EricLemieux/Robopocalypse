@@ -68,9 +68,14 @@ void Game::initializeWindow()
 
 	//init glew
 	glewExperimental = GL_TRUE;
-	if(glewInit() != GLEW_OK){
-		fprintf(stderr,"Failed to init GLEW\n");
+	GLenum err = glewInit();
+	if(err != GLEW_OK)
+	{
+		std::cout << glewGetErrorString(err) <<std::endl;
 	}
+	std::cout << "GLEW Version: "	<< glewGetString(GLEW_VERSION)	<<std::endl;
+	std::cout << "OpenGL Version: " << glGetString(GL_VERSION)		<< std::endl;
+
 
 	//Init DevIL
 	ilInit();
@@ -112,7 +117,7 @@ void Game::initializeGame()
 	camFOV					= 90.0f;
 	camNearClippingPlane	= 0.1f;
 	camFarClippingPlane		= 1000.0f;
-	projectionMat = glm::perspective(camFOV, (float)stateInfo.screenHeight / (float)stateInfo.screenHeight, camNearClippingPlane, camFarClippingPlane);
+	projectionMat = glm::perspective(camFOV, (float)width/(float)height, camNearClippingPlane, camFarClippingPlane);
 
 	//Disable the HUD until the cutscene is done
 	shouldDrawHUD = false;
@@ -337,20 +342,20 @@ void Game::DrawGame()
 	//camera update is in here in order to track player position
 	viewMat = camera.update();
 
-	drawAssetList(assetList);
+	//drawAssetList(assetList);
 
 	//Draw players
 	passProgram->Activate();
-	player1.getObject().updateModelMatrix(viewMat, projectionMat);
+	modelViewProjectionMat = player1.getObject().updateModelMatrix(viewMat, projectionMat);
 	glUniformMatrix4fv(handle_MVP, 1, 0, glm::value_ptr(modelViewProjectionMat));
 	player1.draw();
 	passProgram->Deactivate();
 
-	passProgram->Activate();
-	player1.getObject().updateModelMatrix(viewMat, projectionMat);
-	glUniformMatrix4fv(handle_MVP, 1, 0, glm::value_ptr(modelViewProjectionMat));
-	player2.draw();
-	passProgram->Deactivate();
+	//passProgram->Activate();
+	//player1.getObject().updateModelMatrix(viewMat, projectionMat);
+	//glUniformMatrix4fv(handle_MVP, 1, 0, glm::value_ptr(modelViewProjectionMat));
+	//player2.draw();
+	//passProgram->Deactivate();
 
 	if(shouldDrawHitboxes)
 	{
@@ -360,8 +365,6 @@ void Game::DrawGame()
 		//Draw the hit boxes
 		drawHitboxes(player1, player2, assetList);
 	}
-
-	glPopMatrix();
 
 	glDisable(GL_TEXTURE_2D);
 	

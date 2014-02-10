@@ -6,5 +6,5 @@ uniform mat4 MVP;
 
 void main()
 {
-	glPosition = MVP * position;
+	gl_Position = MVP * position;
 }

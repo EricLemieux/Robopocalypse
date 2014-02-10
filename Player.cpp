@@ -867,9 +867,9 @@ void Player::updatePos(float t){
 //draw player
 void Player::draw()
 {
-	//Bind the texture
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, this->getObject().getTex());          //TODO: Not sure if this is needed for shader texturing, will leave for now 
+	////Bind the texture
+	//glEnable(GL_TEXTURE_2D);
+	//glBindTexture(GL_TEXTURE_2D, this->getObject().getTex());          //TODO: Not sure if this is needed for shader texturing, will leave for now 
 
 	//Render VBO
 	playerObject.drawOBJ();

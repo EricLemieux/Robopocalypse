@@ -195,12 +195,12 @@ OBJModel::~OBJModel(){}
 
 void OBJModel::drawOBJ()
 {
-	//TODO: Not sure if this is needed when texturing changes to being done on shader
-	glEnable(GL_TEXTURE_2D);
-	//replace?
-	glBindTexture(GL_TEXTURE_2D, this->getTex());
+	////TODO: Not sure if this is needed when texturing changes to being done on shader
+	//glEnable(GL_TEXTURE_2D);
+	////replace?
+	//glBindTexture(GL_TEXTURE_2D, this->getTex());
 
-	VBO.Render();
+	VBO.ActivateAndRender();
 	
 
 	glDisable(GL_TEXTURE_2D);
