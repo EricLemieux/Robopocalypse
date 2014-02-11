@@ -3,9 +3,12 @@
 
 GameObject::GameObject()
 {
-	glm::mat4 position		= glm::mat4(1);
-	glm::mat4 rotation		= glm::mat4(1);
-	glm::mat4 scale			= glm::mat4(1);
+	//glm::mat4 position		= glm::mat4(1);
+	//glm::mat4 rotation		= glm::mat4(1);
+	//glm::mat4 scale			= glm::mat4(1);
+
+	//sceneGraphObject = new Node;
+
 }
 
 
@@ -20,11 +23,8 @@ void GameObject::Render(void)
 
 glm::mat4 GameObject::UpdateModelViewProjection(glm::mat4 &projectionMat, glm::mat4 &viewMat)
 {
-	//Find the model matrix
-	modelMatrix = scale * rotation * position;
-
 	//Return the model view projection matrix
-	return projectionMat * viewMat * modelMatrix;
+	return projectionMat * viewMat * sceneGraphObject.GetWorldTransform();
 }
 
 //////////
@@ -32,13 +32,20 @@ glm::mat4 GameObject::UpdateModelViewProjection(glm::mat4 &projectionMat, glm::m
 //////////
 
 //Set the position of the game object in world space
-void GameObject::setPosition(glm::vec3 newPos)
+void GameObject::SetPosition(glm::vec3 newPos)
 {
-	position[3] = glm::vec4(newPos, 1.0f);
+	sceneGraphObject.SetLocalPosition(newPos);
 }
-void GameObject::setPosition(glm::mat4 newPosMat)
+//Translate the position of the object
+void GameObject::MovePosition(glm::vec3 translation)
 {
-	position = newPosMat;
+	sceneGraphObject.TranslateNode(translation);
+}
+
+//Attach a child object in the scene graph
+void GameObject::SetSceneGraphChild(Node *child)
+{
+	sceneGraphObject.AttachNode(child);
 }
 
 //////////

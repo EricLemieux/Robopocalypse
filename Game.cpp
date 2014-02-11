@@ -11,6 +11,8 @@ Game::Game()
 
 	//Set the default game state
 	GAME_STATE = STATE_GAMEPLAY;
+	
+	world.AttachNode(&sceneGraph);
 
 	//Once initalised the game is now running
 	isRunning = true;
@@ -45,11 +47,9 @@ void Game::initGameplay(void)
 	//Create a game object for player1
 	player1 = new GameObject;
 	OBJModel playerModel("Resources/Models/Ball.obj", "Resources/Textures/Ball.jpg");
-	player1->AttachModel(playerModel.GetVBO());
-	//player1->AttachTestModel();
-	int a = 0;
+	player1->AttachModel(playerModel.GetVBO());	
 
-	
+	sceneGraph.AttachNode(player1->GetNode());
 }
 
 //Open a glfw window with defined size
@@ -90,6 +90,8 @@ void Game::Update(void)
 	//If the window should close, user presses the exit button, the game is no longer running and shutsdow at the start of gameloop
 	if (glfwWindowShouldClose(gameWindow))
 		isRunning = false;
+
+	sceneGraph.Update();
 
 	glfwPollEvents();
 }

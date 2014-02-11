@@ -7,6 +7,7 @@
 
 #include "OBJModel.h"
 #include "VertexBuffer.h"
+#include "SceneGraph.h"
 
 //////////
 //GAME OBJECT CLASS
@@ -41,8 +42,15 @@ public:
 	//////////
 	//Setters
 	//////////
-	void setPosition(glm::vec3 newPos);
-	void setPosition(glm::mat4 newPosMat);
+	void SetPosition(glm::vec3 newPos);
+	void MovePosition(glm::vec3 translation);
+
+	void SetSceneGraphChild(Node *child);
+
+	//////////
+	//GETTERS
+	//////////
+	inline Node* GetNode(void){ return &sceneGraphObject; }
 
 private:
 	//////////
@@ -50,10 +58,7 @@ private:
 	//////////
 
 	//
-	glm::mat4 position;
-	glm::mat4 rotation;
-	glm::mat4 scale;
-	glm::mat4 modelMatrix;
+	Node sceneGraphObject;
 
 	VertexBuffer *VBO;
 };

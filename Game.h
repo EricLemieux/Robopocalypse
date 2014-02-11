@@ -5,6 +5,7 @@
 //////////
 #include <GL\glew.h>
 
+#include "SceneGraph.h"
 #include "GameObject.h"
 #include "GLSL.h"
 
@@ -85,6 +86,9 @@ private:
 	//////////
 	//DATA
 	//////////
+
+	Node world;
+	Node sceneGraph;
 	
 	//Game Objects
 	GameObject *player1;
