@@ -33,7 +33,10 @@ public:
 	//////////
 
 	//Attach a model to the game object
-	void AttachModel(VertexBuffer model);
+	void AttachModel(VertexBuffer *model);
+
+	//TEMP DELETE
+	void AttachTestModel(void);
 
 	//////////
 	//Setters
@@ -52,6 +55,6 @@ private:
 	glm::mat4 scale;
 	glm::mat4 modelMatrix;
 
-	VertexBuffer VBO;
+	VertexBuffer *VBO;
 };
 

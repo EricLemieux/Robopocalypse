@@ -33,7 +33,7 @@ public:
 	//////////
 
 	//Get the VBO to attach to a game object
-	VertexBuffer GetVBO(void);
+	VertexBuffer* GetVBO(void);
 
 	//Get the texture handle
 	GLfloat GetTex();
@@ -50,7 +50,7 @@ private:
 	glm::vec3 minVect;
 
 	//VBO for rendering
-	VertexBuffer VBO;
+	VertexBuffer *VBO;
 
 	//Texture handle
 	GLuint texture;

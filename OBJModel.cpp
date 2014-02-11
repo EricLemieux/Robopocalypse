@@ -4,6 +4,8 @@ OBJModel::OBJModel(){}
 
 OBJModel::OBJModel(const char *modelPath, const char *texurePath)
 {
+	VBO = new VertexBuffer;
+
 	std::vector<glm::vec3> verts;
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec2> texCoords;
@@ -185,10 +187,10 @@ OBJModel::OBJModel(const char *modelPath, const char *texurePath)
 	}
 
 	//Init and add data
-	VBO.Initialize(finalVerts.size() / 3, true, true);
-	VBO.AddVerticies(&finalVerts[0]);
-	VBO.AddNormals(&finalNormals[0]);
-	VBO.AddTexCoords(&finalTexCoords[0]);
+	VBO->Initialize(finalVerts.size() / 3, true, true);
+	VBO->AddVerticies(&finalVerts[0]);
+	VBO->AddNormals(&finalNormals[0]);
+	VBO->AddTexCoords(&finalTexCoords[0]);
 }
 OBJModel::~OBJModel(){}
 
@@ -199,7 +201,7 @@ void OBJModel::DrawOBJ()
 	////replace?
 	//glBindTexture(GL_TEXTURE_2D, this->getTex());
 
-	VBO.ActivateAndRender();
+	VBO->ActivateAndRender();
 
 
 	glDisable(GL_TEXTURE_2D);
@@ -213,7 +215,7 @@ GLfloat OBJModel::GetTex()
 }
 
 //Get the VBO
-VertexBuffer OBJModel::GetVBO(void)
+VertexBuffer* OBJModel::GetVBO(void)
 {
 	return VBO;
 }

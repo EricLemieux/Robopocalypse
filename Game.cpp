@@ -43,8 +43,13 @@ void Game::initGameplay(void)
 	handle_MVP = passProgram->GetUniformLocation("MVP");
 
 	//Create a game object for player1
+	player1 = new GameObject;
 	OBJModel playerModel("Resources/Models/Ball.obj", "Resources/Textures/Ball.jpg");
-	player1.AttachModel(playerModel.GetVBO());
+	player1->AttachModel(playerModel.GetVBO());
+	//player1->AttachTestModel();
+	int a = 0;
+
+	
 }
 
 //Open a glfw window with defined size
@@ -96,13 +101,13 @@ void Game::Render(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//Update the view matrix
-	viewMatrix = glm::lookAt(glm::vec3(0, 0, 10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	viewMatrix = glm::lookAt(glm::vec3(0, 0, 5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
 	//Activate the shader and render the player
 	passProgram->Activate();
-	modelViewProjectionMatrix = player1.UpdateModelViewProjection(projectionMatrix, viewMatrix);
+	modelViewProjectionMatrix = player1->UpdateModelViewProjection(projectionMatrix, viewMatrix);
 	glUniformMatrix4fv(handle_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
-	player1.Render();
+	player1->Render();
 	passProgram->Deactivate();
 
 	//Swap front and back buffers

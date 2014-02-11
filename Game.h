@@ -85,9 +85,9 @@ private:
 	//////////
 	//DATA
 	//////////
-
+	
 	//Game Objects
-	GameObject player1;
+	GameObject *player1;
 
 	//Stores if the game should be running
 	bool isRunning;

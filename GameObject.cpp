@@ -15,7 +15,7 @@ GameObject::~GameObject()
 
 void GameObject::Render(void)
 {
-	VBO.ActivateAndRender();
+	VBO->ActivateAndRender();
 }
 
 glm::mat4 GameObject::UpdateModelViewProjection(glm::mat4 &projectionMat, glm::mat4 &viewMat)
@@ -46,7 +46,7 @@ void GameObject::setPosition(glm::mat4 newPosMat)
 //////////
 
 //Attach a model to the game object
-void GameObject::AttachModel(VertexBuffer model)
+void GameObject::AttachModel(VertexBuffer *model)
 {
-	VBO = model;
+	VBO = new VertexBuffer(*model);
 }
