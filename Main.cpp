@@ -23,6 +23,8 @@
 
 void initOpenGL(void);
 
+static const double FPS_REFRESH_CAP = 1.0f / 60.0f;
+
 int main()
 {
 	//Init the game
@@ -42,18 +44,28 @@ int main()
 
 	Robopocalypse->initGameplay();
 
+	//Set the time to zero before running the game loop so we know it starts from scratch.
+	glfwSetTime(0.0f);
+
 	//While the window is open run the game
 	while (Robopocalypse->GetIfRunning())
 	{
-		if (Robopocalypse->GetState() == STATE_GAMEPLAY)
+		//Makes sure there has been enough time between updates before rendering to the screen.
+		if (glfwGetTime() >= FPS_REFRESH_CAP)
 		{
-			Robopocalypse->Update();
-			Robopocalypse->Render();
-		}
-		else if (Robopocalypse->GetState() == STATE_MAINMENU)
-		{
+			if (Robopocalypse->GetState() == STATE_GAMEPLAY)
+			{
+				Robopocalypse->Update();
+				Robopocalypse->Render();
+			}
+			else if (Robopocalypse->GetState() == STATE_MAINMENU)
+			{
 
-		}
+			}
+
+			//Reset the time between updates
+			glfwSetTime(0.0f);
+		}		
 	}
 	
 	//Shutdown gldw
