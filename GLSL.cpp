@@ -69,7 +69,8 @@ int GLSLShader::CreateShaderFromString(shaderType newType, const char *source)
 				glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &logLength);
 				if (logLength > 0)
 				{
-					char log[sizeof(logLength)+1];
+					//char log[sizeof(logLength)+1];
+					char* log = new char;
 					glGetShaderInfoLog(handle, logLength, &logLength, log);
 					std::cout << "\nShader failed to complile:\n" << log << std::endl;
 				}

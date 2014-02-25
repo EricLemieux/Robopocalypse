@@ -141,6 +141,13 @@ void Game::PreRender(GameObject* object)
 	modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);
 	glUniformMatrix4fv(handle_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
 	glUniform3fv(handle_LightPos, 1, glm::value_ptr(glm::inverse(modelViewProjectionMatrix) * glm::vec4(0, 0, 0, 1)));
-	glUniform1i(handle_texture, (GLint)object->GetTexture()->GetHandle());
+	
+	//glUniform1i(handle_texture, (GLint)object->GetTexture()->GetHandle());
+	glUniform1i(handle_texture, 0);
+
+	glActiveTexture(GL_TEXTURE0 + 0);
+	glBindTexture(GL_TEXTURE_2D, object->GetTexture()->GetHandle());
+	glBindSampler(0, GL_LINEAR);
+	
 	object->Render();
 }

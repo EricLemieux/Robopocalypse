@@ -54,3 +54,10 @@ int Texture::Load(char* filePath)
 		return 1;
 	}
 }
+
+GLuint Texture::GetHandle(void)
+{
+	if(handle)
+		return handle;
+	return 0;
+}

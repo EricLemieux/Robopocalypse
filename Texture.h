@@ -18,7 +18,7 @@ public:
 
 	int Load(char* filePath);
 
-	inline GLuint* GetHandle(void){ return &handle; }
+	GLuint GetHandle(void);
 
 private:
 	GLuint handle;

@@ -8,6 +8,7 @@ in vertex
 }data;
 
 uniform vec3 lightPos;
+
 uniform sampler2D objectTexture;
 
 vec3 light(in vec3 pos, in vec3 norm)
@@ -19,7 +20,8 @@ vec3 light(in vec3 pos, in vec3 norm)
 
 	vec3 lightColour = vec3(1.0, 1.0, 1.0);
 	vec3 objectColour = vec3(1.0, 0.0, 0.0);
-	vec3 diffuse = lambert * lightColour * texture(objectTexture,data.texcoordObj);
+	
+	vec3 diffuse = lambert * lightColour * texture(objectTexture,data.texcoordObj).rgb;
 
 	return diffuse;
 }
@@ -28,6 +30,6 @@ void main()
 {
 	vec4 finalColour = vec4(0.0, 0.0, 0.0, 1.0);
 	finalColour.rgb = light(data.positionObj, data.normalObj);
-
+	
 	gl_FragColor = finalColour;
 }

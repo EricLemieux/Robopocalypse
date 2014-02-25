@@ -3,6 +3,7 @@
 
 GameObject::GameObject()
 {
+	tex = new Texture;
 }
 
 
