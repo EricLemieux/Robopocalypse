@@ -79,4 +79,5 @@ int main()
 void initOpenGL(void)
 {
 	glClearColor(0.50f, 0.3f, 0.50f, 1.0f);
+	glEnable(GL_DEPTH_TEST);
 }

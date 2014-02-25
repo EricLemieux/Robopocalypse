@@ -94,7 +94,7 @@ int GLSLShader::CreateShaderFromFile(shaderType newType, const char *filePath)
 
 	//find size of the file
 	file.seekg(0, std::ios::end);
-	const static int size = file.tellg();
+	int size = file.tellg();
 	file.seekg(0);
 
 	char* source;

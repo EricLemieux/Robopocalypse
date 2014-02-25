@@ -1,5 +1,5 @@
 #Simple asset file made to test asset file loading
 new
-pos 0 0 0
-obj Resources/Models/Ball.obj
+pos 0 -10 -50
+obj Resources/Models/LevelBackground.obj
 load

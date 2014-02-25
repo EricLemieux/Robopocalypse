@@ -31,18 +31,19 @@ void Game::initGameplay(void)
 {
 	projectionMatrix = glm::perspective(90.0f, (float)1280 / (float)720, 0.1f, 1000.0f);
 
-	passProgram = new GLSLProgram;
+	lightProgram = new GLSLProgram;
 	int result = 1;
-	GLSLShader passShader_V, passShader_F;
-	result *= passShader_V.CreateShaderFromFile(GLSL_VERTEX_SHADER,		"Resources/Shaders/pass_v.glsl");
-	result *= passShader_F.CreateShaderFromFile(GLSL_FRAGMENT_SHADER,	"Resources/Shaders/pass_f.glsl");
-	result *= passProgram->AttachShader(&passShader_V);
-	result *= passProgram->AttachShader(&passShader_F);
-	result *= passProgram->LinkProgram();
-	result *= passProgram->ValidateProgram();
+	GLSLShader lightShader_V, lightShader_F;
+	result *= lightShader_V.CreateShaderFromFile(GLSL_VERTEX_SHADER,	"Resources/Shaders/FragLighting_v.glsl");
+	result *= lightShader_F.CreateShaderFromFile(GLSL_FRAGMENT_SHADER,	"Resources/Shaders/FragLighting_f.glsl");
+	result *= lightProgram->AttachShader(&lightShader_V);
+	result *= lightProgram->AttachShader(&lightShader_F);
+	result *= lightProgram->LinkProgram();
+	result *= lightProgram->ValidateProgram();
 
 	//get uniform variables
-	handle_MVP = passProgram->GetUniformLocation("MVP");
+	handle_MVP		= lightProgram->GetUniformLocation("MVP");
+	handle_LightPos = lightProgram->GetUniformLocation("lightPos");
 
 	////Create a game object for player1
 	//player1 = new GameObject;
@@ -53,10 +54,8 @@ void Game::initGameplay(void)
 	//This is just testing the asset file loading
 	Assets newAssetList;
 	newAssetList.Load("Resources/assets.txt");
-	//newAssetList.AttachAllObjectsToNode(&sceneGraph);
+	newAssetList.AttachAllObjectsToNode(&sceneGraph);
 	player1 = newAssetList.loadedObjects[0];
-	sceneGraph.AttachNode(player1->GetNode());
-	int a = 0;
 }
 
 //Open a glfw window with defined size
@@ -113,11 +112,12 @@ void Game::Render(void)
 	viewMatrix = glm::lookAt(glm::vec3(0, 0, 5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
 	//Activate the shader and render the player
-	passProgram->Activate();
+	lightProgram->Activate();
 		modelViewProjectionMatrix = player1->UpdateModelViewProjection(projectionMatrix, viewMatrix);
 		glUniformMatrix4fv(handle_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
+		glUniform3fv(handle_LightPos, 1, glm::value_ptr(glm::inverse(modelViewProjectionMatrix) * glm::vec4(0, 15, 0, 1)));
 		player1->Render();
-	passProgram->Deactivate();
+	lightProgram->Deactivate();
 
 	//Swap front and back buffers
 	glfwSwapBuffers(gameWindow);

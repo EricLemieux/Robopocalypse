@@ -105,7 +105,7 @@ private:
 	GLFWwindow *gameWindow;
 
 	//GLSL programs
-	GLSLProgram *passProgram;
+	GLSLProgram *lightProgram;
 
 	//Matricies for use in the shader
 	glm::mat4 projectionMatrix;
@@ -114,4 +114,5 @@ private:
 
 	//Shader uniform variables
 	int handle_MVP;
+	int handle_LightPos;
 };

@@ -18,7 +18,7 @@ Node::~Node()
 //Translate the node in 3D space
 void Node::TranslateNode(const glm::vec3 position)
 {
-	translation[3] += glm::vec4(position, 1.0f);
+	translation[3] += glm::vec4(position, 0.0f);
 }
 void Node::SetLocalPosition(const glm::vec3 position)
 {
