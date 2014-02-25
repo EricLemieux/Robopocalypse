@@ -21,6 +21,14 @@ public:
 	//Attach all of the game objects in the list to a scene graph node
 	unsigned int AttachAllObjectsToNode(Node *sceneGraphNode);
 
-//private:
+	//Getters
+
+	//Get the size of the vector
+	inline unsigned int GetSize(void){ return loadedObjects.size(); }
+
+	//Get a specific game object from the vector
+	GameObject* GetObjectAtIndex(unsigned int index);
+
+private:
 	std::vector<GameObject*> loadedObjects;
 };

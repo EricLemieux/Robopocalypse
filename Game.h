@@ -82,6 +82,9 @@ public:
 	//Render the game
 	void Render(void);
 
+	//Update the variables for the shaders before rendering the Game Object
+	void PreRender(GameObject* object);
+
 private:
 
 	//////////
@@ -92,7 +95,9 @@ private:
 	Node sceneGraph;
 	
 	//Game Objects
-	GameObject *player1;
+	GameObject *player1, *player2;
+
+	Assets BackgroundObjects;
 
 	//Stores if the game should be running
 	bool isRunning;

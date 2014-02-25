@@ -106,3 +106,12 @@ unsigned int Assets::AttachAllObjectsToNode(Node *sceneGraphNode)
 
 	return 1;
 }
+
+GameObject* Assets::GetObjectAtIndex(unsigned int index)
+{
+	if (index < loadedObjects.size())
+	{
+		return loadedObjects[index];
+	}
+	return NULL;
+}
