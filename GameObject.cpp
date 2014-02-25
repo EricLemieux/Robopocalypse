@@ -51,3 +51,8 @@ void GameObject::AttachModel(VertexBuffer *model)
 {
 	VBO = model;
 }
+
+void GameObject::AttachTexture(Texture *tex)
+{
+	this->tex = tex;
+}

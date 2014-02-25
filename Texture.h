@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include <GL\glew.h>
+//#include <GL\glew.h>
 
 #undef _UNICODE
 #include <IL\il.h>
@@ -18,7 +18,7 @@ public:
 
 	int Load(char* filePath);
 
-	inline GLuint GetHandle(void){ return handle; }
+	inline GLuint* GetHandle(void){ return &handle; }
 
 private:
 	GLuint handle;

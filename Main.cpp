@@ -38,6 +38,12 @@ int main()
 	GLenum err = glewInit();
 	if (err != GLEW_OK)
 		std::cout << "glewInit() Error\n";
+
+	//Init DevIL
+	ilInit();
+	iluInit();
+	ilutInit();
+	ilutRenderer(ILUT_OPENGL);
 	
 	//Init OpenGL
 	initOpenGL();

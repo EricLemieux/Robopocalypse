@@ -120,4 +120,5 @@ private:
 	//Shader uniform variables
 	int handle_MVP;
 	int handle_LightPos;
+	int handle_texture;
 };

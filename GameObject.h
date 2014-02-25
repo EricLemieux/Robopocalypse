@@ -8,6 +8,7 @@
 #include "OBJModel.h"
 #include "VertexBuffer.h"
 #include "SceneGraph.h"
+#include "Texture.h"
 
 //////////
 //GAME OBJECT CLASS
@@ -35,6 +36,8 @@ public:
 
 	//Attach a model to the game object
 	void AttachModel(VertexBuffer *model);
+
+	void AttachTexture(Texture *tex);
 	
 	//////////
 	//Setters
@@ -49,6 +52,8 @@ public:
 	//////////
 	inline Node* GetNode(void){ return &sceneGraphObject; }
 
+	inline Texture* GetTexture(void){ return tex; }
+
 private:
 	//////////
 	//DATA
@@ -58,5 +63,7 @@ private:
 	Node sceneGraphObject;
 
 	VertexBuffer *VBO;
+
+	Texture *tex;
 };
 

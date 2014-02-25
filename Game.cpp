@@ -44,16 +44,19 @@ void Game::initGameplay(void)
 	//get uniform variables
 	handle_MVP		= lightProgram->GetUniformLocation("MVP");
 	handle_LightPos = lightProgram->GetUniformLocation("lightPos");
+	handle_texture	= lightProgram->GetUniformLocation("objectTexture");
 
 	//Create a game object for player1
 	player1 = new GameObject;
 	player1->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
+	player1->AttachTexture(&Texture("Resources/Textures/Ball.jpg"));
 	sceneGraph.AttachNode(player1->GetNode());
 	player1->SetPosition(glm::vec3(20, 0, -15));
 
 	//Create a game object for player2
 	player2 = new GameObject;
 	player2->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
+	player2->AttachTexture(&Texture("Resources/Textures/Shputnik_Texture.png"));
 	sceneGraph.AttachNode(player2->GetNode());
 	player2->SetPosition(glm::vec3(-20, 0, -15));
 
@@ -138,5 +141,6 @@ void Game::PreRender(GameObject* object)
 	modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);
 	glUniformMatrix4fv(handle_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
 	glUniform3fv(handle_LightPos, 1, glm::value_ptr(glm::inverse(modelViewProjectionMatrix) * glm::vec4(0, 0, 0, 1)));
+	glUniform1i(handle_texture, (GLint)object->GetTexture()->GetHandle());
 	object->Render();
 }
