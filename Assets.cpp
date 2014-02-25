@@ -24,31 +24,44 @@ unsigned int Assets::Load(char* fileName)
 	}
 
 	char firstWord[256];
+	GameObject *newObject = new GameObject;
 
 	while (!file.eof())
 	{
-		static GameObject newObject;
-
 		file >> firstWord;
 
-		//Create a new game object
-		if (!_stricmp(firstWord, "new"))
+		//Comments
+		if (!_stricmp(firstWord, "#") || firstWord[0] == '#')
 		{
+			//Comment doesnt get used by the loader it is only for people reading the file.
+
+			//Skip ahead to the end of the line
+			file.ignore(256,'\n');
 		}
 
-		if (!_stricmp(firstWord, "obj"))
+		//Create a new game object
+		else if (!_stricmp(firstWord, "new"))
+		{
+			//Reset the game object
+			newObject = new GameObject;
+
+			//Skip ahead to the end of the line
+			file.ignore(256, '\n');
+		}
+
+		else if (!_stricmp(firstWord, "obj"))
 		{
 			char objPath[256];
 			file >> objPath;
 
-			//Load the obj
-			OBJModel newOBJ = OBJModel(objPath);
-
 			//Attach the model to the game object
-			newObject.AttachModel(newOBJ.GetVBO());
+			newObject->AttachModel(OBJModel(objPath).GetVBO());
+
+			//Skip ahead to the end of the line
+			file.ignore(256, '\n');
 		}
 
-		if (!_stricmp(firstWord, "pos"))
+		else if (!_stricmp(firstWord, "pos"))
 		{
 			glm::vec3 newPos;
 			char value[256];
@@ -62,17 +75,34 @@ unsigned int Assets::Load(char* fileName)
 			newPos.z = atof(value);
 
 			//Set the game object's position
-			newObject.SetPosition(newPos);
+			newObject->SetPosition(newPos);
 
 			//Skip ahead to the end of the line
-			file.ignore('\n');
+			file.ignore(256, '\n');
 		}
 
 		//Load the game object in to the vector and clean up the memory
-		if (!_stricmp(firstWord, "load"))
+		else if (!_stricmp(firstWord, "load"))
 		{
 			//Add the game object to the vector
 			loadedObjects.push_back(newObject);
+
+			//Reset the game object
+			newObject = new GameObject;
+
+			//Skip ahead to the end of the line
+			file.ignore(256, '\n');
 		}
 	}
+	return 1;
+}
+
+unsigned int Assets::AttachAllObjectsToNode(Node *sceneGraphNode)
+{
+	for (unsigned int i = 0; i < loadedObjects.size() ; ++i)
+	{
+		sceneGraphNode->AttachNode(loadedObjects[i]->GetNode());
+	}
+
+	return 1;
 }

@@ -28,6 +28,7 @@ OBJModel::OBJModel(const char *modelPath)
 	if (!file.is_open())
 	{
 		std::cout << "Error opening the file " << modelPath << "\n";
+		return;
 	}
 
 	//Load data

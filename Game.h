@@ -8,6 +8,7 @@
 #include "SceneGraph.h"
 #include "GameObject.h"
 #include "GLSL.h"
+#include "Assets.h"
 
 #include <GLFW\glfw3.h>
 

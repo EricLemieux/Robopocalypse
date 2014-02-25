@@ -44,12 +44,19 @@ void Game::initGameplay(void)
 	//get uniform variables
 	handle_MVP = passProgram->GetUniformLocation("MVP");
 
-	//Create a game object for player1
-	player1 = new GameObject;
-	OBJModel playerModel("Resources/Models/Ball.obj");
-	player1->AttachModel(playerModel.GetVBO());	
+	////Create a game object for player1
+	//player1 = new GameObject;
+	//player1->AttachModel(OBJModel("Resources/Models/Ball.obj").GetVBO());
+	//sceneGraph.AttachNode(player1->GetNode());
 
+	//TEMP
+	//This is just testing the asset file loading
+	Assets newAssetList;
+	newAssetList.Load("Resources/assets.txt");
+	//newAssetList.AttachAllObjectsToNode(&sceneGraph);
+	player1 = newAssetList.loadedObjects[0];
 	sceneGraph.AttachNode(player1->GetNode());
+	int a = 0;
 }
 
 //Open a glfw window with defined size
@@ -107,9 +114,9 @@ void Game::Render(void)
 
 	//Activate the shader and render the player
 	passProgram->Activate();
-	modelViewProjectionMatrix = player1->UpdateModelViewProjection(projectionMatrix, viewMatrix);
-	glUniformMatrix4fv(handle_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
-	player1->Render();
+		modelViewProjectionMatrix = player1->UpdateModelViewProjection(projectionMatrix, viewMatrix);
+		glUniformMatrix4fv(handle_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
+		player1->Render();
 	passProgram->Deactivate();
 
 	//Swap front and back buffers

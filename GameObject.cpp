@@ -49,5 +49,5 @@ void GameObject::SetSceneGraphChild(Node *child)
 //Attach a model to the game object
 void GameObject::AttachModel(VertexBuffer *model)
 {
-	VBO = new VertexBuffer(*model);
+	VBO = model;
 }
