@@ -35,10 +35,7 @@ public:
 
 	//Attach a model to the game object
 	void AttachModel(VertexBuffer *model);
-
-	//TEMP DELETE
-	void AttachTestModel(void);
-
+	
 	//////////
 	//Setters
 	//////////

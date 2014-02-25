@@ -46,7 +46,7 @@ void Game::initGameplay(void)
 
 	//Create a game object for player1
 	player1 = new GameObject;
-	OBJModel playerModel("Resources/Models/Ball.obj", "Resources/Textures/Ball.jpg");
+	OBJModel playerModel("Resources/Models/Ball.obj");
 	player1->AttachModel(playerModel.GetVBO());	
 
 	sceneGraph.AttachNode(player1->GetNode());

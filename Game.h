@@ -114,4 +114,3 @@ private:
 	//Shader uniform variables
 	int handle_MVP;
 };
-

@@ -2,7 +2,7 @@
 
 OBJModel::OBJModel(){}
 
-OBJModel::OBJModel(const char *modelPath, const char *texurePath)
+OBJModel::OBJModel(const char *modelPath)
 {
 	VBO = new VertexBuffer;
 
@@ -18,32 +18,6 @@ OBJModel::OBJModel(const char *modelPath, const char *texurePath)
 	ILuint texName;
 	ilGenImages(1, &texName);
 	ilBindImage(texName);
-
-	////char *filePath = "cat.jpg";
-	//ilLoadImage(texurePath);
-	//ILubyte *bytes = ilGetData();
-	//if (!bytes)
-	//{
-	//	std::cout << "error opening image file";
-	//
-	//	//Clean up memory
-	//	ilBindImage(0);
-	//	ilDeleteImages(1, &texName);
-	//}
-	//else
-	//{
-	//	glGenTextures(1, &texture);
-	//	glBindTexture(GL_TEXTURE_2D, texture);
-	//
-	//	gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT), ilGetInteger(IL_IMAGE_FORMAT), ilGetInteger(IL_IMAGE_TYPE), ilGetData());
-	//
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	//
-	//	//Image is now OpenGL's problem
-	//	ilBindImage(0);
-	//	ilDeleteImages(1, &texName);
-	//}
 
 	char* firstWord = new char();
 	char* data = new char();

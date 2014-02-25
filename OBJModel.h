@@ -15,7 +15,7 @@ class OBJModel{
 public:
 	//Constructors
 	OBJModel();
-	OBJModel(const char *path, const char *texPath);
+	OBJModel(const char *path);
 
 	//Destructor
 	~OBJModel();

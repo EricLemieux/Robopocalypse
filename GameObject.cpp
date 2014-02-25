@@ -3,12 +3,6 @@
 
 GameObject::GameObject()
 {
-	//glm::mat4 position		= glm::mat4(1);
-	//glm::mat4 rotation		= glm::mat4(1);
-	//glm::mat4 scale			= glm::mat4(1);
-
-	//sceneGraphObject = new Node;
-
 }
 
 
