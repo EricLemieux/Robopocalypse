@@ -3,7 +3,7 @@
 
 GameObject::GameObject()
 {
-	tex = new Texture;
+	tex = new Texture("Resources\Textures\Shputnik_Texture.png");
 }
 
 

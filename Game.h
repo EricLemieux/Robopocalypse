@@ -118,7 +118,7 @@ private:
 	glm::mat4 modelViewProjectionMatrix;
 
 	//Shader uniform variables
-	int handle_MVP;
-	int handle_LightPos;
-	int handle_texture;
+	int uniform_MVP;
+	int uniform_LightPos;
+	int uniform_texture;
 };

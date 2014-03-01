@@ -42,14 +42,14 @@ void Game::initGameplay(void)
 	result *= lightProgram->ValidateProgram();
 
 	//get uniform variables
-	handle_MVP		= lightProgram->GetUniformLocation("MVP");
-	handle_LightPos = lightProgram->GetUniformLocation("lightPos");
-	handle_texture	= lightProgram->GetUniformLocation("objectTexture");
+	uniform_MVP			= lightProgram->GetUniformLocation("MVP");
+	uniform_LightPos	= lightProgram->GetUniformLocation("lightPos");
+	uniform_texture		= lightProgram->GetUniformLocation("objectTexture");
 
 	//Create a game object for player1
 	player1 = new GameObject;
 	player1->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
-	player1->AttachTexture(&Texture("Resources/Textures/Ball.jpg"));
+	player1->AttachTexture(&Texture("Resources/Textures/Shputnik_Texture.png"));
 	sceneGraph.AttachNode(player1->GetNode());
 	player1->SetPosition(glm::vec3(20, 0, -15));
 
@@ -139,15 +139,12 @@ void Game::Render(void)
 void Game::PreRender(GameObject* object)
 {
 	modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);
-	glUniformMatrix4fv(handle_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
-	glUniform3fv(handle_LightPos, 1, glm::value_ptr(glm::inverse(modelViewProjectionMatrix) * glm::vec4(0, 0, 0, 1)));
-	
-	//glUniform1i(handle_texture, (GLint)object->GetTexture()->GetHandle());
-	glUniform1i(handle_texture, 0);
+	glUniformMatrix4fv(uniform_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
+	glUniform3fv(uniform_LightPos, 1, glm::value_ptr(glm::inverse(modelViewProjectionMatrix) * glm::vec4(0, 0, 0, 1)));
 
-	glActiveTexture(GL_TEXTURE0 + 0);
+	//glActiveTexture(GL_TEXTURE0);	
+	glUniform1i(uniform_texture, 0);
 	glBindTexture(GL_TEXTURE_2D, object->GetTexture()->GetHandle());
-	glBindSampler(0, GL_LINEAR);
 	
 	object->Render();
 }
