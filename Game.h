@@ -91,8 +91,8 @@ private:
 	//DATA
 	//////////
 
-	Node world;
-	Node sceneGraph;
+	Node *world;
+	Node *sceneGraph;
 	
 	//Game Objects
 	GameObject *player1, *player2;

@@ -3,7 +3,8 @@
 
 GameObject::GameObject()
 {
-	tex = new Texture("Resources\Textures\Shputnik_Texture.png");
+	sceneGraphObject = new Node;
+	//tex = new Texture("Resources\Textures\Shputnik_Texture.png");
 }
 
 
@@ -19,7 +20,7 @@ void GameObject::Render(void)
 glm::mat4 GameObject::UpdateModelViewProjection(glm::mat4 &projectionMat, glm::mat4 &viewMat)
 {
 	//Return the model view projection matrix
-	return projectionMat * viewMat * sceneGraphObject.GetWorldTransform();
+	return projectionMat * viewMat * sceneGraphObject->GetWorldTransform();
 }
 
 //////////
@@ -29,18 +30,18 @@ glm::mat4 GameObject::UpdateModelViewProjection(glm::mat4 &projectionMat, glm::m
 //Set the position of the game object in world space
 void GameObject::SetPosition(glm::vec3 newPos)
 {
-	sceneGraphObject.SetLocalPosition(newPos);
+	sceneGraphObject->SetLocalPosition(newPos);
 }
 //Translate the position of the object
 void GameObject::MovePosition(glm::vec3 translation)
 {
-	sceneGraphObject.TranslateNode(translation);
+	sceneGraphObject->TranslateNode(translation);
 }
 
 //Attach a child object in the scene graph
 void GameObject::SetSceneGraphChild(Node *child)
 {
-	sceneGraphObject.AttachNode(child);
+	sceneGraphObject->AttachNode(child);
 }
 
 //////////
@@ -53,7 +54,7 @@ void GameObject::AttachModel(VertexBuffer *model)
 	VBO = model;
 }
 
-void GameObject::AttachTexture(Texture *tex)
+void GameObject::AttachTexture(GLuint tex)
 {
-	this->tex = tex;
+	textureHandle = tex;
 }

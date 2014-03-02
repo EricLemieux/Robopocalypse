@@ -37,7 +37,8 @@ public:
 	//Attach a model to the game object
 	void AttachModel(VertexBuffer *model);
 
-	void AttachTexture(Texture *tex);
+	//void AttachTexture(Texture *tex);
+	void AttachTexture(GLuint tex);
 	
 	//////////
 	//Setters
@@ -50,20 +51,19 @@ public:
 	//////////
 	//GETTERS
 	//////////
-	inline Node* GetNode(void){ return &sceneGraphObject; }
+	inline Node* GetNode(void){ return sceneGraphObject; }
 
-	inline Texture* GetTexture(void){ return tex; }
+	inline GLuint GetTextureHandle(void){ return textureHandle; }
 
 private:
 	//////////
 	//DATA
 	//////////
 
-	//
-	Node sceneGraphObject;
+	Node *sceneGraphObject;
 
 	VertexBuffer *VBO;
 
-	Texture *tex;
+	GLuint textureHandle;
 };
 

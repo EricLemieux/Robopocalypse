@@ -11,8 +11,11 @@ Game::Game()
 
 	//Set the default game state
 	GAME_STATE = STATE_GAMEPLAY;
+
+	world = new Node;
+	sceneGraph = new Node;
 	
-	world.AttachNode(&sceneGraph);
+	world->AttachNode(sceneGraph);
 
 	//Once initalised the game is now running
 	isRunning = true;
@@ -49,20 +52,20 @@ void Game::initGameplay(void)
 	//Create a game object for player1
 	player1 = new GameObject;
 	player1->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
-	player1->AttachTexture(&Texture("Resources/Textures/Shputnik_Texture.png"));
-	sceneGraph.AttachNode(player1->GetNode());
+	player1->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture.png"));
+	sceneGraph->AttachNode(player1->GetNode());
 	player1->SetPosition(glm::vec3(20, 0, -15));
 
 	//Create a game object for player2
 	player2 = new GameObject;
 	player2->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
-	player2->AttachTexture(&Texture("Resources/Textures/Shputnik_Texture.png"));
-	sceneGraph.AttachNode(player2->GetNode());
+	player2->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture.png"));
+	sceneGraph->AttachNode(player2->GetNode());
 	player2->SetPosition(glm::vec3(-20, 0, -15));
 
 	//Load the background objects into a asset list
 	BackgroundObjects.Load("Resources/assets.txt");
-	BackgroundObjects.AttachAllObjectsToNode(&sceneGraph);
+	BackgroundObjects.AttachAllObjectsToNode(sceneGraph);
 }
 
 //Open a glfw window with defined size
@@ -100,11 +103,11 @@ void Game::OpenWindow(int width, int height)
 //Update the game
 void Game::Update(void)
 {
-	//If the window should close, user presses the exit button, the game is no longer running and shutsdow at the start of gameloop
+	//If the window should close, user presses the exit button, the game is no longer running and shutsdown at the start of gameloop
 	if (glfwWindowShouldClose(gameWindow))
 		isRunning = false;
 
-	sceneGraph.Update();
+	sceneGraph->Update();
 
 	glfwPollEvents();
 }
@@ -144,7 +147,7 @@ void Game::PreRender(GameObject* object)
 
 	//glActiveTexture(GL_TEXTURE0);	
 	glUniform1i(uniform_texture, 0);
-	glBindTexture(GL_TEXTURE_2D, object->GetTexture()->GetHandle());
+	glBindTexture(GL_TEXTURE_2D, object->GetTextureHandle());
 	
 	object->Render();
 }

@@ -9,17 +9,7 @@
 #include <IL\ilu.h>
 #include <IL\ilut.h>
 
-class Texture
+inline GLuint loadTexture(char *filePath)
 {
-public:
-	Texture();
-	Texture(char* filePath);
-	~Texture();
-
-	int Load(char* filePath);
-
-	GLuint GetHandle(void);
-
-private:
-	GLuint handle;
-};
+	return ilutGLLoadImage(filePath);
+}
