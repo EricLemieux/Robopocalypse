@@ -7,6 +7,7 @@
 #include "OBJModel.h"
 #include "GameObject.h"
 #include "SceneGraph.h"
+#include "Texture.h"
 
 //This class is used to store data from an asset file  
 class Assets
@@ -28,6 +29,8 @@ public:
 
 	//Get a specific game object from the vector
 	GameObject* GetObjectAtIndex(unsigned int index);
+
+	void AttachTextureAtIndex(unsigned int index, GLuint texHandles);
 
 private:
 	std::vector<GameObject*> loadedObjects;

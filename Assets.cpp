@@ -61,6 +61,18 @@ unsigned int Assets::Load(char* fileName)
 			file.ignore(256, '\n');
 		}
 
+		else if (!_stricmp(firstWord, "tex"))
+		{
+			char texPath[256];
+			file >> texPath;
+
+			//Attach the model to the game object
+			newObject->AttachTexture(loadTexture(texPath));
+
+			//Skip ahead to the end of the line
+			file.ignore(256, '\n');
+		}
+
 		else if (!_stricmp(firstWord, "pos"))
 		{
 			glm::vec3 newPos;
@@ -114,4 +126,12 @@ GameObject* Assets::GetObjectAtIndex(unsigned int index)
 		return loadedObjects[index];
 	}
 	return NULL;
+}
+
+void Assets::AttachTextureAtIndex(unsigned int index, GLuint texHandles)
+{
+	if (index < loadedObjects.size())
+	{
+		loadedObjects[index]->AttachTexture(texHandles);
+	}
 }

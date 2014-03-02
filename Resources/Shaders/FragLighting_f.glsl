@@ -25,9 +25,6 @@ vec3 light(in vec3 pos, in vec3 norm)
 	
 	vec3 diffuse = lambert * lightColour * texture(objectTexture,data.texcoordObj).rgb;
 
-	//TEMP
-	diffuse.rgb = texture(objectTexture, data.texcoordObj).rgb;
-
 	return diffuse;
 }
 

@@ -2,4 +2,5 @@
 new
 pos 0 -20 -50
 obj Resources/Models/LevelBackground.obj
+tex Resources/Textures/ball.jpg
 load
