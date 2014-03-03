@@ -2,5 +2,5 @@
 new
 pos 0 -20 -50
 obj Resources/Models/LevelBackground.obj
-tex Resources/Textures/Shputnik_Texture.png
+tex Resources/Textures/Blank.jpg
 load

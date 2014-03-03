@@ -37,7 +37,7 @@ Player::Player(){
 	nextAction    = IDLE;
 
 	//TODO calculate this, used for time passed
-	freq = 1/60;
+	freq = 1.f/60.f;
 
 	actionTimer = 0;
 
