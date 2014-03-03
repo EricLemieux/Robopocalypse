@@ -49,16 +49,16 @@ void Game::initGameplay(void)
 	uniform_LightPos	= lightProgram->GetUniformLocation("lightPos");
 	uniform_texture		= lightProgram->GetUniformLocation("objectTexture");
 	uniform_normalMap	= lightProgram->GetUniformLocation("objectNormalMap");
-
+	
 	//Create a game object for player1
-	player1 = new GameObject;
+	player1 = new Player;
 	player1->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
 	player1->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_red.png"));
 	sceneGraph->AttachNode(player1->GetNode());
 	player1->SetPosition(glm::vec3(20, 0, -15));
 
 	//Create a game object for player2
-	player2 = new GameObject;
+	player2 = new Player;
 	player2->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
 	player2->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_blue.png"));
 	player2->AttachNormalMap(loadTexture("Resources/NormalMaps/testMap.jpg"));

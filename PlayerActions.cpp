@@ -23,11 +23,8 @@ void PlayerActions::deactivateAllHitbox(std::vector<Hitbox> &hitboxList){
 
 Actions PlayerActions::moveLeftAction(int &t, glm::vec3 &vel){
 	
-	int casttime = 120;
-	int moveVel = -50;
 
-	if(t>casttime)
-		t = casttime;
+	int moveVel = -50;
 
 	//if speed is less than max, increase it otherwise reduce it
 	if(vel.x < moveVel)
@@ -42,13 +39,7 @@ Actions PlayerActions::moveLeftAction(int &t, glm::vec3 &vel){
 
 Actions PlayerActions::moveRightAction(int &t, glm::vec3 &vel){
 	
-	int casttime = 120;
-	int complete = 0;
-
 	int moveVel = 50;
-
-	if(t>casttime)
-		t = casttime;
 
 	if(vel.x > moveVel)
 		vel.x -= 5;
@@ -76,6 +67,7 @@ Actions PlayerActions::dashRightAction(glm::vec3 &vel){
 	return IDLE;
 }
 
+//TODO: Ground
 Actions PlayerActions::jumpAction(glm::vec3 &vel){
 	int cooldown = 30;
 	int jumpVel = 50;

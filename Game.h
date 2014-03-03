@@ -9,6 +9,7 @@
 #include "GameObject.h"
 #include "GLSL.h"
 #include "Assets.h"
+#include "Player.h"
 
 #include <GLFW\glfw3.h>
 
@@ -95,7 +96,7 @@ private:
 	Node *sceneGraph;
 	
 	//Game Objects
-	GameObject *player1, *player2;
+	Player *player1, *player2;
 
 	Assets BackgroundObjects;
 

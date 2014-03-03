@@ -2,8 +2,10 @@
 #define PLAYER_H
 
 #include "PlayerActions.h"
+#include "GameObject.h"
 
-class Player{
+class Player : public GameObject
+{
 private:
 	glm::vec3 pos;
 	glm::vec3 vel;

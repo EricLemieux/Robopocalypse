@@ -63,7 +63,7 @@ private:
 	//////////
 	//DATA
 	//////////
-
+	
 	Node *sceneGraphObject;
 
 	VertexBuffer *VBO;
