@@ -37,8 +37,11 @@ public:
 	//Attach a model to the game object
 	void AttachModel(VertexBuffer *model);
 
-	//void AttachTexture(Texture *tex);
+	//Attach a texture to the game object
 	void AttachTexture(GLuint tex);
+
+	//Attach a normal map to the game object
+	void AttachNormalMap(GLuint nMap);
 	
 	//////////
 	//Setters
@@ -54,6 +57,7 @@ public:
 	inline Node* GetNode(void){ return sceneGraphObject; }
 
 	inline GLuint GetTextureHandle(void){ return textureHandle; }
+	inline GLuint GetNormalMapHandle(void){ return normalMapHandle; }
 
 private:
 	//////////
@@ -65,5 +69,6 @@ private:
 	VertexBuffer *VBO;
 
 	GLuint textureHandle;
+	GLuint normalMapHandle;
 };
 

@@ -48,18 +48,20 @@ void Game::initGameplay(void)
 	uniform_MVP			= lightProgram->GetUniformLocation("MVP");
 	uniform_LightPos	= lightProgram->GetUniformLocation("lightPos");
 	uniform_texture		= lightProgram->GetUniformLocation("objectTexture");
+	uniform_normalMap	= lightProgram->GetUniformLocation("objectNormalMap");
 
 	//Create a game object for player1
 	player1 = new GameObject;
 	player1->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
-	player1->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture.png"));
+	player1->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_red.png"));
 	sceneGraph->AttachNode(player1->GetNode());
 	player1->SetPosition(glm::vec3(20, 0, -15));
 
 	//Create a game object for player2
 	player2 = new GameObject;
 	player2->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
-	player2->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture.png"));
+	player2->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_blue.png"));
+	player2->AttachNormalMap(loadTexture("Resources/NormalMaps/testMap.jpg"));
 	sceneGraph->AttachNode(player2->GetNode());
 	player2->SetPosition(glm::vec3(-20, 0, -15));
 
@@ -143,11 +145,18 @@ void Game::PreRender(GameObject* object)
 {
 	modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);
 	glUniformMatrix4fv(uniform_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
-	glUniform3fv(uniform_LightPos, 1, glm::value_ptr(glm::inverse(modelViewProjectionMatrix) * glm::vec4(0, 0, 0, 1)));
+	glUniform3fv(uniform_LightPos, 1, glm::value_ptr(glm::inverse(modelViewProjectionMatrix) * glm::vec4(0, 50, -1, 1)));
 
-	//glActiveTexture(GL_TEXTURE0);	
-	glUniform1i(uniform_texture, 0);
+	//Pass in texture
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, object->GetTextureHandle());
+	//glBindTexture(GL_TEXTURE_2D, object->GetNormalMapHandle());
+	glUniform1i(uniform_texture, 0);
 	
+	//Pass in normal map
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, object->GetNormalMapHandle());
+	glUniform1i(uniform_normalMap, 1);
+
 	object->Render();
 }

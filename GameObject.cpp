@@ -4,7 +4,8 @@
 GameObject::GameObject()
 {
 	sceneGraphObject = new Node;
-	//tex = new Texture("Resources\Textures\Shputnik_Texture.png");
+	
+	normalMapHandle = 1;/// loadTexture("Resources/NormalMaps/blank.jpg");
 }
 
 
@@ -57,4 +58,9 @@ void GameObject::AttachModel(VertexBuffer *model)
 void GameObject::AttachTexture(GLuint tex)
 {
 	textureHandle = tex;
+}
+
+void GameObject::AttachNormalMap(GLuint nMap)
+{
+	normalMapHandle = nMap;
 }

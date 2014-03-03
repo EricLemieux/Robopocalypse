@@ -10,6 +10,7 @@ in vertex
 uniform vec3 lightPos;
 
 uniform sampler2D objectTexture;
+uniform sampler2D objectNormalMap;
 
 out vec4 finalColour;
 
@@ -24,12 +25,16 @@ vec3 light(in vec3 pos, in vec3 norm)
 	vec3 objectColour = vec3(1.0, 0.0, 0.0);
 	
 	vec3 diffuse = lambert * lightColour * texture(objectTexture,data.texcoordObj).rgb;
+	//vec3 diffuse = lambert * lightColour * texture(objectNormalMap,data.texcoordObj).rgb;
 
 	return diffuse;
 }
 
 void main()
 {
+	vec3 normal = (texture(objectNormalMap, data.texcoordObj).rgb * 2.0) - 1.0;
+	normal += data.normalObj;
+
 	finalColour = vec4(0.0, 0.0, 0.0, 1.0);
-	finalColour.rgb = light(data.positionObj, data.normalObj);
+	finalColour.rgb = light(data.positionObj, normal);
 }

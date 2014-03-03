@@ -121,4 +121,5 @@ private:
 	int uniform_MVP;
 	int uniform_LightPos;
 	int uniform_texture;
+	int uniform_normalMap;
 };
