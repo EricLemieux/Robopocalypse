@@ -49,22 +49,29 @@ void Game::initGameplay(void)
 	uniform_LightPos	= lightProgram->GetUniformLocation("lightPos");
 	uniform_texture		= lightProgram->GetUniformLocation("objectTexture");
 	uniform_normalMap	= lightProgram->GetUniformLocation("objectNormalMap");
+
+	//Create the game object for the main camera
+	mainCamera = new Camera;
+	mainCamera->SetPosition(glm::vec3(0.0f, 0.0f, 5.0f));
+	sceneGraph->AttachNode(mainCamera->GetNode());
 	
 	//Create a game object for player1
 	player1 = new Player;
 	player1->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
 	player1->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_red.png"));
-	sceneGraph->AttachNode(player1->GetNode());
+	player1->AttachCollisionBox(CollisionBox(player1->GetNode()).GetCollisionBox());
 	player1->SetPosition(glm::vec3(20, 0, -15));
+	sceneGraph->AttachNode(player1->GetNode());
 	
 	//Create a game object for player2
 	player2 = new Player;
 	player2->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
 	player2->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_blue.png"));
 	player2->AttachNormalMap(loadTexture("Resources/NormalMaps/testMap.jpg"));
-	sceneGraph->AttachNode(player2->GetNode());
+	player2->AttachCollisionBox(CollisionBox(player2->GetNode()).GetCollisionBox());
 	player2->SetPosition(glm::vec3(-20, 0, -15));
-
+	sceneGraph->AttachNode(player2->GetNode());
+	
 	//Load the background objects into a asset list
 	BackgroundObjects.Load("Resources/assets.txt");
 	BackgroundObjects.AttachAllObjectsToNode(sceneGraph);
@@ -126,7 +133,7 @@ void Game::Render(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//Update the view matrix
-	viewMatrix = glm::lookAt(glm::vec3(0, 0, 5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	mainCamera->Update(&viewMatrix);
 
 	//Activate the shader and render the player
 	lightProgram->Activate();

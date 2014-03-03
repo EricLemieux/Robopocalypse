@@ -64,3 +64,8 @@ void GameObject::AttachNormalMap(GLuint nMap)
 {
 	normalMapHandle = nMap;
 }
+
+void GameObject::AttachCollisionBox(CollisionBox *box)
+{
+	collisionBox = box;
+}

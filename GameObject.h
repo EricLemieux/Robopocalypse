@@ -9,6 +9,7 @@
 #include "VertexBuffer.h"
 #include "SceneGraph.h"
 #include "Texture.h"
+#include "CollisionBox.h"
 
 //////////
 //GAME OBJECT CLASS
@@ -42,6 +43,8 @@ public:
 
 	//Attach a normal map to the game object
 	void AttachNormalMap(GLuint nMap);
+
+	void AttachCollisionBox(CollisionBox *box);
 	
 	//////////
 	//Setters
@@ -59,6 +62,8 @@ public:
 	inline GLuint GetTextureHandle(void){ return textureHandle; }
 	inline GLuint GetNormalMapHandle(void){ return normalMapHandle; }
 
+	inline CollisionBox* GetCollisionBox(void){ return collisionBox; }
+
 private:
 	//////////
 	//DATA
@@ -70,5 +75,6 @@ private:
 
 	GLuint textureHandle;
 	GLuint normalMapHandle;
-};
 
+	CollisionBox *collisionBox;
+};

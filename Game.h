@@ -10,6 +10,7 @@
 #include "GLSL.h"
 #include "Assets.h"
 #include "Player.h"
+#include "Camera.h"
 
 #include <GLFW\glfw3.h>
 
@@ -97,6 +98,8 @@ private:
 	
 	//Game Objects
 	Player *player1, *player2;
+
+	Camera *mainCamera;
 
 	Assets BackgroundObjects;
 

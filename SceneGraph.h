@@ -18,6 +18,7 @@ private:
 	glm::mat4 localTransform;
 	glm::mat4 worldTransform;
 
+	glm::mat4 scale;
 	glm::mat4 rotation;
 	glm::mat4 translation;
 	glm::mat4 frameTransform;
@@ -32,6 +33,11 @@ public:
 	//Translate the node in 3D space
 	void TranslateNode(const glm::vec3 position);
 	void SetLocalPosition(const glm::vec3 position);
+
+	void SetRotation(glm::mat4 newRot);
+
+	void SetScale(glm::mat4 newScale);
+	void SetScale(glm::vec3 newScale);
 	
 
 	//////////
@@ -43,6 +49,8 @@ public:
 	glm::mat4 GetWorldTransform(void);
 
 	glm::vec3 GetWorldPosition(void);
+
+	glm::vec3 GetScale(void);
 
 	//////////
 	//ATTACH / DETACH
