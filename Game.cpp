@@ -56,7 +56,7 @@ void Game::initGameplay(void)
 	player1->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_red.png"));
 	sceneGraph->AttachNode(player1->GetNode());
 	player1->SetPosition(glm::vec3(20, 0, -15));
-
+	
 	//Create a game object for player2
 	player2 = new Player;
 	player2->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
@@ -68,6 +68,8 @@ void Game::initGameplay(void)
 	//Load the background objects into a asset list
 	BackgroundObjects.Load("Resources/assets.txt");
 	BackgroundObjects.AttachAllObjectsToNode(sceneGraph);
+
+	sceneGraph->Update();
 }
 
 //Open a glfw window with defined size
@@ -108,6 +110,9 @@ void Game::Update(void)
 	//If the window should close, user presses the exit button, the game is no longer running and shutsdown at the start of gameloop
 	if (glfwWindowShouldClose(gameWindow))
 		isRunning = false;
+
+	player1->update(*player2);
+	player2->update(*player1);
 
 	sceneGraph->Update();
 

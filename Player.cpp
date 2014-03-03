@@ -2,7 +2,8 @@
 
 
 Player::Player(){
-	pos = glm::vec3(0,0,0);
+	sceneGraphNode = GetNode();
+
 	vel = glm::vec3(0,0,0);
 
 	hp = 1000;
@@ -24,11 +25,11 @@ Player::Player(){
 	hitboxList[LASERBOX].isActive = 0;
 	hitboxList[BLASTBOX].isActive = 0;
 
-	hitboxList[BODYBOX ].pos = pos;
-	hitboxList[PUNCHBOX].pos = glm::vec3(pos.x+(5*isFacing),pos.y+10,1000);
-	hitboxList[KICKBOX ].pos = glm::vec3(pos.x+(5*isFacing), pos.y-10,1000);
-	hitboxList[LASERBOX].pos = glm::vec3(pos.x+(20*isFacing), pos.y, 1000);
-	hitboxList[BLASTBOX].pos = glm::vec3(pos.x,pos.y,1000);
+	hitboxList[BODYBOX].pos		= pos;
+	hitboxList[PUNCHBOX].pos	= glm::vec3(pos.x+(5*isFacing),pos.y+10,1000);
+	hitboxList[KICKBOX ].pos	= glm::vec3(pos.x+(5*isFacing), pos.y-10,1000);
+	hitboxList[LASERBOX].pos	= glm::vec3(pos.x+(20*isFacing), pos.y, 1000);
+	hitboxList[BLASTBOX].pos	= glm::vec3(pos.x,pos.y,1000);
 		
 	//action list is IDLE
 	prevAction    = IDLE;
@@ -44,7 +45,9 @@ Player::Player(){
 	blastStunCooldown = 0;
 }
 Player::~Player(){}
-void Player::update(int collision, int action, Player otherPlayer){
+void Player::update(Player otherPlayer){
+
+	pos = sceneGraphNode->GetWorldPosition();
 	
 	//if player is not in the middle of an action and 
 	if(currentAction == IDLE && otherPlayer.pos.x > pos.x){
@@ -201,8 +204,8 @@ void Player::update(int collision, int action, Player otherPlayer){
 	vel.y -=3;
 
 	//actual position update
-	pos.x = vel.x * freq;
-	pos.y = vel.y * freq;
+	pos.x += vel.x * freq;
+	pos.y += vel.y * freq;
 
 	//cheating on ground collisions
 	if(pos.y < 0){
@@ -231,6 +234,8 @@ void Player::update(int collision, int action, Player otherPlayer){
 	if(sp < 0)
 		sp = 0;
 
+	//Final update to the scene graph
+	sceneGraphNode->SetLocalPosition(pos);
 }
 void draw(){
 

@@ -72,3 +72,9 @@ glm::mat4 Node::GetWorldTransform(void)
 {
 	return worldTransform;
 }
+
+//Return the world position
+glm::vec3 Node::GetWorldPosition(void)
+{
+	return glm::vec3(worldTransform[3].x, worldTransform[3].y, worldTransform[3].z);
+}

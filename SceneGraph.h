@@ -42,6 +42,8 @@ public:
 	//usefull for drawing what the node represents.
 	glm::mat4 GetWorldTransform(void);
 
+	glm::vec3 GetWorldPosition(void);
+
 	//////////
 	//ATTACH / DETACH
 	//////////

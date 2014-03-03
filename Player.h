@@ -3,12 +3,15 @@
 
 #include "PlayerActions.h"
 #include "GameObject.h"
+#include "SceneGraph.h"
 
 class Player : public GameObject
 {
 private:
 	glm::vec3 pos;
 	glm::vec3 vel;
+
+	Node *sceneGraphNode;
 
 	int hp;
 	int sp;
@@ -42,7 +45,7 @@ private:
 public:
 	Player();
 	~Player();
-	void update(int collision, int action, Player otherPlayer);
+	void update(Player otherPlayer);
 	void draw();
 
 	Actions controllerInput(Actions action);
