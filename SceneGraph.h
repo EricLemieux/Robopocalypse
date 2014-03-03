@@ -50,6 +50,8 @@ public:
 
 	glm::vec3 GetWorldPosition(void);
 
+	glm::vec3 GetLocalPosition(void);
+
 	glm::vec3 GetScale(void);
 
 	//////////

@@ -18,6 +18,8 @@ public:
 	//////////
 	void SetSceneGraphObject(Node *object);
 
+	void SetIsActive(bool active);
+
 	//////////
 	//GETTERS
 	//////////
@@ -25,7 +27,10 @@ public:
 
 	CollisionBox* GetCollisionBox(void);
 
+	bool GetIsActive(void);
+
 private:
 	Node *sceneGraphObject;
+	
+	bool isActive;
 };
-

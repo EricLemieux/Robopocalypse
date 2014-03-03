@@ -14,22 +14,23 @@ Player::Player(){
 	onGround = 1;
 
 	for(int i = 0; i < 5; ++i){
-		Hitbox temp;
+		CollisionBox temp;
+		this->GetNode()->AttachNode(temp.GetSceneGraphObject());
 		hitboxList.push_back(temp);
 	}
 	
 	//init hitboxes
-	hitboxList[BODYBOX ].isActive = 1;
-	hitboxList[PUNCHBOX].isActive = 0;
-	hitboxList[KICKBOX ].isActive = 0;
-	hitboxList[LASERBOX].isActive = 0;
-	hitboxList[BLASTBOX].isActive = 0;
+	hitboxList[BODYBOX].	GetCollisionBox()->SetIsActive(1);
+	hitboxList[PUNCHBOX].	GetCollisionBox()->SetIsActive(0);
+	hitboxList[KICKBOX].	GetCollisionBox()->SetIsActive(0);
+	hitboxList[LASERBOX].	GetCollisionBox()->SetIsActive(0);
+	hitboxList[BLASTBOX].	GetCollisionBox()->SetIsActive(0);
 
-	hitboxList[BODYBOX].pos		= pos;
-	hitboxList[PUNCHBOX].pos	= glm::vec3(pos.x+(5*isFacing),pos.y+10,1000);
-	hitboxList[KICKBOX ].pos	= glm::vec3(pos.x+(5*isFacing), pos.y-10,1000);
-	hitboxList[LASERBOX].pos	= glm::vec3(pos.x+(20*isFacing), pos.y, 1000);
-	hitboxList[BLASTBOX].pos	= glm::vec3(pos.x,pos.y,1000);
+	hitboxList[BODYBOX].	GetCollisionBox()->GetSceneGraphObject()->TranslateNode(glm::vec3(0.0f,				0.0f,	0.0f));						//.pos		= pos;
+	hitboxList[PUNCHBOX].	GetCollisionBox()->GetSceneGraphObject()->TranslateNode(glm::vec3(5.0f*isFacing,	10.0f,	1000.0f));					//.pos	= glm::vec3(pos.x+(5*isFacing),pos.y+10,1000);
+	hitboxList[KICKBOX].	GetCollisionBox()->GetSceneGraphObject()->TranslateNode(glm::vec3(5.0f*isFacing,	-10.0f, 1000.0f));		//.pos	= glm::vec3(pos.x+(5*isFacing), pos.y-10,1000);
+	hitboxList[LASERBOX].	GetCollisionBox()->GetSceneGraphObject()->TranslateNode(glm::vec3(20.0f*isFacing,	0.0f,	1000.0f));					//.pos	= glm::vec3(pos.x+(20*isFacing), pos.y, 1000);
+	hitboxList[BLASTBOX].	GetCollisionBox()->GetSceneGraphObject()->TranslateNode(glm::vec3(0.0f,				0.0f,	1000.0f));					//.pos	= glm::vec3(pos.x,pos.y,1000);
 		
 	//action list is IDLE
 	prevAction    = IDLE;
@@ -43,6 +44,9 @@ Player::Player(){
 
 	//sp regen freeze
 	blastStunCooldown = 0;
+
+	//TODO KILL
+	tempTimer = 0;
 }
 Player::~Player(){}
 void Player::update(Player otherPlayer){
@@ -105,71 +109,75 @@ void Player::update(Player otherPlayer){
 
 	//INTERRUPTS GO BEFORE ACTUAL UPDATING
 	//check collisions
-	for(int i = 0, size = otherPlayer.hitboxList.size(); i < size; ++ i){
-		//check collisions with self body
-		//TODO implement ground collision detection
+	bool hitboxListHit[5];
+	for (unsigned int i = 0, size = otherPlayer.hitboxList.size(); i < size; ++i)
+	{
+		hitboxListHit[i] = this->hitboxList[BODYBOX].CheckCollision(&otherPlayer.hitboxList[i]);
+	}
+	//check collisions with self body
+		
+	//TODO replace boxes with actual collision detection
+	if (hitboxListHit[BODYBOX]){
+		//do nothing, maybe greatly reduce velocity?
+	}	else if (hitboxListHit[PUNCHBOX] || hitboxListHit[KICKBOX] || hitboxListHit[LASERBOX] || hitboxListHit[BLASTBOX] && currentAction != BLOCK){
+		//if hit by attack, interrupt current and trigger stagger if not blocking
+		actionTimer = 0;
+		prevAction = currentAction;
+		nextAction = IDLE;
 		if(onGround){
-			onGround = 1;
+			currentAction = playerAction.staggerAAction(actionTimer,vel,isFacing, hitboxList);
 		} else {
-			onGround = 0;
+			currentAction = playerAction.staggerGAction(actionTimer,vel,isFacing, hitboxList);
 		}
-		//TODO replace boxes with actual collision detection
-		if(BODYBOX){
-			//do nothing, maybe greatly reduce velocity?
-		}else if (PUNCHBOX || KICKBOX || LASERBOX || BLASTBOX && currentAction != BLOCK){
-			//if hit by attack, interrupt current and trigger stagger if not blocking
-			actionTimer = 0;
-			prevAction = currentAction;
-			nextAction = IDLE;
-			if(onGround){
-				currentAction = playerAction.staggerAAction(actionTimer,vel,isFacing, hitboxList);
-			} else {
-				currentAction = playerAction.staggerGAction(actionTimer,vel,isFacing, hitboxList);
-			}
 
-			//since not blocking, reduce hp/sp according to attack TODO collision shiiit
-			if(PUNCHBOX){
-				hp -= 150;
-			} else if (KICKBOX){
-				hp -= 200;
-			} else if (LASERBOX){
-				hp -= 100;
-			} else if (BLASTBOX){
-				hp -= 50;
-				sp -= 500;
-				blastStunCooldown = 60;
-			}
-		} else if (PUNCHBOX || KICKBOX || LASERBOX || BLASTBOX && currentAction == BLOCK){
-			if(PUNCHBOX){
-				hp -= 20;
-				sp -= 100;
-			} else if (KICKBOX){
-				hp -= 150;
-				sp -= 50;
-			} else if (LASERBOX){
-				sp -= 300;
-			} else if (BLASTBOX){
-				sp -= 200;
-				blastStunCooldown = 60;
-			}
+		//since not blocking, reduce hp/sp according to attack TODO collision shiiit
+		if (hitboxListHit[PUNCHBOX]){
+			hp -= 150;
+		}else if (hitboxListHit[KICKBOX]){
+			hp -= 200;
+		}else if (hitboxListHit[LASERBOX]){
+			hp -= 100;
+		}else if (hitboxListHit[BLASTBOX]){
+			hp -= 50;
+			sp -= 500;
+			blastStunCooldown = 60;
+		}
+	}else if (hitboxListHit[PUNCHBOX] || hitboxListHit[KICKBOX] || hitboxListHit[LASERBOX] || hitboxListHit[BLASTBOX] && currentAction == BLOCK){
+		if (hitboxListHit[PUNCHBOX]){
+			hp -= 20;
+			sp -= 100;
+		}else if (hitboxListHit[KICKBOX]){
+			hp -= 150;
+			sp -= 50;
+		}else if (hitboxListHit[LASERBOX]){
+			sp -= 300;
+		}else if (hitboxListHit[BLASTBOX]){
+			sp -= 200;
+			blastStunCooldown = 60;
 		}
 	}
 
 	//ACTUAL UPDATING OF VEL BELOW
 	
+	//this is what i'm using to test shit TODO KILL
+	if(tempTimer < 50){
+		currentAction = STAGGER_A;
+		//onGround = 0;
+		tempTimer += 1;
+	}
 	//if action is complete, returns IDLE
 	if(currentAction == MOVE_LEFT){
 		currentAction = playerAction.moveLeftAction(actionTimer,vel);
 	} else if(currentAction == MOVE_RIGHT){
 		currentAction = playerAction.moveRightAction(actionTimer,vel);
 	} else if(currentAction == DASH_LEFT){
-		currentAction = playerAction.dashLeftAction(vel);
+		currentAction = playerAction.dashLeftAction(vel,sp);
 	} else if(currentAction == DASH_RIGHT){
-		currentAction = playerAction.dashRightAction(vel);
+		currentAction = playerAction.dashRightAction(vel,sp);
 	} else if(currentAction == JUMP){
-		currentAction = playerAction.jumpAction(vel);
+		currentAction = playerAction.jumpAction(vel, onGround);
 	} else if(currentAction == PUNCH){
-		currentAction = playerAction.punchAction(actionTimer,vel,isFacing, hitboxList);
+		currentAction = playerAction.punchAction(actionTimer,vel,isFacing, hitboxList, onGround);
 	} else if(currentAction == KICK){
 		currentAction = playerAction.kickAction(actionTimer,vel,isFacing, onGround, hitboxList);
 	} else if(currentAction == LASER){
@@ -190,15 +198,17 @@ void Player::update(Player otherPlayer){
 	}
 
 	//x velocity damping
-	if(vel.x > 2){
+	if(vel.x > 0){
 		if(onGround == 1)
-			vel.x -= 3;
-	} else if(vel.x < -2){
+			vel.x -= 1.f;
+		if(vel.x < 0)
+			vel.x = 0;
+	} else if (vel.x < 0){
 		if(onGround == 1)
-			vel.x += 3;
+			vel.x += 1.f;
+		if(vel.x > 0)
+			vel.x = 0;
 	}
-	if(vel.x < 2 && vel.x > -2)
-		vel.x = 0;
 
 	//gravity
 	vel.y -=3;
@@ -209,9 +219,12 @@ void Player::update(Player otherPlayer){
 
 	//cheating on ground collisions
 	if(pos.y < 0){
+		onGround = 1;
 		pos.y = 0;
 		//cancels gravity
-		vel.y += 3;
+		vel.y = 0;
+	} else {
+		onGround = 0;
 	}
 	
 	//cheating on walls
@@ -222,8 +235,9 @@ void Player::update(Player otherPlayer){
 
 	//regen SP unless frozen by blast attack
 	if(blastStunCooldown != 0){
-		sp += 10;
 		blastStunCooldown -= 1;
+	} else {
+		sp += 10;
 	}
 	if(sp > 1000)
 		sp = 1000;

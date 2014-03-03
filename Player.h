@@ -16,7 +16,7 @@ private:
 	int hp;
 	int sp;
 
-	std::vector<Hitbox> hitboxList;
+	std::vector<CollisionBox> hitboxList;
 
 	//action list
 	Actions prevAction;
@@ -42,6 +42,9 @@ private:
 	//blast shield stun cooldown
 	int blastStunCooldown;
 	
+	//temp timer to replace controller
+	int tempTimer;
+
 public:
 	Player();
 	~Player();

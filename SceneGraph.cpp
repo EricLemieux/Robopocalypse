@@ -107,3 +107,8 @@ glm::vec3 Node::GetScale(void)
 {
 	return glm::vec3(scale[0].x, scale[1].y, scale[2].z);
 }
+
+glm::vec3 Node::GetLocalPosition(void)
+{
+	return glm::vec3(localTransform[3].x, localTransform[3].y, localTransform[3].z);
+}

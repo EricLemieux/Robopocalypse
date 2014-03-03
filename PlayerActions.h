@@ -7,6 +7,8 @@
 #include <iostream>
 #include <vector>
 
+#include "CollisionBox.h"
+
 
 enum Actions{
 	MOVE_LEFT = 0,
@@ -33,12 +35,6 @@ enum Hitboxes{
 	BLASTBOX
 };
 
-struct Hitbox{
-	glm::vec3 pos;
-	//0 false, 1 true
-	int isActive;
-};
-
 class PlayerActions{
 public:
 
@@ -50,32 +46,34 @@ public:
 	Actions moveRightAction(int &t, glm::vec3 &vel);
 	
 	//dash cancel out of move
-	Actions dashLeftAction(glm::vec3 &vel);
-	Actions dashRightAction(glm::vec3 &vel);
+	Actions dashLeftAction(glm::vec3 &vel, int &sp);
+	Actions dashRightAction(glm::vec3 &vel, int &sp);
 	
 	//jump cancel out of move or dash
-	Actions jumpAction(glm::vec3 &vel);
+	Actions jumpAction(glm::vec3 &vel, int onGround);
 	
 	//attack out of move or dash or jump
-	Actions punchAction(int &t, glm::vec3 &vel, int facing		     , std::vector<Hitbox> &hitboxList);
-	Actions kickAction(int &t , glm::vec3 &vel, int facing, int inAir, std::vector<Hitbox> &hitboxList);
-	Actions laserAction(int &t, glm::vec3 &vel, int facing           , std::vector<Hitbox> &hitboxList);
-	Actions blastAction(int &t, glm::vec3 &vel						 , std::vector<Hitbox> &hitboxList);
+	Actions punchAction(int &t, glm::vec3 &vel, int facing,					std::vector<CollisionBox> &hitboxList, int onGround);
+	Actions kickAction(int &t,	glm::vec3 &vel, int facing,	int onGround,	std::vector<CollisionBox> &hitboxList);
+	Actions laserAction(int &t, glm::vec3 &vel, int facing,					std::vector<CollisionBox> &hitboxList);
+	Actions blastAction(int &t, glm::vec3 &vel,								std::vector<CollisionBox> &hitboxList);
 	
 	//block out of everything
-	Actions blockAction(int &t, glm::vec3 &vel, std::vector<Hitbox> &hitboxList, int &sp);
+	Actions blockAction(int &t, glm::vec3 &vel, std::vector<CollisionBox> &hitboxList, int &sp);
 	
 	//stagger out of everything except block
-	Actions staggerGAction(int &t, glm::vec3 &vel, int facing, std::vector<Hitbox> &hitboxList);
-	Actions staggerAAction(int &t, glm::vec3 &vel, int facing, std::vector<Hitbox> &hitboxList);
+	Actions staggerGAction(int &t, glm::vec3 &vel, int facing, std::vector<CollisionBox> &hitboxList);
+	Actions staggerAAction(int &t, glm::vec3 &vel, int facing, std::vector<CollisionBox> &hitboxList);
 	
-	Actions idleAction(int &t, std::vector<Hitbox> &hitboxList);
+	Actions idleAction(int &t, std::vector<CollisionBox> &hitboxList);
 	
-	void activateHitbox(Hitbox &box);
-	void deactivateHitbox(Hitbox &box);
+	void activateHitbox(CollisionBox &box);
+	void deactivateHitbox(CollisionBox &box);
 	
 	//use this to clear all hitboxes except body
-	void deactivateAllHitbox(std::vector<Hitbox> &hitboxList);
+	void deactivateAllHitbox(std::vector<CollisionBox> &hitboxList);
 
+private:
+	int kickStart;//0 started on ground, 1 started in air
 };
 #endif
