@@ -50,7 +50,30 @@ void Game::initGameplay(void)
 	uniform_MVP			= lightProgram->GetUniformLocation("MVP");
 	uniform_LightPos	= lightProgram->GetUniformLocation("lightPos");
 	uniform_texture		= lightProgram->GetUniformLocation("objectTexture");
-	uniform_normalMap	= lightProgram->GetUniformLocation("objectNormalMap");
+	uniform_normalMap = lightProgram->GetUniformLocation("objectNormalMap");
+
+
+	//Set up the shader for the HUD to use
+	{
+		HUDProgram = new GLSLProgram;
+		int result = 1;
+		GLSLShader HUDShader_V, HUDShader_F;
+		result *= HUDShader_V.CreateShaderFromFile(GLSL_VERTEX_SHADER, "Resources/Shaders/pass_v.glsl");
+		result *= HUDShader_F.CreateShaderFromFile(GLSL_FRAGMENT_SHADER, "Resources/Shaders/pass_f.glsl");
+		result *= HUDProgram->AttachShader(&HUDShader_V);
+		result *= HUDProgram->AttachShader(&HUDShader_F);
+		result *= HUDProgram->LinkProgram();
+		result *= HUDProgram->ValidateProgram();
+
+		//get uniform variables
+		uniform_HUD_MVP = HUDProgram->GetUniformLocation("MVP");
+		uniform_HUD_texture = HUDProgram->GetUniformLocation("objectTexture");
+
+		//Load the HUD texture
+		HUDBackgroundHandle = ilutGLLoadImage("Resources/Textures/HUDback.jpg");
+
+		HUDVBO = ShapeHUDQuad(10,1);
+	}
 
 	//Create the game object for the main camera
 	mainCamera = new Camera;
@@ -230,6 +253,20 @@ void Game::Render(void)
 		PreRender(player2->GetCollisionBoxes());
 	}
 	lightProgram->Deactivate();
+
+	HUDProgram->Activate();
+	{
+		glm::mat4 a = glm::mat4(1);
+		a[3].y = 0.9f;
+		glUniformMatrix4fv(uniform_HUD_MVP, 1, 0, glm::value_ptr(a));
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, HUDBackgroundHandle);
+		glUniform1i(uniform_HUD_texture, 0);
+
+		HUDVBO->ActivateAndRender();
+	}
+	HUDProgram->Deactivate();
 
 	//Swap front and back buffers
 	glfwSwapBuffers(gameWindow);

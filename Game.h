@@ -126,6 +126,7 @@ private:
 
 	//GLSL programs
 	GLSLProgram *lightProgram;
+	GLSLProgram *HUDProgram;
 
 	//Matricies for use in the shader
 	glm::mat4 projectionMatrix;
@@ -134,9 +135,18 @@ private:
 
 	Menu *gameMenu;
 
+	//Texture for the HUD
+	GLuint HUDBackgroundHandle;
+
+	//VBO for the HUD to draw on
+	VertexBuffer *HUDVBO;
+
 	//Shader uniform variables
-	int uniform_MVP;
-	int uniform_LightPos;
-	int uniform_texture;
-	int uniform_normalMap;
+	unsigned int uniform_MVP;
+	unsigned int uniform_LightPos;
+	unsigned int uniform_texture;
+	unsigned int uniform_normalMap;
+
+	unsigned int uniform_HUD_MVP;
+	unsigned int uniform_HUD_texture;
 };
