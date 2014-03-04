@@ -44,6 +44,12 @@ private:
 	//temp timer to replace controller
 	int tempTimer;
 
+	//max distance between players
+	float maxDistBetweenPlayers;
+
+	//prevents multiple hits from one attack
+	int hasBeenHit;
+
 public:
 	Player();
 	~Player();
@@ -51,9 +57,6 @@ public:
 	void draw();
 
 	Actions controllerInput(Actions action);
-
-	void activateHitBox(Hitboxes box);
-	void deactivateHitbox(Hitboxes box);
 
 	void cycleActions();
 
@@ -64,4 +67,6 @@ public:
 
 	inline int GetMaxHP(void) { return maxHP; }
 	inline int GetMaxSP(void) { return maxSP; }
+
+	glm::vec3 getPos();
 };

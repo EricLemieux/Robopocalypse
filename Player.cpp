@@ -20,19 +20,17 @@ Player::Player(){
 	}
 	
 	//init hitboxes
-	hitboxList[BODYBOX].	GetCollisionBox()->SetIsActive(true);
-	hitboxList[PUNCHBOX].	GetCollisionBox()->SetIsActive(false);
-	hitboxList[KICKBOX].	GetCollisionBox()->SetIsActive(false);
-	hitboxList[LASERBOX].	GetCollisionBox()->SetIsActive(false);
-	hitboxList[BLASTBOX].	GetCollisionBox()->SetIsActive(false);
+	hitboxList[BODYBOX].GetCollisionBox()->SetIsActive(true);
+	hitboxList[PUNCHBOX].GetCollisionBox()->SetIsActive(false);
+	hitboxList[KICKBOX].GetCollisionBox()->SetIsActive(false);
+	hitboxList[LASERBOX].GetCollisionBox()->SetIsActive(false);
+	hitboxList[BLASTBOX].GetCollisionBox()->SetIsActive(false);
 
-	hitboxList[BODYBOX].	GetCollisionBox()->GetSceneGraphObject()->TranslateNode(glm::vec3(0.0f,				0.0f,	0.0f));						//.pos		= pos;
-	hitboxList[BODYBOX].	GetCollisionBox()->GetSceneGraphObject()->SetScale(glm::vec3(7.0f, 10.0f, 5.0f));
+	hitboxList[BODYBOX].GetCollisionBox()->GetSceneGraphObject()->TranslateNode(glm::vec3(0.0f, 0.0f, 0.0f));						//.pos		= pos;
+	hitboxList[BODYBOX].GetCollisionBox()->GetSceneGraphObject()->SetScale(glm::vec3(5.0f, 15.0f, 8.0f));
 
-	hitboxList[PUNCHBOX].	GetCollisionBox()->GetSceneGraphObject()->TranslateNode(glm::vec3(5.0f*isFacing,	10.0f,	1000.0f));					//.pos	= glm::vec3(pos.x+(5*isFacing),pos.y+10,1000);
-	hitboxList[KICKBOX].	GetCollisionBox()->GetSceneGraphObject()->TranslateNode(glm::vec3(5.0f*isFacing,	-10.0f, 1000.0f));					//.pos	= glm::vec3(pos.x+(5*isFacing), pos.y-10,1000);
-	hitboxList[LASERBOX].	GetCollisionBox()->GetSceneGraphObject()->TranslateNode(glm::vec3(20.0f*isFacing,	0.0f,	1000.0f));					//.pos	= glm::vec3(pos.x+(20*isFacing), pos.y, 1000);
-	hitboxList[BLASTBOX].	GetCollisionBox()->GetSceneGraphObject()->TranslateNode(glm::vec3(0.0f,				0.0f,	1000.0f));					//.pos	= glm::vec3(pos.x,pos.y,1000);
+	hitboxList[LASERBOX].GetCollisionBox()->GetSceneGraphObject()->TranslateNode(glm::vec3(0.0f, 0.0f, 1000.0f));
+	hitboxList[LASERBOX].GetCollisionBox()->GetSceneGraphObject()->SetScale(glm::vec3(2.f, 3.f, 40.f));
 		
 	//action list is IDLE
 	prevAction    = IDLE;
@@ -49,6 +47,11 @@ Player::Player(){
 
 	//TODO KILL
 	tempTimer = 0;
+
+	maxDistBetweenPlayers = 60.f;
+
+
+	hasBeenHit = 0;
 }
 Player::~Player(){}
 void Player::update(Player otherPlayer){
@@ -122,16 +125,17 @@ void Player::update(Player otherPlayer){
 	if (hitboxListHit[BODYBOX]){
 		//do nothing, maybe greatly reduce velocity?
 	}
-	else if (hitboxListHit[PUNCHBOX] || hitboxListHit[KICKBOX] || hitboxListHit[LASERBOX] || hitboxListHit[BLASTBOX] && currentAction != BLOCK){
+	
+	if (hitboxListHit[PUNCHBOX] || hitboxListHit[KICKBOX] || hitboxListHit[LASERBOX] || hitboxListHit[BLASTBOX] && currentAction != BLOCK && hasBeenHit == 0){
 		//if hit by attack, interrupt current and trigger stagger if not blocking
 		actionTimer = 0;
 		prevAction = currentAction;
 		nextAction = IDLE;
-		if (onGround){
-			currentAction = playerAction.staggerAAction(actionTimer, vel, isFacing, hitboxList);
+		if (onGround == 0){
+			currentAction = playerAction.staggerAAction(actionTimer, vel, isFacing, hitboxList, hasBeenHit);
 		}
 		else {
-			currentAction = playerAction.staggerGAction(actionTimer, vel, isFacing, hitboxList);
+			currentAction = playerAction.staggerGAction(actionTimer, vel, isFacing, hitboxList, hasBeenHit);
 		}
 
 		//since not blocking, reduce hp/sp according to attack TODO collision shiiit
@@ -149,8 +153,11 @@ void Player::update(Player otherPlayer){
 			sp -= 500;
 			blastStunCooldown = 60;
 		}
+		hasBeenHit += 1;
 	}
-	else if (hitboxListHit[PUNCHBOX] || hitboxListHit[KICKBOX] || hitboxListHit[LASERBOX] || hitboxListHit[BLASTBOX] && currentAction == BLOCK){
+	else if (hitboxListHit[PUNCHBOX] || hitboxListHit[KICKBOX] || hitboxListHit[LASERBOX] || hitboxListHit[BLASTBOX] && currentAction == BLOCK && hasBeenHit == 0){
+
+
 		if (hitboxListHit[PUNCHBOX]){
 			hp -= 20;
 			sp -= 100;
@@ -166,6 +173,7 @@ void Player::update(Player otherPlayer){
 			sp -= 200;
 			blastStunCooldown = 60;
 		}
+		hasBeenHit += 1;
 	}
 
 	//ACTUAL UPDATING OF VEL BELOW
@@ -177,10 +185,10 @@ void Player::update(Player otherPlayer){
 		currentAction = playerAction.moveRightAction(actionTimer, vel);
 	}
 	else if (currentAction == DASH_LEFT){
-		currentAction = playerAction.dashLeftAction(vel, sp);
+		currentAction = playerAction.dashLeftAction(actionTimer, vel, sp);
 	}
 	else if (currentAction == DASH_RIGHT){
-		currentAction = playerAction.dashRightAction(vel, sp);
+		currentAction = playerAction.dashRightAction(actionTimer, vel, sp);
 	}
 	else if (currentAction == JUMP){
 		currentAction = playerAction.jumpAction(vel, onGround);
@@ -201,10 +209,10 @@ void Player::update(Player otherPlayer){
 		currentAction = playerAction.blockAction(actionTimer, vel, hitboxList, sp);
 	}
 	else if (currentAction == STAGGER_G){
-		currentAction = playerAction.staggerGAction(actionTimer, vel, isFacing, hitboxList);
+		currentAction = playerAction.staggerGAction(actionTimer, vel, isFacing, hitboxList, hasBeenHit);
 	}
 	else if (currentAction == STAGGER_A){
-		currentAction = playerAction.staggerAAction(actionTimer, vel, isFacing, hitboxList);
+		currentAction = playerAction.staggerAAction(actionTimer, vel, isFacing, hitboxList, hasBeenHit);
 	}
 
 	//cycle actions if IDLE
@@ -266,6 +274,8 @@ void Player::update(Player otherPlayer){
 	if (sp < 0)
 		sp = 0;
 
+	this->GetNode()->SetRotation(glm::vec3(isFacing*90, 0, 0));
+
 	//Final update to the scene graph
 	sceneGraphNode->SetLocalPosition(pos);
 }
@@ -295,4 +305,8 @@ void Player::cycleActions(){
 std::vector<CollisionBox> Player::GetCollisionBoxes(void)
 {
 	return hitboxList;
+}
+
+glm::vec3 Player::getPos(){
+	return pos;
 }

@@ -19,6 +19,17 @@ Game::Game()
 
 	//Once initalised the game is now running
 	isRunning = true;
+
+	soundPos.x = 0;
+	soundPos.y = 0;
+	soundPos.z = 0;
+	soundVel.x = 0;
+	soundVel.y = 0;
+	soundVel.z = 0;
+
+	//load sounds
+	soundSystem.loadSound("resources/sfx/tempbgm.mp3", 1, soundPos, soundVel);
+	soundSystem.loadSound("resources/sfx/select.mp3", 1, soundPos, soundVel);
 }
 
 Game::~Game()
@@ -117,8 +128,8 @@ void Game::initGameplay(void)
 	player1 = new Player;
 	player1->AttachModel(OBJModel("Resources/Models/ShputnikPunch.obj").GetVBO());
 	player1->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_red.png"));
-	player1->SetPosition(glm::vec3(17, 0, -15));
-	player1->GetNode()->SetRotation(glm::vec3(-90,0,0));
+	player1->SetPosition(glm::vec3(-17, 0, -15));
+	player1->GetNode()->SetRotation(glm::vec3(90,0,0));
 	sceneGraph->AttachNode(player1->GetNode());
 	
 	//Create a game object for player2
@@ -126,13 +137,15 @@ void Game::initGameplay(void)
 	player2->AttachModel(OBJModel("Resources/Models/ShputnikPunch.obj").GetVBO());
 	player2->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_blue.png"));
 	player2->AttachNormalMap(loadTexture("Resources/NormalMaps/testMap.jpg"));
-	player2->SetPosition(glm::vec3(-17, 0, -15));
-	player2->GetNode()->SetRotation(glm::vec3(90, 0, 0));
+	player2->SetPosition(glm::vec3(17, 0, -15));
+	player2->GetNode()->SetRotation(glm::vec3(-90, 0, 0));
 	sceneGraph->AttachNode(player2->GetNode());
 	
 	//Load the background objects into a asset list
 	BackgroundObjects.Load("Resources/assets.txt");
 	BackgroundObjects.AttachAllObjectsToNode(sceneGraph);
+
+	soundSystem.playSound(0, 1);
 
 	sceneGraph->Update();
 }
@@ -193,11 +206,16 @@ void Game::Update(void)
 	player1->update(*player2);
 	player2->update(*player1);
 
+	mainCamera->SetTarget(glm::vec3((player1->getPos().x + player2->getPos().x) / 2.f, 0, 0));
+	mainCamera->SetPosition(glm::vec3((player1->getPos().x + player2->getPos().x) / 2.f, 0, 5));
+
 	HUDBars[0]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, player1->GetHP() / player1->GetMaxHP(), 1));
 	HUDBars[1]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, player1->GetSP() / player1->GetMaxSP(), 1));
 
 	HUDBars[2]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, player2->GetHP() / player2->GetMaxHP(), -1));
 	HUDBars[3]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, player2->GetSP() / player2->GetMaxSP(), -1));
+
+	soundSystem.updateSound();
 
 	sceneGraph->Update();
 }
@@ -223,6 +241,7 @@ void Game::playerInput(void){
 		player1->controllerInput(DASH_RIGHT);
 	}
 	else if (glfwGetKey(gameWindow, 'Q') == GLFW_PRESS){
+		soundSystem.playSound(1, 2);
 		player1->controllerInput(PUNCH);
 	}
 	else if (glfwGetKey(gameWindow, 'A') == GLFW_PRESS){

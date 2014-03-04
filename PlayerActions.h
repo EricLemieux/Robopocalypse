@@ -44,32 +44,32 @@ public:
 	//movement does not return IDLE ever, gets overridden in player
 	Actions moveLeftAction(int &t, glm::vec3 &vel);
 	Actions moveRightAction(int &t, glm::vec3 &vel);
-	
+
 	//dash cancel out of move
-	Actions dashLeftAction(glm::vec3 &vel, int &sp);
-	Actions dashRightAction(glm::vec3 &vel, int &sp);
-	
+	Actions dashLeftAction(int &t, glm::vec3 &vel, int &sp);
+	Actions dashRightAction(int &t, glm::vec3 &vel, int &sp);
+
 	//jump cancel out of move or dash
 	Actions jumpAction(glm::vec3 &vel, int onGround);
-	
+
 	//attack out of move or dash or jump
-	Actions punchAction(int &t, glm::vec3 &vel, int facing,					std::vector<CollisionBox> &hitboxList, int onGround);
-	Actions kickAction(int &t,	glm::vec3 &vel, int facing,	int onGround,	std::vector<CollisionBox> &hitboxList);
-	Actions laserAction(int &t, glm::vec3 &vel, int facing,					std::vector<CollisionBox> &hitboxList);
-	Actions blastAction(int &t, glm::vec3 &vel,								std::vector<CollisionBox> &hitboxList);
-	
+	Actions punchAction(int &t, glm::vec3 &vel, int facing, std::vector<CollisionBox> &hitboxList, int onGround);
+	Actions kickAction(int &t, glm::vec3 &vel, int facing, int onGround, std::vector<CollisionBox> &hitboxList);
+	Actions laserAction(int &t, glm::vec3 &vel, int facing, std::vector<CollisionBox> &hitboxList);
+	Actions blastAction(int &t, glm::vec3 &vel, std::vector<CollisionBox> &hitboxList);
+
 	//block out of everything
 	Actions blockAction(int &t, glm::vec3 &vel, std::vector<CollisionBox> &hitboxList, int &sp);
-	
+
 	//stagger out of everything except block
-	Actions staggerGAction(int &t, glm::vec3 &vel, int facing, std::vector<CollisionBox> &hitboxList);
-	Actions staggerAAction(int &t, glm::vec3 &vel, int facing, std::vector<CollisionBox> &hitboxList);
-	
+	Actions staggerGAction(int &t, glm::vec3 &vel, int facing, std::vector<CollisionBox> &hitboxList, int &hasBeenHit);
+	Actions staggerAAction(int &t, glm::vec3 &vel, int facing, std::vector<CollisionBox> &hitboxList, int &hasBeenHit);
+
 	Actions idleAction(int &t, std::vector<CollisionBox> &hitboxList);
-	
+
 	void activateHitbox(CollisionBox &box);
 	void deactivateHitbox(CollisionBox &box);
-	
+
 	//use this to clear all hitboxes except body
 	void deactivateAllHitbox(std::vector<CollisionBox> &hitboxList);
 

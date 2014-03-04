@@ -12,6 +12,7 @@
 #include "Player.h"
 #include "Camera.h"
 #include "Menu.h"
+#include "Sound.h"
 
 #include <GLFW\glfw3.h>
 
@@ -152,4 +153,10 @@ private:
 	unsigned int uniform_HUD_MVP;
 	unsigned int uniform_HUD_texture;
 	unsigned int uniform_HUD_FaceDirection;
+
+	//sound
+	SoundWrap soundSystem;
+
+	FMOD_VECTOR soundPos;
+	FMOD_VECTOR soundVel;
 };
