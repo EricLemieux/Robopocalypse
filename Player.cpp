@@ -6,8 +6,8 @@ Player::Player(){
 
 	vel = glm::vec3(0,0,0);
 
-	hp = 1000;
-	sp = 1000;
+	hp = maxHP = 1000;
+	sp = maxSP = 1000;
 
 	//default face right, set in update
 	isFacing = 1;

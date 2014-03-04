@@ -64,6 +64,8 @@ public:
 
 	inline CollisionBox* GetCollisionBox(void){ return collisionBox; }
 
+	inline VertexBuffer* GetModel(void){ return VBO; }
+
 private:
 	//////////
 	//DATA

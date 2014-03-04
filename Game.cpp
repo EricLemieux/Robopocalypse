@@ -53,8 +53,11 @@ void Game::initGameplay(void)
 	uniform_normalMap = lightProgram->GetUniformLocation("objectNormalMap");
 
 
-	//Set up the shader for the HUD to use
+	//Set up the HUD
 	{
+		HUD = new GameObject;
+
+		//Set up the pass though shader
 		HUDProgram = new GLSLProgram;
 		int result = 1;
 		GLSLShader HUDShader_V, HUDShader_F;
@@ -66,13 +69,43 @@ void Game::initGameplay(void)
 		result *= HUDProgram->ValidateProgram();
 
 		//get uniform variables
-		uniform_HUD_MVP = HUDProgram->GetUniformLocation("MVP");
-		uniform_HUD_texture = HUDProgram->GetUniformLocation("objectTexture");
+		uniform_HUD_MVP				= HUDProgram->GetUniformLocation("MVP");
+		uniform_HUD_texture			= HUDProgram->GetUniformLocation("objectTexture");
+		uniform_HUD_FaceDirection	= HUDProgram->GetUniformLocation("flipDirection");
 
 		//Load the HUD texture
-		HUDBackgroundHandle = ilutGLLoadImage("Resources/Textures/HUDback.jpg");
+		HUDBackgroundHandle = loadTexture("Resources/Textures/HUDback.png");
+		HUDBarRedHandle		= loadTexture("Resources/Textures/RedBarSampler.png");
+		HUDBarBlueHandle	= loadTexture("Resources/Textures/RedBarSampler.png");
 
-		HUDVBO = ShapeHUDQuad(10,1);
+		HUD->AttachModel(ShapeHUDQuad(1.0f,0.1f));
+		HUD->GetNode()->TranslateNode(glm::vec3(0,0.9f,0));
+		sceneGraph->AttachNode(HUD->GetNode());
+
+		for (unsigned int i = 0; i < 4; ++i)
+		{
+			HUDBars[i] = new GameObject;
+
+			if (i == 0 || i == 1)
+				HUDBars[i]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, 1.0f, 1));
+			else
+				HUDBars[i]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, 1.0f, -1));
+			
+			HUD->GetNode()->AttachNode(HUDBars[i]->GetNode());
+
+			//Translate the HUD bars around the screen
+			//TODO: Need to find a better way of doing this
+			float horizontal	= 0.15f;
+			float vertical		= 0.046f;
+			if (i == 0)
+				HUDBars[i]->GetNode()->TranslateNode(glm::vec3(-horizontal, vertical, 0));
+			else if (i == 1)
+				HUDBars[i]->GetNode()->TranslateNode(glm::vec3(-horizontal, -vertical, 0));
+			else if (i == 2)
+				HUDBars[i]->GetNode()->TranslateNode(glm::vec3(horizontal, vertical, 0));
+			else if (i == 3)
+				HUDBars[i]->GetNode()->TranslateNode(glm::vec3(horizontal, -vertical, 0));
+		}
 	}
 
 	//Create the game object for the main camera
@@ -158,6 +191,12 @@ void Game::Update(void)
 	player1->update(*player2);
 	player2->update(*player1);
 
+	HUDBars[0]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, player1->GetHP() / player1->GetMaxHP(), 1));
+	HUDBars[1]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, player1->GetSP() / player1->GetMaxSP(), 1));
+
+	HUDBars[2]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, player2->GetHP() / player2->GetMaxHP(), -1));
+	HUDBars[3]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, player2->GetSP() / player2->GetMaxSP(), -1));
+
 	sceneGraph->Update();
 }
 
@@ -235,7 +274,7 @@ void Game::Render(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//Update the view matrix
-	mainCamera->Update(&viewMatrix);
+	mainCamera->Update(viewMatrix);
 
 	//Activate the shader and render the player
 	lightProgram->Activate();
@@ -256,15 +295,31 @@ void Game::Render(void)
 
 	HUDProgram->Activate();
 	{
-		glm::mat4 a = glm::mat4(1);
-		a[3].y = 0.9f;
-		glUniformMatrix4fv(uniform_HUD_MVP, 1, 0, glm::value_ptr(a));
+		for (unsigned int i = 0; i < 4; ++i)
+		{
+			glUniformMatrix4fv(uniform_HUD_MVP, 1, 0, glm::value_ptr(HUDBars[i]->GetNode()->GetWorldTransform()));
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, HUDBarRedHandle);
+			glUniform1i(uniform_HUD_texture, 0);
+
+			if (i == 0 || i == 1)
+				glUniform2fv(uniform_HUD_FaceDirection, 1, glm::value_ptr(glm::vec2(1.0f, 1.0f)));
+			else
+				glUniform2fv(uniform_HUD_FaceDirection, 1, glm::value_ptr(glm::vec2(-1.0f, 1.0f)));
+
+			HUDBars[i]->Render();
+		}
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, HUDBackgroundHandle);
 		glUniform1i(uniform_HUD_texture, 0);
 
-		HUDVBO->ActivateAndRender();
+		glUniformMatrix4fv(uniform_HUD_MVP, 1, 0, glm::value_ptr(HUD->GetNode()->GetWorldTransform()));
+
+		glUniform2fv(uniform_HUD_FaceDirection, 1, glm::value_ptr(glm::vec2(1.0f, 1.0f)));
+
+		HUD->Render();
 	}
 	HUDProgram->Deactivate();
 

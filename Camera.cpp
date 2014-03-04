@@ -13,7 +13,7 @@ Camera::~Camera()
 {
 }
 
-void Camera::Update(glm::mat4 *viewMatrix)
+void Camera::Update(glm::mat4 &viewMatrix)
 {
-	viewMatrix = &glm::lookAt(GetNode()->GetWorldPosition(), target, up);
+	viewMatrix = glm::lookAt(GetNode()->GetWorldPosition(), target, up);
 }

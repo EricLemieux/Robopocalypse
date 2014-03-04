@@ -137,9 +137,11 @@ private:
 
 	//Texture for the HUD
 	GLuint HUDBackgroundHandle;
+	GLuint HUDBarRedHandle, HUDBarBlueHandle;
 
-	//VBO for the HUD to draw on
-	VertexBuffer *HUDVBO;
+	//Game Objects for the HUD and its components
+	GameObject *HUD;
+	GameObject *HUDBars[4];
 
 	//Shader uniform variables
 	unsigned int uniform_MVP;
@@ -149,4 +151,5 @@ private:
 
 	unsigned int uniform_HUD_MVP;
 	unsigned int uniform_HUD_texture;
+	unsigned int uniform_HUD_FaceDirection;
 };

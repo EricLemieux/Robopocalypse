@@ -185,16 +185,18 @@ inline VertexBuffer* ShapeHUDQuad(float width, float height)
 	VertexBuffer *quad = new VertexBuffer;
 
 	quad->Initialize(6, false, true);
-
-	float x = width / width; //glm::normalize(glm::vec2(width, height)).x;
-	float y = height / width;//glm::normalize(glm::vec2(width, height)).y;
+	if (width >= 1.0f || height >= 1.0f)
+	{
+		width	= width / glm::max(width, height);
+		height	= height / glm::max(width, height);
+	}
 	
-	float verts[] = {	-1.0f*x, -1.0f*y, -1.0f,
-						+1.0f*x, -1.0f*y, -1.0f,
-						-1.0f*x, +1.0f*y, -1.0f,
-						-1.0f*x, +1.0f*y, -1.0f,
-						+1.0f*x, -1.0f*y, -1.0f,
-						+1.0f*x, +1.0f*y, -1.0f,
+	float verts[] = {	-1.0f*width,	-1.0f*height,	-1.0f,
+						+1.0f*width,	-1.0f*height,	-1.0f,
+						-1.0f*width,	+1.0f*height,	-1.0f,
+						-1.0f*width,	+1.0f*height,	-1.0f,
+						+1.0f*width,	-1.0f*height,	-1.0f,
+						+1.0f*width,	+1.0f*height,	-1.0f,
 	};
 
 	float texCoords[] = {	0.0f, 0.0f,
@@ -203,6 +205,41 @@ inline VertexBuffer* ShapeHUDQuad(float width, float height)
 							0.0f, 1.0f,
 							1.0f, 0.0f,
 							1.0f, 1.0f,
+	};
+
+	quad->AddVerticies(verts);
+	quad->AddTexCoords(texCoords);
+
+	return quad;
+}
+
+inline VertexBuffer* ShapeHUDQuad(float width, float height, float percentage, int faceDirection)
+{
+	percentage = glm::clamp(percentage, 0.0f, 1.0f);
+
+	VertexBuffer *quad = new VertexBuffer;
+
+	quad->Initialize(6, false, true);
+	if (width >= 1.0f || height >= 1.0f)
+	{
+		width = width / glm::max(width, height);
+		height = height / glm::max(width, height);
+	}
+
+	float verts[] = {	-1.0f*faceDirection*width*percentage, -1.0f*height, -1.0f,
+						+0.0f*faceDirection*width, -1.0f*height, -1.0f,
+						-1.0f*faceDirection*width*percentage, +1.0f*height, -1.0f,
+						-1.0f*faceDirection*width*percentage, +1.0f*height, -1.0f,
+						+0.0f*faceDirection*width, -1.0f*height, -1.0f,
+						+0.0f*faceDirection*width, +1.0f*height, -1.0f,
+	};
+
+	float texCoords[] = { 0.0f, 0.0f,
+		1.0f, 0.0f,
+		0.0f, 1.0f,
+		0.0f, 1.0f,
+		1.0f, 0.0f,
+		1.0f, 1.0f,
 	};
 
 	quad->AddVerticies(verts);

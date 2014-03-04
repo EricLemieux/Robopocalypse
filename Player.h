@@ -12,8 +12,8 @@ private:
 
 	Node *sceneGraphNode;
 
-	int hp;
-	int sp;
+	int hp, maxHP;
+	int sp, maxSP;
 
 	std::vector<CollisionBox> hitboxList;
 
@@ -58,4 +58,10 @@ public:
 	void cycleActions();
 
 	std::vector<CollisionBox> GetCollisionBoxes(void);
+
+	inline int GetHP(void){ return hp; }
+	inline int GetSP(void){ return sp; }
+
+	inline int GetMaxHP(void) { return maxHP; }
+	inline int GetMaxSP(void) { return maxSP; }
 };

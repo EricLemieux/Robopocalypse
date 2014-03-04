@@ -11,7 +11,7 @@ public:
 	Camera();
 	~Camera();
 
-	void Update(glm::mat4 *viewMatrix);
+	void Update(glm::mat4 &viewMatrix);
 
 	//////////
 	//SETTERS
