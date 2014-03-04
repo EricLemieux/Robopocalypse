@@ -87,6 +87,9 @@ public:
 	//Update the game
 	void Update(void);
 
+	//Get the players seperate inputs
+	void playerInput(void);
+
 	//Render the game
 	void Render(void);
 

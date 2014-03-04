@@ -59,8 +59,7 @@ void Game::initGameplay(void)
 	
 	//Create a game object for player1
 	player1 = new Player;
-	//player1->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
-	player1->AttachModel(ShapeFullScreenQuad());
+	player1->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
 	player1->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_red.png"));
 	player1->SetPosition(glm::vec3(20, 0, -15));
 	sceneGraph->AttachNode(player1->GetNode());
@@ -131,11 +130,80 @@ void Game::Update(void)
 	if (glfwWindowShouldClose(gameWindow))
 		isRunning = false;
 
+	playerInput();
+	
 	player1->update(*player2);
 	player2->update(*player1);
 
 	sceneGraph->Update();
 }
+
+void Game::playerInput(void){
+	//player 1 input
+	if (glfwGetKey(gameWindow, 'S') == GLFW_PRESS){
+		player1->controllerInput(MOVE_LEFT);
+	}
+	else if (glfwGetKey(gameWindow, 'F') == GLFW_PRESS){
+		player1->controllerInput(MOVE_RIGHT);
+	}
+	else if (glfwGetKey(gameWindow, 'E') == GLFW_PRESS){
+		player1->controllerInput(JUMP);
+	}
+	else if (glfwGetKey(gameWindow, 'D') == GLFW_PRESS){
+		player1->controllerInput(BLOCK);
+	}
+	else if (glfwGetKey(gameWindow, 'W') == GLFW_PRESS){
+		player1->controllerInput(DASH_LEFT);
+	}
+	else if (glfwGetKey(gameWindow, 'R') == GLFW_PRESS){
+		player1->controllerInput(DASH_RIGHT);
+	}
+	else if (glfwGetKey(gameWindow, 'Q') == GLFW_PRESS){
+		player1->controllerInput(PUNCH);
+	}
+	else if (glfwGetKey(gameWindow, 'A') == GLFW_PRESS){
+		player1->controllerInput(KICK);
+	}
+	else if (glfwGetKey(gameWindow, 'T') == GLFW_PRESS){
+		player1->controllerInput(LASER);
+	}
+	else if (glfwGetKey(gameWindow, 'G') == GLFW_PRESS){
+		player1->controllerInput(BLAST);
+	}
+
+	//player 2 input
+	if (glfwGetKey(gameWindow, 'J') == GLFW_PRESS){
+		player2->controllerInput(MOVE_LEFT);
+	}
+	else if (glfwGetKey(gameWindow, 'L') == GLFW_PRESS){
+		player2->controllerInput(MOVE_RIGHT);
+	}
+	else if (glfwGetKey(gameWindow, 'I') == GLFW_PRESS){
+		player2->controllerInput(JUMP);
+	}
+	else if (glfwGetKey(gameWindow, 'K') == GLFW_PRESS){
+		player2->controllerInput(BLOCK);
+	}
+	else if (glfwGetKey(gameWindow, 'U') == GLFW_PRESS){
+		player2->controllerInput(DASH_LEFT);
+	}
+	else if (glfwGetKey(gameWindow, 'O') == GLFW_PRESS){
+		player2->controllerInput(DASH_RIGHT);
+	}
+	else if (glfwGetKey(gameWindow, 'Y') == GLFW_PRESS){
+		player2->controllerInput(LASER);
+	}
+	else if (glfwGetKey(gameWindow, 'H') == GLFW_PRESS){
+		player2->controllerInput(BLAST);
+	}
+	else if (glfwGetKey(gameWindow, 'P') == GLFW_PRESS){
+		player2->controllerInput(PUNCH);
+	}
+	else if (glfwGetKey(gameWindow, ';') == GLFW_PRESS){
+		player2->controllerInput(KICK);
+	}
+}
+
 
 //Render the game
 void Game::Render(void)

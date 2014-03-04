@@ -31,9 +31,9 @@ bool CollisionBox::CheckCollision(CollisionBox *other)
 	glm::vec3 b2scl = other->GetSceneGraphObject()->GetScale();
 
 	//Checks to see if the box is within the other box
-	if (((b1pos.x - b2pos.x) < (b1scl.x + b2scl.x) / 2.0f)	&&
-		((b1pos.y - b2pos.y) < (b1scl.y + b2scl.y) / 2.0f)	&&
-		((b1pos.z - b2pos.z) < (b1scl.z + b2scl.z) / 2.0f))
+	if ((std::abs(b1pos.x - b2pos.x) < (b1scl.x + b2scl.x) / 2.0f) &&
+		(std::abs(b1pos.y - b2pos.y) < (b1scl.y + b2scl.y) / 2.0f) &&
+		(std::abs(b1pos.z - b2pos.z) < (b1scl.z + b2scl.z) / 2.0f))
 	{
 		return true;
 	}

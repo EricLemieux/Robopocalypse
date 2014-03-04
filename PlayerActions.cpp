@@ -240,7 +240,7 @@ Actions PlayerActions::blockAction(int &t, glm::vec3 &vel, std::vector<Collision
 	t+=1;
 	sp -= 20;
 
-	return BLOCK;
+	return IDLE;
 }
 
 Actions PlayerActions::staggerGAction(int &t, glm::vec3 &vel, int facing, std::vector<CollisionBox> &hitboxList){

@@ -1,5 +1,4 @@
-#ifndef PLAYER_H
-#define PLAYER_H
+#pragma once
 
 #include "PlayerActions.h"
 #include "GameObject.h"
@@ -60,5 +59,3 @@ public:
 
 	std::vector<CollisionBox> GetCollisionBoxes(void);
 };
-
-#endif
