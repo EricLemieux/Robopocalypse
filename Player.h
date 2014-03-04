@@ -57,6 +57,8 @@ public:
 	void deactivateHitbox(Hitboxes box);
 
 	void cycleActions();
+
+	std::vector<CollisionBox> GetCollisionBoxes(void);
 };
 
 #endif

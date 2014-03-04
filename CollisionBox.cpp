@@ -5,6 +5,8 @@ CollisionBox::CollisionBox()
 {
 	sceneGraphObject = new Node;
 
+	VBO = ShapeCube(false, false);
+
 	isActive = false;
 }
 
@@ -52,6 +54,11 @@ void CollisionBox::SetIsActive(bool active)
 	isActive = active;
 }
 
+void CollisionBox::SetVertexBuffer(VertexBuffer *vertBuff)
+{
+	VBO = vertBuff;
+}
+
 //////////
 //GETTERS
 //////////
@@ -68,4 +75,9 @@ CollisionBox* CollisionBox::GetCollisionBox(void)
 bool CollisionBox::GetIsActive(void)
 {
 	return isActive;
+}
+
+VertexBuffer* CollisionBox::GetVertexBuffer(void)
+{
+	return VBO;
 }

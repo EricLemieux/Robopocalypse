@@ -11,6 +11,7 @@
 #include "Assets.h"
 #include "Player.h"
 #include "Camera.h"
+#include "Menu.h"
 
 #include <GLFW\glfw3.h>
 
@@ -54,6 +55,9 @@ public:
 	//Initialises for gameplay
 	void initGameplay(void);
 
+	//Initialises for the menu
+	void initMainMenu(void);
+
 	//Open a glfw window with defined size
 	void OpenWindow(int width, int height);
 
@@ -73,6 +77,8 @@ public:
 	//Get the game's current state
 	inline gameStates GetState(void){ return GAME_STATE; }
 
+	inline Menu* GetMenu(void){ return gameMenu; }
+
 
 	//////////
 	//OTHERS
@@ -86,6 +92,7 @@ public:
 
 	//Update the variables for the shaders before rendering the Game Object
 	void PreRender(GameObject* object);
+	void PreRender(std::vector<CollisionBox> hitboxes);
 
 private:
 
@@ -93,6 +100,7 @@ private:
 	//DATA
 	//////////
 
+	//Scene Graph nodes
 	Node *world;
 	Node *sceneGraph;
 	
@@ -120,6 +128,8 @@ private:
 	glm::mat4 projectionMatrix;
 	glm::mat4 viewMatrix;
 	glm::mat4 modelViewProjectionMatrix;
+
+	Menu *gameMenu;
 
 	//Shader uniform variables
 	int uniform_MVP;

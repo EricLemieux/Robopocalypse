@@ -51,7 +51,8 @@ int main()
 	//Load a blank image into spot #1 using this for objects that dont have a normal map, there is probably a way better way of doing this...
 	loadTexture("Resources/NormalMaps/blank.png");
 
-	Robopocalypse->initGameplay();
+	//Robopocalypse->initGameplay();
+	Robopocalypse->initMainMenu();
 
 	//Set the time to zero before running the game loop so we know it starts from scratch.
 	glfwSetTime(0.0f);
@@ -69,7 +70,8 @@ int main()
 			}
 			else if (Robopocalypse->GetState() == STATE_MAINMENU)
 			{
-
+				Robopocalypse->GetMenu()->Update();
+				Robopocalypse->GetMenu()->Render();
 			}
 
 			//Reset the time between updates
@@ -87,6 +89,6 @@ int main()
 //
 void initOpenGL(void)
 {
-	glClearColor(0.50f, 0.3f, 0.50f, 1.0f);
+	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 }

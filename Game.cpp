@@ -10,7 +10,7 @@ Game::Game()
 		exit(EXIT_FAILURE);
 
 	//Set the default game state
-	GAME_STATE = STATE_GAMEPLAY;
+	GAME_STATE = STATE_MAINMENU;
 
 	world = new Node;
 	sceneGraph = new Node;
@@ -32,6 +32,8 @@ Game::~Game()
 //Initialises for gameplay
 void Game::initGameplay(void)
 {
+	GAME_STATE = STATE_GAMEPLAY;
+
 	projectionMatrix = glm::perspective(90.0f, (float)1280 / (float)720, 0.1f, 1000.0f);
 
 	lightProgram = new GLSLProgram;
@@ -57,9 +59,9 @@ void Game::initGameplay(void)
 	
 	//Create a game object for player1
 	player1 = new Player;
-	player1->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
+	//player1->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
+	player1->AttachModel(ShapeFullScreenQuad());
 	player1->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_red.png"));
-	//player1->AttachCollisionBox(CollisionBox(player1->GetNode()).GetCollisionBox());
 	player1->SetPosition(glm::vec3(20, 0, -15));
 	sceneGraph->AttachNode(player1->GetNode());
 	
@@ -68,7 +70,6 @@ void Game::initGameplay(void)
 	player2->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
 	player2->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_blue.png"));
 	player2->AttachNormalMap(loadTexture("Resources/NormalMaps/testMap.jpg"));
-	//player2->AttachCollisionBox(CollisionBox(player2->GetNode()).GetCollisionBox());
 	player2->SetPosition(glm::vec3(-20, 0, -15));
 	sceneGraph->AttachNode(player2->GetNode());
 	
@@ -77,6 +78,16 @@ void Game::initGameplay(void)
 	BackgroundObjects.AttachAllObjectsToNode(sceneGraph);
 
 	sceneGraph->Update();
+}
+
+//Initialises for menu
+void Game::initMainMenu(void)
+{
+	GAME_STATE = STATE_MAINMENU;
+
+	gameMenu = new Menu;
+	gameMenu->AttachBackground("Resources/Textures/MainMenu.png");
+	gameMenu->AttachWindow(gameWindow);
 }
 
 //Open a glfw window with defined size
@@ -114,6 +125,8 @@ void Game::OpenWindow(int width, int height)
 //Update the game
 void Game::Update(void)
 {
+	glfwPollEvents();
+
 	//If the window should close, user presses the exit button, the game is no longer running and shutsdown at the start of gameloop
 	if (glfwWindowShouldClose(gameWindow))
 		isRunning = false;
@@ -122,8 +135,6 @@ void Game::Update(void)
 	player2->update(*player1);
 
 	sceneGraph->Update();
-
-	glfwPollEvents();
 }
 
 //Render the game
@@ -146,6 +157,9 @@ void Game::Render(void)
 
 		PreRender(player1);
 		PreRender(player2);
+
+		PreRender(player1->GetCollisionBoxes());
+		PreRender(player2->GetCollisionBoxes());
 	}
 	lightProgram->Deactivate();
 
@@ -157,12 +171,11 @@ void Game::PreRender(GameObject* object)
 {
 	modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);
 	glUniformMatrix4fv(uniform_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
-	glUniform3fv(uniform_LightPos, 1, glm::value_ptr(glm::inverse(modelViewProjectionMatrix) * glm::vec4(0, 50, -1, 1)));
-
+	glUniform3fv(uniform_LightPos, 1, glm::value_ptr(glm::inverse(modelViewProjectionMatrix) * glm::vec4(0.0f, 0.0f, -0.5f, 0.0f)));
+	
 	//Pass in texture
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, object->GetTextureHandle());
-	//glBindTexture(GL_TEXTURE_2D, object->GetNormalMapHandle());
 	glUniform1i(uniform_texture, 0);
 	
 	//Pass in normal map
@@ -171,4 +184,19 @@ void Game::PreRender(GameObject* object)
 	glUniform1i(uniform_normalMap, 1);
 
 	object->Render();
+}
+
+//This draws a vector of hitboxes, only used for debugging
+void Game::PreRender(std::vector<CollisionBox> hitboxes)
+{
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	for (unsigned int i = 0; i < hitboxes.size(); ++i)
+	{
+		modelViewProjectionMatrix = projectionMatrix * viewMatrix * hitboxes[i].GetSceneGraphObject()->GetWorldTransform();
+		glUniformMatrix4fv(uniform_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
+		hitboxes[i].GetVertexBuffer()->ActivateAndRender();
+	}
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }

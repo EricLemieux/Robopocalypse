@@ -20,15 +20,17 @@ Player::Player(){
 	}
 	
 	//init hitboxes
-	hitboxList[BODYBOX].	GetCollisionBox()->SetIsActive(1);
-	hitboxList[PUNCHBOX].	GetCollisionBox()->SetIsActive(0);
-	hitboxList[KICKBOX].	GetCollisionBox()->SetIsActive(0);
-	hitboxList[LASERBOX].	GetCollisionBox()->SetIsActive(0);
-	hitboxList[BLASTBOX].	GetCollisionBox()->SetIsActive(0);
+	hitboxList[BODYBOX].	GetCollisionBox()->SetIsActive(true);
+	hitboxList[PUNCHBOX].	GetCollisionBox()->SetIsActive(false);
+	hitboxList[KICKBOX].	GetCollisionBox()->SetIsActive(false);
+	hitboxList[LASERBOX].	GetCollisionBox()->SetIsActive(false);
+	hitboxList[BLASTBOX].	GetCollisionBox()->SetIsActive(false);
 
 	hitboxList[BODYBOX].	GetCollisionBox()->GetSceneGraphObject()->TranslateNode(glm::vec3(0.0f,				0.0f,	0.0f));						//.pos		= pos;
+	hitboxList[BODYBOX].	GetCollisionBox()->GetSceneGraphObject()->SetScale(glm::vec3(7.0f, 10.0f, 5.0f));
+
 	hitboxList[PUNCHBOX].	GetCollisionBox()->GetSceneGraphObject()->TranslateNode(glm::vec3(5.0f*isFacing,	10.0f,	1000.0f));					//.pos	= glm::vec3(pos.x+(5*isFacing),pos.y+10,1000);
-	hitboxList[KICKBOX].	GetCollisionBox()->GetSceneGraphObject()->TranslateNode(glm::vec3(5.0f*isFacing,	-10.0f, 1000.0f));		//.pos	= glm::vec3(pos.x+(5*isFacing), pos.y-10,1000);
+	hitboxList[KICKBOX].	GetCollisionBox()->GetSceneGraphObject()->TranslateNode(glm::vec3(5.0f*isFacing,	-10.0f, 1000.0f));					//.pos	= glm::vec3(pos.x+(5*isFacing), pos.y-10,1000);
 	hitboxList[LASERBOX].	GetCollisionBox()->GetSceneGraphObject()->TranslateNode(glm::vec3(20.0f*isFacing,	0.0f,	1000.0f));					//.pos	= glm::vec3(pos.x+(20*isFacing), pos.y, 1000);
 	hitboxList[BLASTBOX].	GetCollisionBox()->GetSceneGraphObject()->TranslateNode(glm::vec3(0.0f,				0.0f,	1000.0f));					//.pos	= glm::vec3(pos.x,pos.y,1000);
 		
@@ -158,13 +160,6 @@ void Player::update(Player otherPlayer){
 	}
 
 	//ACTUAL UPDATING OF VEL BELOW
-	
-	//this is what i'm using to test shit TODO KILL
-	if(tempTimer < 50){
-		currentAction = STAGGER_A;
-		//onGround = 0;
-		tempTimer += 1;
-	}
 	//if action is complete, returns IDLE
 	if(currentAction == MOVE_LEFT){
 		currentAction = playerAction.moveLeftAction(actionTimer,vel);
@@ -270,4 +265,9 @@ void Player::cycleActions(){
 	currentAction = nextAction;
 	nextAction = IDLE;
 	actionTimer = 0;
+}
+
+std::vector<CollisionBox> Player::GetCollisionBoxes(void)
+{
+	return hitboxList;
 }

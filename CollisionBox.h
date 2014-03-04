@@ -4,6 +4,9 @@
 
 #include "SceneGraph.h"
 
+#include "BasicShapes.h"
+#include "VertexBuffer.h"
+
 class CollisionBox
 {
 public:
@@ -20,6 +23,8 @@ public:
 
 	void SetIsActive(bool active);
 
+	void SetVertexBuffer(VertexBuffer *vertBuff);
+
 	//////////
 	//GETTERS
 	//////////
@@ -29,8 +34,12 @@ public:
 
 	bool GetIsActive(void);
 
+	VertexBuffer* GetVertexBuffer(void);
+
 private:
 	Node *sceneGraphObject;
 	
 	bool isActive;
+
+	VertexBuffer *VBO;
 };
