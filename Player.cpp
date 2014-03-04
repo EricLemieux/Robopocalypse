@@ -234,9 +234,9 @@ void Player::update(Player otherPlayer){
 	pos.y += vel.y * freq;
 
 	//cheating on ground collisions
-	if (pos.y < 0){
+	if (pos.y < -5){
 		onGround = 1;
-		pos.y = 0;
+		pos.y = -5;
 		//cancels gravity
 		vel.y = 0;
 	}

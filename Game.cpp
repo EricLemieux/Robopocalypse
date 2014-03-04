@@ -115,17 +115,19 @@ void Game::initGameplay(void)
 	
 	//Create a game object for player1
 	player1 = new Player;
-	player1->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
+	player1->AttachModel(OBJModel("Resources/Models/ShputnikPunch.obj").GetVBO());
 	player1->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_red.png"));
-	player1->SetPosition(glm::vec3(20, 0, -15));
+	player1->SetPosition(glm::vec3(17, 0, -15));
+	player1->GetNode()->SetRotation(glm::vec3(-90,0,0));
 	sceneGraph->AttachNode(player1->GetNode());
 	
 	//Create a game object for player2
 	player2 = new Player;
-	player2->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
+	player2->AttachModel(OBJModel("Resources/Models/ShputnikPunch.obj").GetVBO());
 	player2->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_blue.png"));
 	player2->AttachNormalMap(loadTexture("Resources/NormalMaps/testMap.jpg"));
-	player2->SetPosition(glm::vec3(-20, 0, -15));
+	player2->SetPosition(glm::vec3(-17, 0, -15));
+	player2->GetNode()->SetRotation(glm::vec3(90, 0, 0));
 	sceneGraph->AttachNode(player2->GetNode());
 	
 	//Load the background objects into a asset list

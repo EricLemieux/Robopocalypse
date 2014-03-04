@@ -31,6 +31,12 @@ void Node::SetRotation(glm::mat4 newRot)
 {
 	rotation = newRot;
 }
+void Node::SetRotation(glm::vec3 rot)
+{
+	//Convert to radians
+	rot = rot * glm::vec3(PI / 180.0f);
+	rotation = glm::yawPitchRoll(rot.x, rot.y, rot.z);
+}
 
 //Set the local scale
 void Node::SetScale(glm::mat4 newScale)

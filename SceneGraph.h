@@ -35,6 +35,7 @@ public:
 	void SetLocalPosition(const glm::vec3 position);
 
 	void SetRotation(glm::mat4 newRot);
+	void SetRotation(glm::vec3 rot);
 
 	void SetScale(glm::mat4 newScale);
 	void SetScale(glm::vec3 newScale);
