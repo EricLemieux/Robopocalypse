@@ -78,8 +78,8 @@ void Game::initGameplay(void)
 		HUDProgram = new GLSLProgram;
 		int result = 1;
 		GLSLShader HUDShader_V, HUDShader_F;
-		result *= HUDShader_V.CreateShaderFromFile(GLSL_VERTEX_SHADER, "Resources/Shaders/pass_v.glsl");
-		result *= HUDShader_F.CreateShaderFromFile(GLSL_FRAGMENT_SHADER, "Resources/Shaders/pass_f.glsl");
+		result *= HUDShader_V.CreateShaderFromFile(GLSL_VERTEX_SHADER,	"Resources/Shaders/pass_v.glsl");
+		result *= HUDShader_F.CreateShaderFromFile(GLSL_FRAGMENT_SHADER,"Resources/Shaders/pass_f.glsl");
 		result *= HUDProgram->AttachShader(&HUDShader_V);
 		result *= HUDProgram->AttachShader(&HUDShader_F);
 		result *= HUDProgram->LinkProgram();
@@ -165,13 +165,15 @@ void Game::initGameplay(void)
 	result *= OutlineProgram->LinkProgram();
 	result *= OutlineProgram->ValidateProgram();
 
+	outlineShader_F.Release();
+	outlineShader_V.Release();
+
 	uniform_outline_MVP = OutlineProgram->GetUniformLocation("MVP");
+	uniform_outline_scene = OutlineProgram->GetUniformLocation("scene");
 
 	//Set up the first pass Frame buffer
 	firstPass = new FrameBuffer;
-	firstPass->Initialize(windowWidth, windowHeight, 1, false, true);
-	firstPass->Activate();
-	firstPass->SetTexture(1);
+	firstPass->Initialize(windowWidth, windowHeight, 1, false);
 
 	soundSystem.playSound(0, 1);
 
@@ -323,6 +325,9 @@ void Game::playerInput(void){
 //Render the game
 void Game::Render(void)
 {
+
+	firstPass->Activate();
+
 	//Clear the colour and depth buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -349,31 +354,29 @@ void Game::Render(void)
 	}
 	lightProgram->Deactivate();
 
-	//Render the HUD on top of everything else.
-	RenderHUD();
+	firstPass->Deactivate();
 
 	glDisable(GL_DEPTH_TEST);
 
 	//Enable new shader
 	OutlineProgram->Activate();
+	{
+		//Set textures for the FBO
+		firstPass->SetTexture(0);
+		firstPass->BindColour(0);
+		
+		glUniformMatrix4fv(uniform_outline_MVP, 1, 0, glm::value_ptr(glm::mat4(1)));
 
-	//Set textures for the FBO
-	firstPass->SetTexture(0);
-	firstPass->BindColour(0);
-
-	glm::mat4 a = glm::mat4(1);
-	a[3] = glm::vec4(0,0,0,1);
-
-	glUniform4fv(uniform_outline_MVP, 1, glm::value_ptr(a));
-	fullScreenQuad->ActivateAndRender();
-
+		fullScreenQuad->ActivateAndRender();
+	}
 	OutlineProgram->Deactivate();
 
 	//Unbind the FBO textures
 	firstPass->SetTexture(0);
-	firstPass->BindColour(0);
-
+	firstPass->BindColour(0);	
 	
+	//Render the HUD on top of everything else.
+	RenderHUD();
 
 	GLSLProgram::Deactivate();
 	FrameBuffer::Deactivate();

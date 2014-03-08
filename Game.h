@@ -161,6 +161,7 @@ private:
 	unsigned int uniform_HUD_FaceDirection;
 
 	unsigned int uniform_outline_MVP;
+	unsigned int uniform_outline_scene;
 
 	//sound
 	SoundWrap soundSystem;
