@@ -155,6 +155,7 @@ private:
 	unsigned int uniform_LightPos;
 	unsigned int uniform_texture;
 	unsigned int uniform_normalMap;
+	unsigned int uniform_qMap;
 
 	unsigned int uniform_HUD_MVP;
 	unsigned int uniform_HUD_texture;

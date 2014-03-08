@@ -173,7 +173,7 @@ void Game::initGameplay(void)
 
 	//Set up the first pass Frame buffer
 	firstPass = new FrameBuffer;
-	firstPass->Initialize(windowWidth, windowHeight, 1, false);
+	firstPass->Initialize(windowWidth, windowHeight, 1, true);
 
 	soundSystem.playSound(0, 1);
 
@@ -325,7 +325,6 @@ void Game::playerInput(void){
 //Render the game
 void Game::Render(void)
 {
-
 	firstPass->Activate();
 
 	//Clear the colour and depth buffers
@@ -355,9 +354,9 @@ void Game::Render(void)
 	lightProgram->Deactivate();
 
 	firstPass->Deactivate();
-
+	
 	glDisable(GL_DEPTH_TEST);
-
+	
 	//Enable new shader
 	OutlineProgram->Activate();
 	{
@@ -366,11 +365,11 @@ void Game::Render(void)
 		firstPass->BindColour(0);
 		
 		glUniformMatrix4fv(uniform_outline_MVP, 1, 0, glm::value_ptr(glm::mat4(1)));
-
+	
 		fullScreenQuad->ActivateAndRender();
 	}
 	OutlineProgram->Deactivate();
-
+	
 	//Unbind the FBO textures
 	firstPass->SetTexture(0);
 	firstPass->BindColour(0);	
