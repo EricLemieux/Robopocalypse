@@ -13,6 +13,7 @@
 #include "Camera.h"
 #include "Menu.h"
 #include "Sound.h"
+#include "FrameBuffer.h"
 
 #include <GLFW\glfw3.h>
 
@@ -93,6 +94,7 @@ public:
 
 	//Render the game
 	void Render(void);
+	void RenderHUD(void);
 
 	//Update the variables for the shaders before rendering the Game Object
 	void PreRender(GameObject* object);
@@ -103,6 +105,9 @@ private:
 	//////////
 	//DATA
 	//////////
+
+	unsigned int windowWidth;
+	unsigned int windowHeight;
 
 	//Scene Graph nodes
 	Node *world;
@@ -128,6 +133,7 @@ private:
 	//GLSL programs
 	GLSLProgram *lightProgram;
 	GLSLProgram *HUDProgram;
+	GLSLProgram *OutlineProgram;
 
 	//Matricies for use in the shader
 	glm::mat4 projectionMatrix;
@@ -154,9 +160,17 @@ private:
 	unsigned int uniform_HUD_texture;
 	unsigned int uniform_HUD_FaceDirection;
 
+	unsigned int uniform_outline_MVP;
+
 	//sound
 	SoundWrap soundSystem;
 
 	FMOD_VECTOR soundPos;
 	FMOD_VECTOR soundVel;
+
+	//Full screen quad used for drawing the frame buffer object to.
+	VertexBuffer *fullScreenQuad;
+
+	//Frame buffers
+	FrameBuffer *firstPass;
 };

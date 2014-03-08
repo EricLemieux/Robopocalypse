@@ -155,25 +155,25 @@ inline VertexBuffer* ShapeCube(bool useNormals, bool useTexCoords)
 inline VertexBuffer* ShapeFullScreenQuad(void)
 {
 	VertexBuffer *quad = new VertexBuffer;
+	
+	float verts[]	= { -1.0f, -1.0f, -1.0f, 
+						 1.0f, -1.0f, -1.0f, 
+						-1.0f,  1.0f, -1.0f, 
+						-1.0f,  1.0f, -1.0f, 
+						 1.0f, -1.0f, -1.0f, 
+						 1.0f,  1.0f, -1.0f, 
+	};
+
+	float texCoords[]= {
+						0.0f, 0.0f, 
+						1.0f, 0.0f, 
+						0.0f, 1.0f, 
+						0.0f, 1.0f, 
+						1.0f, 0.0f, 
+						1.0f, 1.0f, 
+	};
 
 	quad->Initialize(6, false, true);
-
-	float verts[] = {	-1.0f, -1.0f, -1.0f,
-						+1.0f, -1.0f, -1.0f,
-						-1.0f, +1.0f, -1.0f,
-						-1.0f, +1.0f, -1.0f,
-						+1.0f, -1.0f, -1.0f,
-						+1.0f, +1.0f, -1.0f,
-	};
-
-	float texCoords[] = {	0.0f, 0.0f,
-							1.0f, 0.0f,
-							0.0f, 1.0f,
-							0.0f, 1.0f,
-							1.0f, 0.0f,
-							1.0f, 1.0f,
-	};
-
 	quad->AddVerticies(verts);
 	quad->AddTexCoords(texCoords);
 

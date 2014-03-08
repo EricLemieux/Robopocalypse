@@ -46,6 +46,9 @@ void Game::initGameplay(void)
 	GAME_STATE = STATE_GAMEPLAY;
 
 	projectionMatrix = glm::perspective(90.0f, (float)1280 / (float)720, 0.1f, 1000.0f);
+	
+	//Create the full screen quad
+	fullScreenQuad = ShapeFullScreenQuad();
 
 	lightProgram = new GLSLProgram;
 	int result = 1;
@@ -57,11 +60,14 @@ void Game::initGameplay(void)
 	result *= lightProgram->LinkProgram();
 	result *= lightProgram->ValidateProgram();
 
+	lightShader_F.Release();
+	lightShader_V.Release();
+
 	//get uniform variables
 	uniform_MVP			= lightProgram->GetUniformLocation("MVP");
 	uniform_LightPos	= lightProgram->GetUniformLocation("lightPos");
 	uniform_texture		= lightProgram->GetUniformLocation("objectTexture");
-	uniform_normalMap = lightProgram->GetUniformLocation("objectNormalMap");
+	uniform_normalMap	= lightProgram->GetUniformLocation("objectNormalMap");
 
 
 	//Set up the HUD
@@ -78,6 +84,9 @@ void Game::initGameplay(void)
 		result *= HUDProgram->AttachShader(&HUDShader_F);
 		result *= HUDProgram->LinkProgram();
 		result *= HUDProgram->ValidateProgram();
+
+		HUDShader_F.Release();
+		HUDShader_V.Release();
 
 		//get uniform variables
 		uniform_HUD_MVP				= HUDProgram->GetUniformLocation("MVP");
@@ -126,7 +135,7 @@ void Game::initGameplay(void)
 	
 	//Create a game object for player1
 	player1 = new Player;
-	player1->AttachModel(OBJModel("Resources/Models/ShputnikPunch.obj").GetVBO());
+	player1->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
 	player1->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_red.png"));
 	player1->SetPosition(glm::vec3(-17, 0, -15));
 	player1->GetNode()->SetRotation(glm::vec3(90,0,0));
@@ -134,7 +143,7 @@ void Game::initGameplay(void)
 	
 	//Create a game object for player2
 	player2 = new Player;
-	player2->AttachModel(OBJModel("Resources/Models/ShputnikPunch.obj").GetVBO());
+	player2->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
 	player2->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_blue.png"));
 	player2->AttachNormalMap(loadTexture("Resources/NormalMaps/testMap.jpg"));
 	player2->SetPosition(glm::vec3(17, 0, -15));
@@ -144,6 +153,25 @@ void Game::initGameplay(void)
 	//Load the background objects into a asset list
 	BackgroundObjects.Load("Resources/assets.txt");
 	BackgroundObjects.AttachAllObjectsToNode(sceneGraph);
+
+	//Setting up the outline shader for use with toon shading
+	OutlineProgram = new GLSLProgram;
+	result = 1;
+	GLSLShader outlineShader_V, outlineShader_F;
+	result *= outlineShader_V.CreateShaderFromFile(GLSL_VERTEX_SHADER,	"Resources/Shaders/pass_v.glsl");
+	result *= outlineShader_F.CreateShaderFromFile(GLSL_FRAGMENT_SHADER,"Resources/Shaders/outline_f.glsl");
+	result *= OutlineProgram->AttachShader(&outlineShader_V);
+	result *= OutlineProgram->AttachShader(&outlineShader_F);
+	result *= OutlineProgram->LinkProgram();
+	result *= OutlineProgram->ValidateProgram();
+
+	uniform_outline_MVP = OutlineProgram->GetUniformLocation("MVP");
+
+	//Set up the first pass Frame buffer
+	firstPass = new FrameBuffer;
+	firstPass->Initialize(windowWidth, windowHeight, 1, false, true);
+	firstPass->Activate();
+	firstPass->SetTexture(1);
 
 	soundSystem.playSound(0, 1);
 
@@ -163,6 +191,10 @@ void Game::initMainMenu(void)
 //Open a glfw window with defined size
 void Game::OpenWindow(int width, int height)
 {
+	//Set the size of the window to be stored.
+	windowWidth		= width;
+	windowHeight	= height;
+
 	//Create window
 	gameWindow = glfwCreateWindow(width, height, "Robobopocalypse", NULL, NULL);
 
@@ -303,17 +335,57 @@ void Game::Render(void)
 		//Render all of the background objects
 		for (unsigned int i = 0;i < BackgroundObjects.GetSize(); ++i)
 		{
+			firstPass->SetTexture(0);
 			PreRender(BackgroundObjects.GetObjectAtIndex(i));
 		}
-
+		
+		//Render the two player game objects
 		PreRender(player1);
 		PreRender(player2);
-
+		
+		//This is for debugging only and will be removed later on.
 		PreRender(player1->GetCollisionBoxes());
 		PreRender(player2->GetCollisionBoxes());
 	}
 	lightProgram->Deactivate();
 
+	//Render the HUD on top of everything else.
+	RenderHUD();
+
+	glDisable(GL_DEPTH_TEST);
+
+	//Enable new shader
+	OutlineProgram->Activate();
+
+	//Set textures for the FBO
+	firstPass->SetTexture(0);
+	firstPass->BindColour(0);
+
+	glm::mat4 a = glm::mat4(1);
+	a[3] = glm::vec4(0,0,0,1);
+
+	glUniform4fv(uniform_outline_MVP, 1, glm::value_ptr(a));
+	fullScreenQuad->ActivateAndRender();
+
+	OutlineProgram->Deactivate();
+
+	//Unbind the FBO textures
+	firstPass->SetTexture(0);
+	firstPass->BindColour(0);
+
+	
+
+	GLSLProgram::Deactivate();
+	FrameBuffer::Deactivate();
+	VertexBuffer::Deactivate();
+
+	//Swap front and back buffers
+	glfwSwapBuffers(gameWindow);
+}
+
+//Render the HUD of the game
+void Game::RenderHUD(void)
+{
 	HUDProgram->Activate();
 	{
 		for (unsigned int i = 0; i < 4; ++i)
@@ -343,9 +415,6 @@ void Game::Render(void)
 		HUD->Render();
 	}
 	HUDProgram->Deactivate();
-
-	//Swap front and back buffers
-	glfwSwapBuffers(gameWindow);
 }
 
 void Game::PreRender(GameObject* object)

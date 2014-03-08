@@ -1,16 +1,23 @@
 #version 330 core
 
 layout (location=0) in vec4 position;
+layout (location=2) in vec3 normal;
 layout (location=8) in vec2 texcoord;
 
 uniform mat4 MVP;
 
-varying vec2 UV;
-varying vec4 COL;
+out vertex
+{
+	vec3 pos;
+	vec3 norm;
+	vec2 UV;
+}data;
 
 void main()
 {
 	gl_Position = MVP * position;
-	COL = vec4(1,0,0,1);
-	UV = texcoord;
+
+	data.pos = position.xyz;
+	data.norm = normal;
+	data.UV = texcoord;
 }
