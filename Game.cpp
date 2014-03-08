@@ -68,7 +68,7 @@ void Game::initGameplay(void)
 	uniform_LightPos	= lightProgram->GetUniformLocation("lightPos");
 	uniform_texture		= lightProgram->GetUniformLocation("objectTexture");
 	uniform_normalMap	= lightProgram->GetUniformLocation("objectNormalMap");
-
+	uniform_qMap		= lightProgram->GetUniformLocation("qMap");
 
 	//Set up the HUD
 	{
@@ -174,6 +174,8 @@ void Game::initGameplay(void)
 	//Set up the first pass Frame buffer
 	firstPass = new FrameBuffer;
 	firstPass->Initialize(windowWidth, windowHeight, 1, true);
+
+	qMap_handle = loadTexture("Resources/Textures/qMap.png");
 
 	soundSystem.playSound(0, 1);
 
@@ -434,6 +436,11 @@ void Game::PreRender(GameObject* object)
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, object->GetNormalMapHandle());
 	glUniform1i(uniform_normalMap, 1);
+
+	//pass in qMap
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, qMap_handle);
+	glUniform1i(uniform_qMap, 2);
 
 	object->Render();
 }

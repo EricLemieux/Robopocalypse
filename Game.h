@@ -146,6 +146,9 @@ private:
 	GLuint HUDBackgroundHandle;
 	GLuint HUDBarRedHandle, HUDBarBlueHandle;
 
+	//Texture handle for the qMap used in toon shading
+	GLuint qMap_handle;
+
 	//Game Objects for the HUD and its components
 	GameObject *HUD;
 	GameObject *HUDBars[4];
