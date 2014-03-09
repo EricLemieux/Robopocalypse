@@ -36,7 +36,7 @@ public:
 	void Activate(void);
 
 	//Deactivate VAO from rendering
-	void Deactivate(void);
+	static void Deactivate(void);
 
 	//Render this VAO
 	void Render(void);
