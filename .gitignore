@@ -3,8 +3,3 @@
 *.vcxproj
 [Dd]ebug/
 [Rr]elease/
-
-[Rr]esources/[Mm]odels/
-[Rr]esources/[Nn]ormalMaps/
-[Rr]esources/[Ss]fx/
-[Rr]esources/[Tt]extures/
