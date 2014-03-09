@@ -8,6 +8,7 @@ in vertex
 }data;
 
 uniform vec3 lightPos;
+uniform vec3 lightColour;
 
 uniform sampler2D objectTexture;
 uniform sampler2D objectNormalMap;
@@ -24,8 +25,6 @@ vec3 light(in vec3 pos, in vec3 norm)
 	float lambert = max(0.0, dot(N,L));
 
 	lambert = texture(qMap, vec2(lambert,0.0)).r;
-
-	vec3 lightColour = vec3(1.0, 1.0, 1.0);
 	
 	vec3 diffuse = lambert * lightColour * texture(objectTexture,data.texcoordObj).rgb;
 

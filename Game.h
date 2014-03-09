@@ -14,6 +14,7 @@
 #include "Menu.h"
 #include "Sound.h"
 #include "FrameBuffer.h"
+#include "Light.h"
 
 #include <GLFW\glfw3.h>
 
@@ -98,6 +99,7 @@ public:
 
 	//Update the variables for the shaders before rendering the Game Object
 	void PreRender(GameObject* object);
+	void PreRender(GameObject* object, Light* light);
 	void PreRender(std::vector<CollisionBox> hitboxes);
 
 private:
@@ -116,7 +118,7 @@ private:
 	//Game Objects
 	Player *player1, *player2;
 
-	GameObject *light;
+	Light *mainLight;
 
 	Camera *mainCamera;
 
@@ -158,6 +160,7 @@ private:
 	//Shader uniform variables
 	unsigned int uniform_MVP;
 	unsigned int uniform_LightPos;
+	unsigned int uniform_LightColour;
 	unsigned int uniform_texture;
 	unsigned int uniform_normalMap;
 	unsigned int uniform_qMap;

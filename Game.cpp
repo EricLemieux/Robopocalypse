@@ -1,7 +1,5 @@
 #include "Game.h"
 
-glm::vec4 LIGHTPOS = glm::vec4(0.0f,1.0f,1.0f,1.0f);//glm::vec4(0.0f, 10.0f, 1.0f, 0.0f);
-
 //////////
 //CONSTRUCTORS
 //////////
@@ -68,6 +66,7 @@ void Game::initGameplay(void)
 	//get uniform variables
 	uniform_MVP			= lightProgram->GetUniformLocation("MVP");
 	uniform_LightPos	= lightProgram->GetUniformLocation("lightPos");
+	uniform_LightColour = lightProgram->GetUniformLocation("lightColour");
 	uniform_texture		= lightProgram->GetUniformLocation("objectTexture");
 	uniform_normalMap	= lightProgram->GetUniformLocation("objectNormalMap");
 	uniform_qMap		= lightProgram->GetUniformLocation("qMap");
@@ -177,11 +176,12 @@ void Game::initGameplay(void)
 	firstPass = new FrameBuffer;
 	firstPass->Initialize(windowWidth, windowHeight, 1, true);
 
-	light = new GameObject;
-	light->AttachModel(OBJModel("Resources/Models/Ball.obj").GetVBO());
-	light->SetPosition(glm::vec3(LIGHTPOS.x, LIGHTPOS.y, LIGHTPOS.z));
-	light->GetNode()->SetScale(glm::vec3(0.1f, 0.1f, 0.1f));
-	sceneGraph->AttachNode(light->GetNode());
+	mainLight = new Light;
+	mainLight->SetColour(glm::vec3(1, 1, 1));
+	mainLight->AttachModel(OBJModel("Resources/Models/Ball.obj").GetVBO());
+	mainLight->SetPosition(glm::vec3(0.0f, 1.0f, 1.0f));
+	mainLight->GetNode()->SetScale(glm::vec3(0.1f, 0.1f, 0.1f));
+	sceneGraph->AttachNode(mainLight->GetNode());
 
 	qMap_handle = loadTexture("Resources/Textures/qMap.png");
 
@@ -350,14 +350,14 @@ void Game::Render(void)
 		for (unsigned int i = 0;i < BackgroundObjects.GetSize(); ++i)
 		{
 			firstPass->SetTexture(0);
-			PreRender(BackgroundObjects.GetObjectAtIndex(i));
+			PreRender(BackgroundObjects.GetObjectAtIndex(i), mainLight);
 		}
 		
 		//Render the two player game objects
-		PreRender(player1);
-		PreRender(player2);
+		PreRender(player1, mainLight);
+		PreRender(player2, mainLight);
 
-		PreRender(light);
+		//PreRender(light);
 		
 		//This is for debugging only and will be removed later on.
 		PreRender(player1->GetCollisionBoxes());
@@ -436,7 +436,8 @@ void Game::PreRender(GameObject* object)
 {
 	modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);
 	glUniformMatrix4fv(uniform_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
-	glUniform3fv(uniform_LightPos, 1, glm::value_ptr(glm::inverse(object->GetNode()->GetWorldTransform()) * LIGHTPOS));
+	//glUniform3fv(uniform_LightPos, 1, glm::value_ptr(glm::inverse(object->GetNode()->GetWorldTransform()) * LIGHTPOS));
+	//glUniform3fv(uniform_LightColour, 1, glm::value_ptr(glm::vec3(1, 1, 1)));
 	
 	//Pass in texture
 	glActiveTexture(GL_TEXTURE0);
@@ -454,6 +455,16 @@ void Game::PreRender(GameObject* object)
 	glUniform1i(uniform_qMap, 2);
 
 	object->Render();
+}
+
+void Game::PreRender(GameObject* object, Light* light)
+{
+	modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);
+	glUniformMatrix4fv(uniform_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
+	glUniform3fv(uniform_LightPos, 1, glm::value_ptr(glm::inverse(object->GetNode()->GetWorldTransform()) * glm::vec4(light->GetNode()->GetWorldPosition(),1)));
+	glUniform3fv(uniform_LightColour, 1, glm::value_ptr(light->GetColour()));
+
+	PreRender(object);
 }
 
 //This draws a vector of hitboxes, only used for debugging
