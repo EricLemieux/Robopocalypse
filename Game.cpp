@@ -426,7 +426,7 @@ void Game::PreRender(GameObject* object)
 {
 	modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);
 	glUniformMatrix4fv(uniform_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
-	glUniform3fv(uniform_LightPos, 1, glm::value_ptr(glm::inverse(modelViewProjectionMatrix) * glm::vec4(0.0f, 0.0f, -0.5f, 0.0f)));
+	glUniform3fv(uniform_LightPos, 1, glm::value_ptr(glm::inverse(viewMatrix) * glm::vec4(0.0f, 50.0f, 50.0f, 0.0f)));
 	
 	//Pass in texture
 	glActiveTexture(GL_TEXTURE0);
