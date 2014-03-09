@@ -20,17 +20,18 @@ void main()
 							,0,1,0);
 	
 	vec3 outline = kernel(data.UV, scene, edgeDetect);
+	outline = vec3(max(outline.r, max(outline.g, outline.b)));
 
 	vec3 diffuse = texture(scene, data.UV).rgb;
 
-	finalColour.rgb = (1-outline) * diffuse;
+	finalColour.rgb = (1.0-outline) * diffuse;
 }
 
 vec3 kernel(in vec2 tex, in sampler2D image, in mat3 kernel)
 {
 	vec3 outputValue = vec3(0);
 
-	float size = 0.001;
+	float size = 0.002;
 
 	outputValue += kernel[0].x * texture(image, tex + (vec2(-1, 1) * size)).rgb;
 	outputValue += kernel[0].y * texture(image, tex + (vec2(-1, 0) * size)).rgb;

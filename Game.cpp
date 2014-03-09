@@ -354,12 +354,7 @@ void Game::Render(void)
 		PreRender(player2->GetCollisionBoxes());
 	}
 	lightProgram->Deactivate();
-
-
-	//Render the HUD on top of everything else.
-	RenderHUD();
-
-
+	
 	firstPass->Deactivate();
 	
 
@@ -382,6 +377,8 @@ void Game::Render(void)
 	firstPass->SetTexture(0);
 	firstPass->BindColour(0);	
 	
+	//Render the HUD on top of everything else.
+	RenderHUD();
 
 	GLSLProgram::Deactivate();
 	FrameBuffer::Deactivate();
@@ -396,6 +393,16 @@ void Game::RenderHUD(void)
 {
 	HUDProgram->Activate();
 	{
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, HUDBackgroundHandle);
+		glUniform1i(uniform_HUD_texture, 0);
+
+		glUniformMatrix4fv(uniform_HUD_MVP, 1, 0, glm::value_ptr(HUD->GetNode()->GetWorldTransform()));
+
+		glUniform2fv(uniform_HUD_FaceDirection, 1, glm::value_ptr(glm::vec2(1.0f, 1.0f)));
+
+		HUD->Render();
+
 		for (unsigned int i = 0; i < 4; ++i)
 		{
 			glUniformMatrix4fv(uniform_HUD_MVP, 1, 0, glm::value_ptr(HUDBars[i]->GetNode()->GetWorldTransform()));
@@ -411,16 +418,6 @@ void Game::RenderHUD(void)
 
 			HUDBars[i]->Render();
 		}
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, HUDBackgroundHandle);
-		glUniform1i(uniform_HUD_texture, 0);
-
-		glUniformMatrix4fv(uniform_HUD_MVP, 1, 0, glm::value_ptr(HUD->GetNode()->GetWorldTransform()));
-
-		glUniform2fv(uniform_HUD_FaceDirection, 1, glm::value_ptr(glm::vec2(1.0f, 1.0f)));
-
-		HUD->Render();
 	}
 	HUDProgram->Deactivate();
 }
