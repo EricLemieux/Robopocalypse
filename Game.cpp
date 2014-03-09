@@ -1,5 +1,7 @@
 #include "Game.h"
 
+glm::vec4 LIGHTPOS = glm::vec4(0.0f,1.0f,1.0f,1.0f);//glm::vec4(0.0f, 10.0f, 1.0f, 0.0f);
+
 //////////
 //CONSTRUCTORS
 //////////
@@ -175,6 +177,12 @@ void Game::initGameplay(void)
 	firstPass = new FrameBuffer;
 	firstPass->Initialize(windowWidth, windowHeight, 1, true);
 
+	light = new GameObject;
+	light->AttachModel(OBJModel("Resources/Models/Ball.obj").GetVBO());
+	light->SetPosition(glm::vec3(LIGHTPOS.x, LIGHTPOS.y, LIGHTPOS.z));
+	light->GetNode()->SetScale(glm::vec3(0.1f, 0.1f, 0.1f));
+	sceneGraph->AttachNode(light->GetNode());
+
 	qMap_handle = loadTexture("Resources/Textures/qMap.png");
 
 	soundSystem.playSound(0, 1);
@@ -348,6 +356,8 @@ void Game::Render(void)
 		//Render the two player game objects
 		PreRender(player1);
 		PreRender(player2);
+
+		PreRender(light);
 		
 		//This is for debugging only and will be removed later on.
 		PreRender(player1->GetCollisionBoxes());
@@ -426,7 +436,7 @@ void Game::PreRender(GameObject* object)
 {
 	modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);
 	glUniformMatrix4fv(uniform_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
-	glUniform3fv(uniform_LightPos, 1, glm::value_ptr(glm::inverse(object->GetNode()->GetWorldTransform()) * glm::vec4(0.0f, 50.0f, 50.0f, 0.0f)));
+	glUniform3fv(uniform_LightPos, 1, glm::value_ptr(glm::inverse(object->GetNode()->GetWorldTransform()) * LIGHTPOS));
 	
 	//Pass in texture
 	glActiveTexture(GL_TEXTURE0);

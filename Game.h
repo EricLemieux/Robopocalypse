@@ -116,6 +116,8 @@ private:
 	//Game Objects
 	Player *player1, *player2;
 
+	GameObject *light;
+
 	Camera *mainCamera;
 
 	Assets BackgroundObjects;

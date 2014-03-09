@@ -31,7 +31,7 @@ vec3 kernel(in vec2 tex, in sampler2D image, in mat3 kernel)
 {
 	vec3 outputValue = vec3(0);
 
-	float size = 0.002;
+	float size = 0.001;
 
 	outputValue += kernel[0].x * texture(image, tex + (vec2(-1, 1) * size)).rgb;
 	outputValue += kernel[0].y * texture(image, tex + (vec2(-1, 0) * size)).rgb;
