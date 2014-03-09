@@ -355,8 +355,14 @@ void Game::Render(void)
 	}
 	lightProgram->Deactivate();
 
+
+	//Render the HUD on top of everything else.
+	RenderHUD();
+
+
 	firstPass->Deactivate();
 	
+
 	glDisable(GL_DEPTH_TEST);
 	
 	//Enable new shader
@@ -376,8 +382,6 @@ void Game::Render(void)
 	firstPass->SetTexture(0);
 	firstPass->BindColour(0);	
 	
-	//Render the HUD on top of everything else.
-	RenderHUD();
 
 	GLSLProgram::Deactivate();
 	FrameBuffer::Deactivate();
