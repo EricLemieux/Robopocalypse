@@ -2,17 +2,13 @@
 
 in vertex
 {
-	vec3 positionObj;
-	vec3 normalObj;
-	vec2 texcoordObj;
+	vec3 pos;
+	vec3 norm;
+	vec2 UV;
 }data;
 
 uniform vec3 lightPos;
 uniform vec3 lightColour;
-
-uniform sampler2D objectTexture;
-uniform sampler2D objectNormalMap;
-
 uniform sampler2D qMap;
 
 out vec4 finalColour;

@@ -50,26 +50,23 @@ void Game::initGameplay(void)
 	//Create the full screen quad
 	fullScreenQuad = ShapeFullScreenQuad();
 
-	lightProgram = new GLSLProgram;
+	diffuseProgram = new GLSLProgram;
 	int result = 1;
-	GLSLShader lightShader_V, lightShader_F;
-	result *= lightShader_V.CreateShaderFromFile(GLSL_VERTEX_SHADER,	"Resources/Shaders/FragLighting_v.glsl");
-	result *= lightShader_F.CreateShaderFromFile(GLSL_FRAGMENT_SHADER,	"Resources/Shaders/FragLighting_f.glsl");
-	result *= lightProgram->AttachShader(&lightShader_V);
-	result *= lightProgram->AttachShader(&lightShader_F);
-	result *= lightProgram->LinkProgram();
-	result *= lightProgram->ValidateProgram();
+	GLSLShader diffuseShader_V, diffuseShader_F;
+	result *= diffuseShader_V.CreateShaderFromFile(GLSL_VERTEX_SHADER,	"Resources/Shaders/pass_v.glsl");
+	result *= diffuseShader_F.CreateShaderFromFile(GLSL_FRAGMENT_SHADER,"Resources/Shaders/Diffuse_f.glsl");
+	result *= diffuseProgram->AttachShader(&diffuseShader_V);
+	result *= diffuseProgram->AttachShader(&diffuseShader_F);
+	result *= diffuseProgram->LinkProgram();
+	result *= diffuseProgram->ValidateProgram();
 
-	lightShader_F.Release();
-	lightShader_V.Release();
+	diffuseShader_F.Release();
+	diffuseShader_V.Release();
 
 	//get uniform variables
-	uniform_MVP			= lightProgram->GetUniformLocation("MVP");
-	uniform_LightPos	= lightProgram->GetUniformLocation("lightPos");
-	uniform_LightColour = lightProgram->GetUniformLocation("lightColour");
-	uniform_texture		= lightProgram->GetUniformLocation("objectTexture");
-	uniform_normalMap	= lightProgram->GetUniformLocation("objectNormalMap");
-	uniform_qMap		= lightProgram->GetUniformLocation("qMap");
+	uniform_MVP			= diffuseProgram->GetUniformLocation("MVP");
+	uniform_texture		= diffuseProgram->GetUniformLocation("objectTexture");
+	uniform_normalMap	= diffuseProgram->GetUniformLocation("objectNormalMap");
 
 	//Set up the HUD
 	{
@@ -344,18 +341,18 @@ void Game::Render(void)
 	mainCamera->Update(viewMatrix);
 
 	//Activate the shader and render the player
-	lightProgram->Activate();
+	diffuseProgram->Activate();
 	{
 		//Render all of the background objects
 		for (unsigned int i = 0;i < BackgroundObjects.GetSize(); ++i)
 		{
 			firstPass->SetTexture(0);
-			PreRender(BackgroundObjects.GetObjectAtIndex(i), mainLight);
+			PreRender(BackgroundObjects.GetObjectAtIndex(i));
 		}
 		
 		//Render the two player game objects
-		PreRender(player1, mainLight);
-		PreRender(player2, mainLight);
+		PreRender(player1);
+		PreRender(player2);
 
 		//PreRender(light);
 		
@@ -449,23 +446,23 @@ void Game::PreRender(GameObject* object)
 	glBindTexture(GL_TEXTURE_2D, object->GetNormalMapHandle());
 	glUniform1i(uniform_normalMap, 1);
 
-	//pass in qMap
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, qMap_handle);
-	glUniform1i(uniform_qMap, 2);
+	////pass in qMap
+	//glActiveTexture(GL_TEXTURE2);
+	//glBindTexture(GL_TEXTURE_2D, qMap_handle);
+	//glUniform1i(uniform_qMap, 2);
 
 	object->Render();
 }
 
-void Game::PreRender(GameObject* object, Light* light)
-{
-	modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);
-	glUniformMatrix4fv(uniform_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
-	glUniform3fv(uniform_LightPos, 1, glm::value_ptr(glm::inverse(object->GetNode()->GetWorldTransform()) * glm::vec4(light->GetNode()->GetWorldPosition(),1)));
-	glUniform3fv(uniform_LightColour, 1, glm::value_ptr(light->GetColour()));
-
-	PreRender(object);
-}
+//void Game::PreRender(GameObject* object, Light* light)
+//{
+//	modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);
+//	glUniformMatrix4fv(uniform_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
+//	glUniform3fv(uniform_LightPos, 1, glm::value_ptr(glm::inverse(object->GetNode()->GetWorldTransform()) * glm::vec4(light->GetNode()->GetWorldPosition(),1)));
+//	glUniform3fv(uniform_LightColour, 1, glm::value_ptr(light->GetColour()));
+//
+//	PreRender(object);
+//}
 
 //This draws a vector of hitboxes, only used for debugging
 void Game::PreRender(std::vector<CollisionBox> hitboxes)
