@@ -80,7 +80,7 @@ void Game::initGameplay(void)
 		int result = 1;
 		GLSLShader HUDShader_V, HUDShader_F;
 		result *= HUDShader_V.CreateShaderFromFile(GLSL_VERTEX_SHADER,	"Resources/Shaders/pass_v.glsl");
-		result *= HUDShader_F.CreateShaderFromFile(GLSL_FRAGMENT_SHADER,"Resources/Shaders/pass_f.glsl");
+		result *= HUDShader_F.CreateShaderFromFile(GLSL_FRAGMENT_SHADER,"Resources/Shaders/HUD_f.glsl");
 		result *= HUDProgram->AttachShader(&HUDShader_V);
 		result *= HUDProgram->AttachShader(&HUDShader_F);
 		result *= HUDProgram->LinkProgram();
