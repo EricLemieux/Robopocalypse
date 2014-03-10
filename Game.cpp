@@ -171,7 +171,7 @@ void Game::initGameplay(void)
 
 	//Set up the first pass Frame buffer
 	firstPass = new FrameBuffer;
-	firstPass->Initialize(windowWidth, windowHeight, 1, true);
+	firstPass->Initialize(windowWidth, windowHeight, 2, true, false);
 
 	mainLight = new Light;
 	mainLight->SetColour(glm::vec3(1, 1, 1));
@@ -343,6 +343,8 @@ void Game::Render(void)
 	//Activate the shader and render the player
 	diffuseProgram->Activate();
 	{
+		firstPass->SetTexture(1);
+
 		//Render all of the background objects
 		for (unsigned int i = 0;i < BackgroundObjects.GetSize(); ++i)
 		{
@@ -373,6 +375,10 @@ void Game::Render(void)
 		//Set textures for the FBO
 		firstPass->SetTexture(0);
 		firstPass->BindColour(0);
+		firstPass->SetTexture(1);
+		firstPass->BindColour(1);
+		firstPass->SetTexture(2);
+		firstPass->BindDepth();
 		
 		glUniformMatrix4fv(uniform_outline_MVP, 1, 0, glm::value_ptr(glm::mat4(1)));
 	
@@ -381,8 +387,12 @@ void Game::Render(void)
 	OutlineProgram->Deactivate();
 	
 	//Unbind the FBO textures
+	firstPass->SetTexture(2);
+	firstPass->UnbindTextures();
+	firstPass->SetTexture(1);
+	firstPass->UnbindTextures();
 	firstPass->SetTexture(0);
-	firstPass->BindColour(0);	
+	firstPass->UnbindTextures();
 	
 	//Render the HUD on top of everything else.
 	RenderHUD();
