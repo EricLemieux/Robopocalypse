@@ -56,49 +56,51 @@ int FrameBuffer::Initialize(unsigned int w, unsigned int h,
 {
 	if(w && h && (colour || useDepth))
 	{
-		//Maximum dimension 
-		if(w <= maxSize && h <= maxSize)
+		if (w < maxSize && w < maxSize)
 		{
-			const unsigned short filtering = useLinearFilter ? 
-				GL_LINEAR : GL_NEAREST;
-			const unsigned short wrapping = clamp ? 
-				GL_CLAMP_TO_EDGE : GL_REPEAT;
-			const unsigned short colourBit = useHDR ? 
-				GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
-			const unsigned short colourFormat = useHDR ? 
-				GL_RGBA16 : GL_RGBA8;
+			width = w;
+			height = h;
 
-			this->width		= w;
-			this->height	= h;
+			const unsigned short filtering = useLinearFilter ?
+			GL_LINEAR : GL_NEAREST;
+			const unsigned short wrapping = clamp ?
+			GL_CLAMP_TO_EDGE : GL_REPEAT;
+			const unsigned short colourBit = useHDR ?
+			GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
+			const unsigned short colourFormat = useHDR ?
+			GL_RGBA16 : GL_RGBA8;
 
-			//init FBO
 			glGenFramebuffers(1, &handle);
 			glBindFramebuffer(GL_FRAMEBUFFER, handle);
 
-			if(colour)
+			if (colour)
 			{
+				//Get the maximum number of targets aloud
 				int maxTargets;
 				glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxTargets);
-				numTargets = (int)colour <= maxTargets ? colour : maxTargets;
 
-				glGenTextures(1, colourTex);
+				//Detremine the number of targets this FBO will have
+				if (colour > maxTargets)
+					numTargets = maxTargets;
+				else
+					numTargets = colour;
 
-				for(unsigned int i = 0; i < numTargets ; ++i)
+				glGenTextures(numTargets, colourTex);
+
+				for (unsigned int i = 0; i < numTargets; ++i)
 				{
-					glGenTextures(1, colourTex + i);
-					glBindTexture(GL_TEXTURE_2D, *colourTex);
+					glBindTexture(GL_TEXTURE_2D, *colourTex + i);
+
 					glTexImage2D(GL_TEXTURE_2D, 0, colourFormat, width, height, 0, GL_RGBA, colourBit, 0);
 
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filtering);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filtering);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapping);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapping);
-
-					glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, *(colourTex + i), 0);
 				}
 			}
 
-			if(useDepth)
+			if (useDepth)
 			{
 				glGenTextures(1, &depthTex);
 				glBindTexture(GL_TEXTURE_2D, depthTex);
@@ -112,21 +114,16 @@ int FrameBuffer::Initialize(unsigned int w, unsigned int h,
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex, 0);
 			}
 
-			int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-
-			if(status == GL_FRAMEBUFFER_COMPLETE)
+			for (unsigned int i = 0; i < numTargets; ++i)
 			{
-				glBindTexture(GL_TEXTURE_2D, 0);
-				glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-				return 1;
+				glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, *colourTex + i, 0);
 			}
 
-			Release();
+			return true;
 		}
 	}
 
-	return 0;
+	return false;
 }
 
 void FrameBuffer::Activate() const

@@ -15,10 +15,10 @@ layout (location=1) out vec3 finalNormals;
 
 void main()
 {
-	vec3 normal		= (texture(objectNormalMap, data.UV).rgb * 2.0) - 1.0;
+	//vec3 normal		= (texture(objectNormalMap, data.UV).rgb * 2.0) - 1.0;
 
 	vec3 diffuse	= texture(objectTexture, data.UV).rgb;
 
 	finalColour.rgb = diffuse;
-	finalNormals	= normal;
+	finalNormals	= data.norm;
 }
