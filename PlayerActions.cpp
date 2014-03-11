@@ -178,7 +178,7 @@ Actions PlayerActions::kickAction(int &t, glm::vec3 &vel, int facing, int onGrou
 	if (t > casttime){
 		if (kickStart == 1 && onGround == 1 && t < (casttime + (recovery / 2.f))){
 			hitboxList[KICKBOX].GetSceneGraphObject()->SetLocalPosition(glm::vec3(0.f, -4.f, 4));
-			hitboxList[KICKBOX].GetCollisionBox()->GetSceneGraphObject()->SetScale(glm::vec3(10.f*((float)t / (casttime + recovery)), 5.f*((float)t / (casttime + recovery)), 20.f*((float)t / (casttime + recovery))));
+			hitboxList[KICKBOX].GetCollisionBox()->GetSceneGraphObject()->SetScale(glm::vec3(20.f*((float)t / (casttime + recovery)), 5.f*((float)t / (casttime + recovery)), 10.f*((float)t / (casttime + recovery))));
 		}
 		else {
 			deactivateHitbox(hitboxList[KICKBOX]);
@@ -235,7 +235,7 @@ Actions PlayerActions::blastAction(int &t, glm::vec3 &vel, std::vector<Collision
 
 	if (t < casttime){
 		activateHitbox(hitboxList[BLASTBOX]);
-		hitboxList[BLASTBOX].GetCollisionBox()->GetSceneGraphObject()->SetScale(glm::vec3(10.f*((float)t / casttime), 20.f*((float)t / casttime), 30.f*((float)t / casttime)));
+		hitboxList[BLASTBOX].GetCollisionBox()->GetSceneGraphObject()->SetScale(glm::vec3(30.f*((float)t / casttime), 20.f*((float)t / casttime), 10.f*((float)t / casttime)));
 		vel.x = 0;
 		vel.y = 0;
 	}

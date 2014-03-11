@@ -34,7 +34,7 @@ Player::Player(){
 	hitboxList[LASERBOX].GetCollisionBox()->GetSceneGraphObject()->SetLocalPosition(glm::vec3(0,0,1000));
 	hitboxList[BLASTBOX].GetCollisionBox()->GetSceneGraphObject()->SetLocalPosition(glm::vec3(0,0,1000));
 	hitboxList[LASERBOX].GetCollisionBox()->GetSceneGraphObject()->TranslateNode(glm::vec3(0.0f, 0.0f, 1000.0f));
-	hitboxList[LASERBOX].GetCollisionBox()->GetSceneGraphObject()->SetScale(glm::vec3(2.f, 3.f, 40.f));
+	hitboxList[LASERBOX].GetCollisionBox()->GetSceneGraphObject()->SetScale(glm::vec3(40.f, 3.f, 2.0f));
 		
 	//action list is IDLE
 	prevAction    = IDLE;
