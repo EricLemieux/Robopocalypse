@@ -251,11 +251,11 @@ void Game::Update(void)
 	mainCamera->SetTarget(glm::vec3((player1->getPos().x + player2->getPos().x) / 2.f, 0, 0));
 	mainCamera->SetPosition(glm::vec3((player1->getPos().x + player2->getPos().x) / 2.f, 0, 5));
 
-	HUDBars[0]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, player1->GetHP() / player1->GetMaxHP(), 1));
-	HUDBars[1]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, player1->GetSP() / player1->GetMaxSP(), 1));
-
-	HUDBars[2]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, player2->GetHP() / player2->GetMaxHP(), -1));
-	HUDBars[3]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, player2->GetSP() / player2->GetMaxSP(), -1));
+	HUDBars[0]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, (float)player1->GetHP() / (float)player1->GetMaxHP(), 1));
+	HUDBars[1]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, (float)player1->GetSP() / (float)player1->GetMaxSP(), 1));
+													  							
+	HUDBars[2]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, (float)player2->GetHP() / (float)player2->GetMaxHP(), -1));
+	HUDBars[3]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, (float)player2->GetSP() / (float)player2->GetMaxSP(), -1));
 
 	soundSystem.updateSound();
 
@@ -283,7 +283,6 @@ void Game::playerInput(void){
 		player1->controllerInput(DASH_RIGHT);
 	}
 	else if (glfwGetKey(gameWindow, 'Q') == GLFW_PRESS){
-		soundSystem.playSound(1, 2);
 		player1->controllerInput(PUNCH);
 	}
 	else if (glfwGetKey(gameWindow, 'A') == GLFW_PRESS){
