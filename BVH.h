@@ -34,5 +34,6 @@ public:
 private:
 	char* filePath;
 
+	Node *rootNode;
 	std::vector<Joint> nodeTree;
 };

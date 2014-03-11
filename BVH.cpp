@@ -4,11 +4,15 @@
 BVH::BVH()
 {
 	this->filePath = new char;
+
+	rootNode = new Node;
 }
 
 BVH::BVH(char* filePath)
 {
 	LoadFile(filePath);
+
+	rootNode = new Node;
 }
 
 BVH::~BVH()
@@ -36,7 +40,7 @@ int BVH::BuildSceneGraph()
 	}
 	
 	char currentWord[256];
-
+	
 	while (!file.eof())
 	{
 		file >> currentWord;
@@ -50,7 +54,8 @@ int BVH::BuildSceneGraph()
 			//Create the joint
 			Joint currentJoint;
 
-			currentIndex = targetIndex = 0;
+			currentIndex = 0;
+			targetIndex = -1;
 
 			//loop through the file before it describes the first joint node
 			while (_stricmp(currentWord, "JOINT"))
@@ -83,6 +88,7 @@ int BVH::BuildSceneGraph()
 				file >> currentWord;
 			}
 
+			rootNode->AttachNode(currentNode);
 			currentJoint.node = currentNode;
 
 			//Add the node to the vector
@@ -99,9 +105,16 @@ int BVH::BuildSceneGraph()
 			//Create the joint
 			Joint currentJoint;
 
+			file.ignore(256, '\n');
+			file >> currentWord;
+
 			if (!_stricmp(currentWord, "{"))
 			{
 				currentIndex++;
+				targetIndex++;
+			
+				file.ignore(256, '\n');
+				file >> currentWord;
 			}
 
 			if (!_stricmp(currentWord, "OFFSET"))
@@ -118,6 +131,9 @@ int BVH::BuildSceneGraph()
 				pos.z = atof(currentWord);
 
 				currentNode->SetLocalPosition(pos);
+
+				file.ignore(256, '\n');
+				file >> currentWord;
 			}
 
 			if (!_stricmp(currentWord, "CHANNELS"))
@@ -126,14 +142,22 @@ int BVH::BuildSceneGraph()
 				currentJoint.numChanels = atoi(currentWord);
 
 				//Skip to the end of the line because we can assume the rest of the info based on the number of chanels
-				file.ignore(256, '\n');
+				//file.ignore(256, '\n');
+				//file >> currentWord;
 			}
 
 			if (!_stricmp(currentWord, "}"))
 			{
 				currentIndex--;
+				targetIndex--;
+			
+				file.ignore(256, '\n');
+				file >> currentWord;
 			}
 
+			nodeTree[targetIndex].node->AttachNode(currentNode);
+
+			//currentNode->UpdateLocalPosition();
 			currentJoint.node = currentNode;
 
 			//Add the node to the vector
@@ -143,20 +167,27 @@ int BVH::BuildSceneGraph()
 		if (!_stricmp(currentWord, "{"))
 		{
 			currentIndex++;
+			targetIndex++;
+			//file.ignore(256, '\n');
+			//file >> currentWord;
 		}
-
+		
 		if (!_stricmp(currentWord, "}"))
 		{
 			currentIndex--;
+			targetIndex--;
+			//file.ignore(256, '\n');
+			//file >> currentWord;
 		}
 
 		//This part of the file is loading the rotations of joints
 		if (!_stricmp(currentWord, "MOTION"))
 		{
+			nodeTree[0].node->Update();
 			break;
 		}
 
-		file.ignore(256, '\n');
+		//file.ignore(256, '\n');
 	}
 
 	return BVH_H_LOAD_FINE;

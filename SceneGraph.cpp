@@ -86,7 +86,7 @@ void Node::DetatchAllNodes(void)
 //Update the node and its children
 void Node::Update()
 {
-	localTransform = translation * rotation * scale;
+	UpdateLocalPosition();
 	worldTransform = this->parent->worldTransform * this->localTransform;
 
 	//Loop through all children and update
@@ -94,6 +94,11 @@ void Node::Update()
 	{
 		children[i]->Update();
 	}
+}
+
+void Node::UpdateLocalPosition(void)
+{
+	localTransform = translation * rotation * scale;
 }
 
 //return the world transformation matrix for the node

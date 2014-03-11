@@ -73,4 +73,6 @@ public:
 
 	//Update the node and its children
 	void Update();
+
+	void UpdateLocalPosition(void);
 };
