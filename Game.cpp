@@ -236,8 +236,8 @@ void Game::Update(void)
 
 	playerInput();
 	
-	player1->update(*player2, pl1SFX);
-	player2->update(*player1, pl2SFX);
+	player1->update(player2, pl1SFX);
+	player2->update(player1, pl2SFX);
 
 	soundSystem.setChannelPos(SFX_PLAYER1_CHANNEL, player1->getPos());
 	soundSystem.setChannelPos(SFX_PLAYER2_CHANNEL, player2->getPos());

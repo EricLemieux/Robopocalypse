@@ -51,10 +51,11 @@ private:
 	//prevents multiple hits from one attack
 	int hasBeenHit;
 
+
 public:
 	Player();
 	~Player();
-	void update(Player otherPlayer, playerSFX &sfx);
+	void update(Player *otherPlayer, playerSFX &sfx);
 	void draw();
 
 	Actions controllerInput(Actions action);
@@ -72,4 +73,8 @@ public:
 	glm::vec3 getPos();
 
 	void soundCheck(playerSFX &sfx);
+
+	 //for affecting other player on blocking melee attack
+	 void setNextAction(Actions newAction);
+	 int getOnGround();
 };

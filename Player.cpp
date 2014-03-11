@@ -54,19 +54,20 @@ Player::Player(){
 
 	maxDistBetweenPlayers = 60.f;
 
-
 	hasBeenHit = 0;
+
+
 }
 Player::~Player(){}
-void Player::update(Player otherPlayer, playerSFX &sfx){
+void Player::update(Player *otherPlayer, playerSFX &sfx){
 
 	pos = sceneGraphNode->GetWorldPosition();
 
 	//if player is not in the middle of an action and 
-	if (currentAction == IDLE && otherPlayer.pos.x > pos.x){
+	if (currentAction == IDLE && otherPlayer->pos.x > pos.x){
 		isFacing = 1;
 	}
-	else if (currentAction == IDLE && otherPlayer.pos.x < pos.x) {
+	else if (currentAction == IDLE && otherPlayer->pos.x < pos.x) {
 		isFacing = -1;
 	}
 
@@ -116,12 +117,16 @@ void Player::update(Player otherPlayer, playerSFX &sfx){
 		}
 	}
 
+	if(nextAction == STAGGER_A || nextAction == STAGGER_G){
+		cycleActions();
+	}
+
 	//INTERRUPTS GO BEFORE ACTUAL UPDATING
 	//check collisions
 	bool hitboxListHit[5];
-	for (unsigned int i = 0, size = otherPlayer.hitboxList.size(); i < size; ++i)
+	for (unsigned int i = 0, size = otherPlayer->hitboxList.size(); i < size; ++i)
 	{
-		hitboxListHit[i] = this->hitboxList[BODYBOX].CheckCollision(&otherPlayer.hitboxList[i]);
+		hitboxListHit[i] = this->hitboxList[BODYBOX].CheckCollision(&otherPlayer->hitboxList[i]);
 	}
 	//check collisions with self body
 
@@ -167,10 +172,23 @@ void Player::update(Player otherPlayer, playerSFX &sfx){
 		if (hitboxListHit[PUNCHBOX]){
 			hp -= 20;
 			sp -= 100;
+
+			if(otherPlayer->getOnGround() == 0){
+				otherPlayer->setNextAction(STAGGER_A);
+			} else if(otherPlayer->getOnGround() == 1){
+				otherPlayer->setNextAction(STAGGER_G);
+			}
 		}
 		else if (hitboxListHit[KICKBOX]){
 			hp -= 150;
 			sp -= 50;
+
+
+			if(otherPlayer->getOnGround() == 0){
+				otherPlayer->setNextAction(STAGGER_A);
+			} else if(otherPlayer->getOnGround() == 1){
+				otherPlayer->setNextAction(STAGGER_G);
+			}
 		}
 		else if (hitboxListHit[LASERBOX]){
 			sp -= 300;
@@ -183,7 +201,7 @@ void Player::update(Player otherPlayer, playerSFX &sfx){
 	}
 
 	sfx = EMPTY_P_SFX;
-	//currentAction = PUNCH;
+
 	//ACTUAL UPDATING OF VEL BELOW
 	//if action is complete, returns IDLE
 	if (currentAction == MOVE_LEFT){
@@ -288,7 +306,7 @@ void Player::update(Player otherPlayer, playerSFX &sfx){
 	pos.x += vel.x * freq;
 	pos.y += vel.y * freq;
 
-	if(abs(pos.x-otherPlayer.pos.x) > maxDistBetweenPlayers){
+	if(abs(pos.x-otherPlayer->pos.x) > maxDistBetweenPlayers){
 		pos.x -= vel.x*freq;
 	}
 
@@ -339,7 +357,8 @@ Actions Player::controllerInput(Actions action){
 	//action cooldown checks in here so jump and dash spamming aren't possible
 	//check controller input, update current action if possible
 	//actions return idle when completed
-	nextAction = action;
+	if(nextAction != STAGGER_A && nextAction != STAGGER_G)
+		nextAction = action;
 
 	return action;
 }
@@ -351,6 +370,7 @@ void Player::cycleActions(){
 	currentAction = nextAction;
 	nextAction = IDLE;
 	actionTimer = 0;
+	hasBeenHit = 0;
 }
 
 std::vector<CollisionBox> Player::GetCollisionBoxes(void)
@@ -368,4 +388,15 @@ void Player::soundCheck(playerSFX &sfx){
 	}
 
 	
+}
+
+
+void Player::setNextAction(Actions newAction){
+
+nextAction = newAction;
+
+}
+
+int Player::getOnGround(){
+ return onGround;
 }
