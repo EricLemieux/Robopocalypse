@@ -97,6 +97,8 @@ int FrameBuffer::Initialize(unsigned int w, unsigned int h,
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filtering);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapping);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapping);
+
+					glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, *colourTex + i, 0);
 				}
 			}
 
@@ -104,19 +106,15 @@ int FrameBuffer::Initialize(unsigned int w, unsigned int h,
 			{
 				glGenTextures(1, &depthTex);
 				glBindTexture(GL_TEXTURE_2D, depthTex);
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filtering);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filtering);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapping);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapping);
 
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex, 0);
-			}
-
-			for (unsigned int i = 0; i < numTargets; ++i)
-			{
-				glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, *colourTex + i, 0);
+				//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex, 0);
+				glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTex, 0);
 			}
 
 			return true;
@@ -177,7 +175,7 @@ void FrameBuffer::Deactivate(void)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	glDrawBuffer(GL_BACK);
+	glDrawBuffer(GL_FRONT);
 
 	glEnable(GL_DEPTH_TEST);
 }
