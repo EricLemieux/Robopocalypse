@@ -177,8 +177,9 @@ private:
 	//sound
 	SoundWrap soundSystem;
 
-	FMOD_VECTOR soundPos;
-	FMOD_VECTOR soundVel;
+	playerSFX pl1SFX;
+	playerSFX pl2SFX;
+	menuSFX mSFX;
 
 	//Full screen quad used for drawing the frame buffer object to.
 	VertexBuffer *fullScreenQuad;

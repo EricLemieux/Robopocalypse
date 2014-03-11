@@ -79,7 +79,7 @@ Actions PlayerActions::dashRightAction(int &t, glm::vec3 &vel, int &sp){
 
 //TODO: Ground
 Actions PlayerActions::jumpAction(glm::vec3 &vel, int onGround){
-	int jumpVel = 100;
+	int jumpVel = 80;
 
 	if(onGround == 1)
 		vel.y = jumpVel;
@@ -90,10 +90,10 @@ Actions PlayerActions::jumpAction(glm::vec3 &vel, int onGround){
 Actions PlayerActions::punchAction(int &t, glm::vec3 &vel, int facing, std::vector<CollisionBox> &hitboxList, int onGround){
 	float vel_curve[4] = { 0, 0.5, 0.8, 1 };
 
-	float casttime = 20;
-	float recovery = 40;
+	float casttime = 10;
+	float recovery = 30;
 
-	float punchVel = 100;
+	float punchVel = 150;
 
 	deactivateAllHitbox(hitboxList);
 	if (t > (casttime + recovery))
@@ -102,7 +102,7 @@ Actions PlayerActions::punchAction(int &t, glm::vec3 &vel, int facing, std::vect
 	if (t<casttime){
 		activateHitbox(hitboxList[PUNCHBOX]);
 		glm::vec3 pos = hitboxList[PUNCHBOX].GetSceneGraphObject()->GetLocalPosition();
-		hitboxList[PUNCHBOX].GetSceneGraphObject()->SetLocalPosition(glm::vec3(0.f, 4.f, (4 + (4 * (float)t / casttime))*facing));
+		hitboxList[PUNCHBOX].GetSceneGraphObject()->SetLocalPosition(glm::vec3(0.f, 4.f, (4 + (4 * (float)t / casttime))));
 
 		int x = Bezier(vel_curve, 1, (float)t / casttime);
 		vel.x = Bezier(vel_curve, 1, (float)t / casttime)*punchVel*facing;
@@ -150,7 +150,7 @@ Actions PlayerActions::kickAction(int &t, glm::vec3 &vel, int facing, int onGrou
 		glm::vec3 pos = hitboxList[KICKBOX].GetSceneGraphObject()->GetLocalPosition();
 		if (kickStart == 0){
 
-			hitboxList[KICKBOX].GetSceneGraphObject()->SetLocalPosition(glm::vec3(0.f, -4.f + (8 * (float)t / casttime), (4 + (4 * (float)t / casttime))*facing));
+			hitboxList[KICKBOX].GetSceneGraphObject()->SetLocalPosition(glm::vec3(0.f, -4.f + (8 * (float)t / casttime), (4 + (4 * (float)t / casttime))));
 
 			kickVel = glm::vec3(30 * facing, 40, 0);
 			kickVel.y = Bezier(vel_curvedown, 1, (float)t / casttime)*kickVel.y;
@@ -158,7 +158,7 @@ Actions PlayerActions::kickAction(int &t, glm::vec3 &vel, int facing, int onGrou
 		else if (kickStart == 1){ // diiiiive kiiiickuuuu
 			//if hit the ground, stop
 
-			hitboxList[KICKBOX].GetSceneGraphObject()->SetLocalPosition(glm::vec3(0.f, -4.f, (4 + (2 * (float)t / casttime))*facing));
+			hitboxList[KICKBOX].GetSceneGraphObject()->SetLocalPosition(glm::vec3(0.f, -4.f, (4 + (2 * (float)t / casttime))));
 
 			if (onGround == 1){
 
@@ -177,7 +177,7 @@ Actions PlayerActions::kickAction(int &t, glm::vec3 &vel, int facing, int onGrou
 
 	if (t > casttime){
 		if (kickStart == 1 && onGround == 1 && t < (casttime + (recovery / 2.f))){
-			hitboxList[KICKBOX].GetSceneGraphObject()->SetLocalPosition(glm::vec3(0.f, -4.f, 4 * facing));
+			hitboxList[KICKBOX].GetSceneGraphObject()->SetLocalPosition(glm::vec3(0.f, -4.f, 4));
 			hitboxList[KICKBOX].GetCollisionBox()->GetSceneGraphObject()->SetScale(glm::vec3(10.f*((float)t / (casttime + recovery)), 5.f*((float)t / (casttime + recovery)), 20.f*((float)t / (casttime + recovery))));
 		}
 		else {
@@ -211,7 +211,7 @@ Actions PlayerActions::laserAction(int &t, glm::vec3 &vel, int facing, std::vect
 	if (t<casttime){
 		activateHitbox(hitboxList[LASERBOX]);
 		glm::vec3 pos = hitboxList[LASERBOX].GetSceneGraphObject()->GetLocalPosition();
-		hitboxList[LASERBOX].GetSceneGraphObject()->SetLocalPosition(glm::vec3(0.f, 3.f, 20*facing));
+		hitboxList[LASERBOX].GetSceneGraphObject()->SetLocalPosition(glm::vec3(0.f, 3.f,25.f));
 		vel.y = 0;
 		vel.x = Bezier(vel_curve, 1, (float)t / casttime)*laserVel*facing;
 	}
@@ -235,7 +235,7 @@ Actions PlayerActions::blastAction(int &t, glm::vec3 &vel, std::vector<Collision
 
 	if (t < casttime){
 		activateHitbox(hitboxList[BLASTBOX]);
-		hitboxList[BLASTBOX].GetCollisionBox()->GetSceneGraphObject()->SetScale(glm::vec3(10.f*((float)t / casttime), 20.f*((float)t / casttime), 20.f*((float)t / casttime)));
+		hitboxList[BLASTBOX].GetCollisionBox()->GetSceneGraphObject()->SetScale(glm::vec3(10.f*((float)t / casttime), 20.f*((float)t / casttime), 30.f*((float)t / casttime)));
 		vel.x = 0;
 		vel.y = 0;
 	}
@@ -280,13 +280,12 @@ Actions PlayerActions::staggerGAction(int &t, glm::vec3 &vel, int facing, std::v
 		return IDLE;
 	}
 
-	if (hasBeenHit == 0){
-		hasBeenHit += 1;
-		int staggerGVel = -50;
 
-		if (t < casttime)
-			vel.x = Bezier(vel_curve, 1, (float)t / casttime)*staggerGVel*facing;
-	}
+	int staggerGVel = -50;
+
+	if (t < casttime)
+		vel.x = Bezier(vel_curve, 1, (float)t / casttime)*staggerGVel*facing;
+
 
 	t += 1;
 	return STAGGER_G;
@@ -308,16 +307,13 @@ Actions PlayerActions::staggerAAction(int &t, glm::vec3 &vel, int facing, std::v
 		return IDLE;
 	}
 
-	if (hasBeenHit == 0){
-		hasBeenHit += 1;
-		if (t > casttime + recovery)
-			return IDLE;
+	hasBeenHit += 1;
 
-		if (t < casttime){
-			vel.x = Bezier(vel_curveX, 1, t / casttime)*staggerAVelX*facing;
-			vel.y = 0;
-		}
+	if (t < casttime){
+		vel.x = Bezier(vel_curveX, 1, t / casttime)*staggerAVelX*facing;
+		vel.y = 0;
 	}
+
 	t += 1;
 	return STAGGER_A;
 }

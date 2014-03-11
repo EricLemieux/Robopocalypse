@@ -29,6 +29,10 @@ Player::Player(){
 	hitboxList[BODYBOX].GetCollisionBox()->GetSceneGraphObject()->TranslateNode(glm::vec3(0.0f, 0.0f, 0.0f));						//.pos		= pos;
 	hitboxList[BODYBOX].GetCollisionBox()->GetSceneGraphObject()->SetScale(glm::vec3(5.0f, 15.0f, 8.0f));
 
+	hitboxList[PUNCHBOX].GetCollisionBox()->GetSceneGraphObject()->SetLocalPosition(glm::vec3(0,0,1000));
+	hitboxList[KICKBOX].GetCollisionBox()->GetSceneGraphObject()->SetLocalPosition(glm::vec3(0,0,1000));
+	hitboxList[LASERBOX].GetCollisionBox()->GetSceneGraphObject()->SetLocalPosition(glm::vec3(0,0,1000));
+	hitboxList[BLASTBOX].GetCollisionBox()->GetSceneGraphObject()->SetLocalPosition(glm::vec3(0,0,1000));
 	hitboxList[LASERBOX].GetCollisionBox()->GetSceneGraphObject()->TranslateNode(glm::vec3(0.0f, 0.0f, 1000.0f));
 	hitboxList[LASERBOX].GetCollisionBox()->GetSceneGraphObject()->SetScale(glm::vec3(2.f, 3.f, 40.f));
 		
@@ -54,7 +58,7 @@ Player::Player(){
 	hasBeenHit = 0;
 }
 Player::~Player(){}
-void Player::update(Player otherPlayer){
+void Player::update(Player otherPlayer, playerSFX &sfx){
 
 	pos = sceneGraphNode->GetWorldPosition();
 
@@ -126,16 +130,17 @@ void Player::update(Player otherPlayer){
 		//do nothing, maybe greatly reduce velocity?
 	}
 	
-	if (hitboxListHit[PUNCHBOX] || hitboxListHit[KICKBOX] || hitboxListHit[LASERBOX] || hitboxListHit[BLASTBOX] && currentAction != BLOCK && hasBeenHit == 0){
+	if ((hitboxListHit[PUNCHBOX] || hitboxListHit[KICKBOX] || hitboxListHit[LASERBOX] 
+	|| hitboxListHit[BLASTBOX]) && currentAction != BLOCK && hasBeenHit == 0){
 		//if hit by attack, interrupt current and trigger stagger if not blocking
 		actionTimer = 0;
 		prevAction = currentAction;
 		nextAction = IDLE;
 		if (onGround == 0){
-			currentAction = playerAction.staggerAAction(actionTimer, vel, isFacing, hitboxList, hasBeenHit);
+			currentAction = STAGGER_A;
 		}
 		else {
-			currentAction = playerAction.staggerGAction(actionTimer, vel, isFacing, hitboxList, hasBeenHit);
+			currentAction = STAGGER_G;
 		}
 
 		//since not blocking, reduce hp/sp according to attack TODO collision shiiit
@@ -155,8 +160,9 @@ void Player::update(Player otherPlayer){
 		}
 		hasBeenHit += 1;
 	}
-	else if (hitboxListHit[PUNCHBOX] || hitboxListHit[KICKBOX] || hitboxListHit[LASERBOX] || hitboxListHit[BLASTBOX] && currentAction == BLOCK && hasBeenHit == 0){
-
+	else if ((hitboxListHit[PUNCHBOX] || hitboxListHit[KICKBOX] || hitboxListHit[LASERBOX] || hitboxListHit[BLASTBOX]) && currentAction == BLOCK && hasBeenHit == 0){
+		sfx = BLOCK_IMPACT_SFX;
+		soundCheck(sfx);
 
 		if (hitboxListHit[PUNCHBOX]){
 			hp -= 20;
@@ -176,43 +182,84 @@ void Player::update(Player otherPlayer){
 		hasBeenHit += 1;
 	}
 
+	sfx = EMPTY_P_SFX;
+	//currentAction = PUNCH;
 	//ACTUAL UPDATING OF VEL BELOW
 	//if action is complete, returns IDLE
 	if (currentAction == MOVE_LEFT){
+		sfx = MOVE_SFX;
+		soundCheck(sfx);
 		currentAction = playerAction.moveLeftAction(actionTimer, vel);
+		
 	}
 	else if (currentAction == MOVE_RIGHT){
+		sfx = MOVE_SFX;
+		soundCheck(sfx);
 		currentAction = playerAction.moveRightAction(actionTimer, vel);
+		
 	}
 	else if (currentAction == DASH_LEFT){
+		sfx = DASH_SFX;
+		soundCheck(sfx);
 		currentAction = playerAction.dashLeftAction(actionTimer, vel, sp);
+		
 	}
 	else if (currentAction == DASH_RIGHT){
+		sfx = DASH_SFX;
+		soundCheck(sfx);
 		currentAction = playerAction.dashRightAction(actionTimer, vel, sp);
+		
 	}
 	else if (currentAction == JUMP){
+		sfx = JUMP_SFX;
+		soundCheck(sfx);
 		currentAction = playerAction.jumpAction(vel, onGround);
+		
 	}
 	else if (currentAction == PUNCH){
 		currentAction = playerAction.punchAction(actionTimer, vel, isFacing, hitboxList, onGround);
+		sfx = PUNCH_SFX;
+		soundCheck(sfx);
 	}
 	else if (currentAction == KICK){
+		sfx = KICK_SFX;
+		soundCheck(sfx);
 		currentAction = playerAction.kickAction(actionTimer, vel, isFacing, onGround, hitboxList);
+		
 	}
 	else if (currentAction == LASER){
+		sfx = LASER_SFX;
+		soundCheck(sfx);
 		currentAction = playerAction.laserAction(actionTimer, vel, isFacing, hitboxList);
+		
 	}
 	else if (currentAction == BLAST){
+		sfx = BLAST_SFX;
+		soundCheck(sfx);
 		currentAction = playerAction.blastAction(actionTimer, vel, hitboxList);
+		
 	}
 	else if (currentAction == BLOCK){
+		if(sfx != BLOCK_IMPACT_SFX){
+			sfx = BLOCK_SFX;
+			actionTimer = 0;
+		}
+		soundCheck(sfx);
 		currentAction = playerAction.blockAction(actionTimer, vel, hitboxList, sp);
+		
+		
 	}
 	else if (currentAction == STAGGER_G){
+		sfx = IMPACT1_SFX;
+		soundCheck(sfx);
 		currentAction = playerAction.staggerGAction(actionTimer, vel, isFacing, hitboxList, hasBeenHit);
+		
 	}
 	else if (currentAction == STAGGER_A){
+		sfx = IMPACT2_SFX;
+		soundCheck(sfx);
 		currentAction = playerAction.staggerAAction(actionTimer, vel, isFacing, hitboxList, hasBeenHit);
+		
 	}
 
 	//cycle actions if IDLE
@@ -240,6 +287,10 @@ void Player::update(Player otherPlayer){
 	//actual position update
 	pos.x += vel.x * freq;
 	pos.y += vel.y * freq;
+
+	if(abs(pos.x-otherPlayer.pos.x) > maxDistBetweenPlayers){
+		pos.x -= vel.x*freq;
+	}
 
 	//cheating on ground collisions
 	if (pos.y < -5){
@@ -309,4 +360,12 @@ std::vector<CollisionBox> Player::GetCollisionBoxes(void)
 
 glm::vec3 Player::getPos(){
 	return pos;
+}
+
+void Player::soundCheck(playerSFX &sfx){
+	if(actionTimer != 1){
+		sfx = EMPTY_P_SFX;
+	}
+
+	
 }

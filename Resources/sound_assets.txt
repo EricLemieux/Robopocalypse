@@ -1,0 +1,3 @@
+msfx Resources/sfx/tempbgm.mp3
+psfx Resources/sfx/tempbgm.mp3
+bgm Resources/bgm/tempbgm.mp3

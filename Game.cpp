@@ -19,17 +19,9 @@ Game::Game()
 
 	//Once initalised the game is now running
 	isRunning = true;
-
-	soundPos.x = 0;
-	soundPos.y = 0;
-	soundPos.z = 0;
-	soundVel.x = 0;
-	soundVel.y = 0;
-	soundVel.z = 0;
-
+	
 	//load sounds
-	soundSystem.loadSound("resources/sfx/tempbgm.mp3", 1, soundPos, soundVel);
-	soundSystem.loadSound("resources/sfx/select.mp3", 1, soundPos, soundVel);
+	soundSystem.loadSound("Resources/sound_assets.txt");
 }
 
 Game::~Game()
@@ -182,7 +174,7 @@ void Game::initGameplay(void)
 
 	qMap_handle = loadTexture("Resources/Textures/qMap.png");
 
-	soundSystem.playSound(0, 1);
+	soundSystem.playSound(0, 0);
 
 	sceneGraph->Update();
 }
@@ -244,8 +236,17 @@ void Game::Update(void)
 
 	playerInput();
 	
-	player1->update(*player2);
-	player2->update(*player1);
+	player1->update(*player2, pl1SFX);
+	player2->update(*player1, pl2SFX);
+
+	soundSystem.setChannelPos(SFX_PLAYER1_CHANNEL, player1->getPos());
+	soundSystem.setChannelPos(SFX_PLAYER2_CHANNEL, player2->getPos());
+
+	if (pl1SFX != EMPTY_P_SFX)
+		soundSystem.playSound(pl1SFX, SFX_PLAYER1_CHANNEL);
+
+	if (pl2SFX != EMPTY_P_SFX)
+		soundSystem.playSound(pl2SFX, SFX_PLAYER2_CHANNEL);
 
 	mainCamera->SetTarget(glm::vec3((player1->getPos().x + player2->getPos().x) / 2.f, 0, 0));
 	mainCamera->SetPosition(glm::vec3((player1->getPos().x + player2->getPos().x) / 2.f, 0, 5));

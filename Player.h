@@ -3,6 +3,7 @@
 #include "PlayerActions.h"
 #include "GameObject.h"
 #include "SceneGraph.h"
+#include "Sound.h"
 
 class Player : public GameObject
 {
@@ -53,7 +54,7 @@ private:
 public:
 	Player();
 	~Player();
-	void update(Player otherPlayer);
+	void update(Player otherPlayer, playerSFX &sfx);
 	void draw();
 
 	Actions controllerInput(Actions action);
@@ -69,4 +70,6 @@ public:
 	inline int GetMaxSP(void) { return maxSP; }
 
 	glm::vec3 getPos();
+
+	void soundCheck(playerSFX &sfx);
 };

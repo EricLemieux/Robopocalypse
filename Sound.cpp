@@ -1,6 +1,7 @@
 //written by Brendan Ho
 #include "Sound.h"
 
+//for debugging
 void ERRCHECK(FMOD_RESULT result){
 	if(result != FMOD_OK){
 		//std::cout<<"oh shit, summin broke\n";
@@ -11,14 +12,11 @@ SoundWrap::SoundWrap(){
 	updateTime = 50;//ms
 	distanceFactor = 1.f;
 
-	flip = 0;
-	mode = 0;
-
-	isLogroll = 0;
-
 	//set channel to 0
-	channel1 = 0;
-	channel2 = 0;
+	for(int i = 0; i < 5; ++i){
+		FMOD::Channel *temp;
+		channelList.push_back(temp);
+	}
 
 	listenerflag = true;
 	FMOD_VECTOR tempFMODVEC = { 0.0f, 0.0f, -1.0f * distanceFactor };
@@ -39,7 +37,7 @@ SoundWrap::SoundWrap(){
 
 	result = system->getNumDrivers(&numdrivers);
     ERRCHECK(result);
-	    if (numdrivers == 0)
+	if (numdrivers == 0)
     {
         result = system->setOutput(FMOD_OUTPUTTYPE_NOSOUND);
         ERRCHECK(result);
@@ -68,6 +66,7 @@ SoundWrap::SoundWrap(){
         }
     }
 
+	//init with max 100 channels
     result = system->init(100, FMOD_INIT_NORMAL, 0);
     if (result == FMOD_ERR_OUTPUT_CREATEBUFFER)         //default to stereo if selected speaker mode is not supported
     {
@@ -82,6 +81,7 @@ SoundWrap::SoundWrap(){
 	result = system->set3DSettings(1.0, distanceFactor, 1);
     ERRCHECK(result);
 
+
 }
 SoundWrap::~SoundWrap(){
 	clearAllSound();
@@ -93,204 +93,112 @@ SoundWrap::~SoundWrap(){
 
 
 
-void SoundWrap::loadSound(std::string filename, int isLooping, FMOD_VECTOR soundPos, FMOD_VECTOR soundVel){
-	FMOD::Sound *temp;
-
-	result = system->createSound(filename.c_str(),FMOD_3D,0,&temp);
-	ERRCHECK(result);
-
-
-	result = temp->set3DMinMaxDistance(0.5f*distanceFactor, 5000.f*distanceFactor);
-	ERRCHECK(result);
-
-	result = temp->setMode(FMOD_LOOP_OFF);
-	ERRCHECK(result);
-
+void SoundWrap::loadSound(const char *filename){
 	
-	posList.push_back(soundPos);
-	velList.push_back(soundVel);
-	sfxList.push_back(temp);
-	sfxLooping.push_back(isLooping);
+	char *firstWord = new char();
+	char *data = new char();
+
+	std::ifstream file;
+	file.open(filename);
+	if(!file.is_open()){
+		std::cout << "Error opening the file " << filename << "\n";
+		return;
+	}
+
+	while (!file.eof()){
+		FMOD::Sound *temp;
+		file >> firstWord;
+
+		if(!_stricmp(firstWord, "psfx")){
+			char psfxPath[256];
+			file >> psfxPath;
+			system->createSound(psfxPath, FMOD_3D,0,&temp);
+			temp->set3DMinMaxDistance(0.5f*distanceFactor, 5000.f*distanceFactor);
+			temp->setMode(FMOD_LOOP_OFF);
+			playerSFXList.push_back(temp);
+			file.ignore(256, '\n');
+
+		}
+		else if (!_stricmp(firstWord, "msfx")){
+			char msfxPath[256];
+			file >> msfxPath;
+			system->createSound(msfxPath, FMOD_3D,0,&temp);
+			temp->set3DMinMaxDistance(0.5f*distanceFactor, 5000.f*distanceFactor);
+			temp->setMode(FMOD_LOOP_OFF);
+			menuSFXList.push_back(temp);
+			file.ignore(256, '\n');
+		}
+		else if (!_stricmp(firstWord, "bgm")){
+			char bgmPath[256];
+			file >> bgmPath;
+			system->createSound(bgmPath, FMOD_3D,0,&temp);
+			temp->set3DMinMaxDistance(0.5f*distanceFactor, 5000.f*distanceFactor);
+			temp->setMode(FMOD_LOOP_NORMAL);
+			BGMList.push_back(temp);
+			file.ignore(256, '\n');
+		}
+	}
+
 }
 
 
 void SoundWrap::clearAllSound(){
-	for(int i = 0;i < sfxList.size(); ++i){
-		result = sfxList[i]->release();
+	for(int i = 0;i < playerSFXList.size(); ++i){
+		result = playerSFXList[i]->release();
+		ERRCHECK(result);
+	}
+	for(int i = 0;i < menuSFXList.size(); ++i){
+		result = menuSFXList[i]->release();
+		ERRCHECK(result);
+	}
+	for(int i = 0;i < BGMList.size(); ++i){
+		result = BGMList[i]->release();
 		ERRCHECK(result);
 	}
 }
 
-void SoundWrap::set3DSettings(){
-	if(isLogroll == 0){
-		channel1->setMode(FMOD_3D_INVERSEROLLOFF);
-		channel2->setMode(FMOD_3D_INVERSEROLLOFF);
-		isLogroll = 1;
-	} else {
-		channel1->setMode(FMOD_3D_LINEARROLLOFF);
-		channel2->setMode(FMOD_3D_LINEARROLLOFF);
-		isLogroll = 0;
-	}
+
+void SoundWrap::setChannelPos(int chanNum, glm::vec3 pos){
+	FMOD_VECTOR temp = {pos.x,pos.y,pos.z};
+	FMOD_VECTOR temp2 = {0,0,0};
+	//channelList[chanNum]->set3DAttributes(&temp,&temp2);
 }
 
-void SoundWrap::linearMove(int soundNum){
-	if(flip == 0){
-		posList[soundNum].z += 0.5;
-	} else {
-		posList[soundNum].z -= 0.5;
-	}
-
-	if(posList[soundNum].z > 15){
-		flip = 1;
-	} else if (posList[soundNum].z < 1){
-		flip = 0;
-	}
+void SoundWrap::pauseSound(int channelNum){
+	channelList[channelNum]->setPaused(true);
 }
 
-void SoundWrap::circularPan(int soundNum){
-	angle += 5;
+void SoundWrap::playSound(int soundNum, int channelNum){
+	channelList[channelNum]->setPaused(false);
+	if(channelNum == BGM_FIGHT_CHANNEL){
+		//system->playSound(FMOD_CHANNEL_FREE, BGMList[soundNum], false, &channelList[channelNum]);
+		//system->playSound(FMOD_CHANNEL_FREE, BGMList[0], false, &channelList[channelNum]);
+	} else
+	if(channelNum == BGM_VICTORY_CHANNEL){
+		//system->playSound(FMOD_CHANNEL_FREE, BGMList[soundNum], false, &channelList[channelNum]);
+		//system->playSound(FMOD_CHANNEL_FREE, BGMList[0], false, &channelList[channelNum]);	
+	} else
+	if(channelNum == SFX_PLAYER1_CHANNEL){
+		//system->playSound(FMOD_CHANNEL_FREE, playerSFXList[soundNum], false, &channelList[channelNum]);
+		system->playSound(FMOD_CHANNEL_FREE, playerSFXList[0], false, &channelList[channelNum]);
+	} else
+	if(channelNum == SFX_PLAYER2_CHANNEL){
+		//system->playSound(FMOD_CHANNEL_FREE, playerSFXList[soundNum], false, &channelList[channelNum]);
+		system->playSound(FMOD_CHANNEL_FREE, playerSFXList[0], false, &channelList[channelNum]);
+	} else
+	if(channelNum == SFX_OTHER_CHANNEL){
+		//system->playSound(FMOD_CHANNEL_FREE, menuSFXList[soundNum], false, &channelList[channelNum]);
+		system->playSound(FMOD_CHANNEL_FREE, menuSFXList[0], false, &channelList[channelNum]);
+	}
 	
-	posList[soundNum].z = glm::sin(glm::radians(angle))*5;
-	posList[soundNum].x = glm::cos(glm::radians(angle))*5;
-	
-}
-
-int SoundWrap::playSound(int soundNum, int channelNum){
-	if(channelNum == 1){
-		//result = channel1->setPaused(false);
-		ERRCHECK(result);
-		//result = channel2->setPaused(true);
-		ERRCHECK(result);
-		result = system->playSound(FMOD_CHANNEL_FREE, sfxList[soundNum], false, &channel1);
-		ERRCHECK(result);
-		mode = 1;
-		angle = 0;
-		FMOD_VECTOR temp = {0,0,4};
-		posList[soundNum] = temp;
-		result = channel1->set3DAttributes(&posList[soundNum], &velList[soundNum]);
-        ERRCHECK(result);
-        
-        
-	}
-	if(channelNum == 2){
-		//result = channel2->setPaused(false);
-		//std::cout<<"3333:  ";
-		ERRCHECK(result);
-		//result = channel1->setPaused(true);
-		//std::cout<<"2222:  ";
-		ERRCHECK(result);
-		result = system->playSound(FMOD_CHANNEL_FREE, sfxList[soundNum], false, &channel2);
-		//std::cout<<"1111:  ";
-		ERRCHECK(result);
-		mode = 2;
-		FMOD_VECTOR temp = {0,0,2};
-		posList[soundNum] = temp;
-		result = channel2->set3DAttributes(&posList[soundNum], &velList[soundNum]);
-		//std::cout<<"0000:  ";
-        ERRCHECK(result);
-       
-	}
-	return flip;
 }
 
 int SoundWrap::updateSound(){
 	system->update();
-
-	if(mode == 1){
-		//circularPan(0);
-		result = channel1->set3DAttributes(&posList[0], &velList[0]);
-        ERRCHECK(result);
-	} else if (mode == 2){
-		//linearMove(0);
-		result = channel2->set3DAttributes(&posList[0], &velList[0]);
-        ERRCHECK(result);
-	} else {
-	
-	}
-    
-	unsigned int ms = 0;
-    unsigned int lenms = 0;
-    bool         playing = 0;
-    bool         paused = 0;
     int          channelsplaying = 0;
-
-    if (channel1)
-    {
-        FMOD::Sound *currentsound = 0;
-
-        result = channel1->isPlaying(&playing);
-        if ((result != FMOD_OK) && (result != FMOD_ERR_INVALID_HANDLE) && (result != FMOD_ERR_CHANNEL_STOLEN))
-        {
-            ERRCHECK(result);
-        }
-
-        result = channel1->getPaused(&paused);
-        if ((result != FMOD_OK) && (result != FMOD_ERR_INVALID_HANDLE) && (result != FMOD_ERR_CHANNEL_STOLEN))
-        {
-            ERRCHECK(result);
-        }
-
-        result = channel1->getPosition(&ms, FMOD_TIMEUNIT_MS);
-        if ((result != FMOD_OK) && (result != FMOD_ERR_INVALID_HANDLE) && (result != FMOD_ERR_CHANNEL_STOLEN))
-        {
-            ERRCHECK(result);
-        }
-       
-        channel1->getCurrentSound(&currentsound);
-        if (currentsound)
-        {
-            result = currentsound->getLength(&lenms, FMOD_TIMEUNIT_MS);
-            if ((result != FMOD_OK) && (result != FMOD_ERR_INVALID_HANDLE) && (result != FMOD_ERR_CHANNEL_STOLEN))
-            {
-                ERRCHECK(result);
-            }
-        }
-    } else
-	
-	if (channel2)
-    {
-        FMOD::Sound *currentsound = 0;
-
-        result = channel2->isPlaying(&playing);
-        if ((result != FMOD_OK) && (result != FMOD_ERR_INVALID_HANDLE) && (result != FMOD_ERR_CHANNEL_STOLEN))
-        {
-            ERRCHECK(result);
-        }
-
-        result = channel2->getPaused(&paused);
-        if ((result != FMOD_OK) && (result != FMOD_ERR_INVALID_HANDLE) && (result != FMOD_ERR_CHANNEL_STOLEN))
-        {
-            ERRCHECK(result);
-        }
-
-        result = channel2->getPosition(&ms, FMOD_TIMEUNIT_MS);
-        if ((result != FMOD_OK) && (result != FMOD_ERR_INVALID_HANDLE) && (result != FMOD_ERR_CHANNEL_STOLEN))
-        {
-            ERRCHECK(result);
-        }
-       
-        channel2->getCurrentSound(&currentsound);
-        if (currentsound)
-        {
-            result = currentsound->getLength(&lenms, FMOD_TIMEUNIT_MS);
-            if ((result != FMOD_OK) && (result != FMOD_ERR_INVALID_HANDLE) && (result != FMOD_ERR_CHANNEL_STOLEN))
-            {
-                ERRCHECK(result);
-            }
-        }
-    }
-
     system->getChannelsPlaying(&channelsplaying);
 
-	if(mode == 1)
-		return angle;
-	if(mode == 2)
-		return flip;
-
 	return 0;
-
-    //std::cout<<"Time %02d:%02d:%02d/%02d:%02d:%02d : %s : Channels Playing %2d\r", ms / 1000 / 60, ms / 1000 % 60, ms / 10 % 100, lenms / 1000 / 60, lenms / 1000 % 60, lenms / 10 % 100, paused ? "Paused " : playing ? "Playing" : "Stopped", channelsplaying;
-	//std::cout<<std::endl;
 	
 
 }
