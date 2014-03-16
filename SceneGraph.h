@@ -15,6 +15,8 @@ private:
 	std::vector<Node *> children;
 	Node *parent;
 
+	unsigned int ID;
+
 	glm::mat4 localTransform;
 	glm::mat4 worldTransform;
 
@@ -39,7 +41,8 @@ public:
 
 	void SetScale(glm::mat4 newScale);
 	void SetScale(glm::vec3 newScale);
-	
+
+	void SetID(unsigned int newID);
 
 	//////////
 	//GETTERS
@@ -54,6 +57,10 @@ public:
 	glm::vec3 GetLocalPosition(void);
 
 	glm::vec3 GetScale(void);
+
+	unsigned int GetID(void);
+
+	Node* GetParent(void);
 
 	//////////
 	//ATTACH / DETACH

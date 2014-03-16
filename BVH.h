@@ -16,6 +16,9 @@ enum
 
 struct Joint
 {
+	unsigned int ID;
+	char* name;
+
 	Node* node;
 	int numChanels;
 };

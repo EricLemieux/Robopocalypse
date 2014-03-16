@@ -11,6 +11,8 @@ Node::Node()
 	rotation		= glm::mat4(1.0f);
 	translation		= glm::mat4(1.0f);
 	frameTransform	= glm::mat4(1.0f);
+
+	ID = 0;
 }
 Node::~Node()
 {
@@ -53,6 +55,11 @@ void Node::SetScale(glm::vec3 newScale)
 	a[3].w = 1.0f;
 
 	scale = glm::mat4(a[0], a[1], a[2], a[3]);
+}
+
+void Node::SetID(unsigned int newID)
+{
+	ID = newID;
 }
 
 //Attach a node as a child object
@@ -122,4 +129,14 @@ glm::vec3 Node::GetScale(void)
 glm::vec3 Node::GetLocalPosition(void)
 {
 	return glm::vec3(localTransform[3].x, localTransform[3].y, localTransform[3].z);
+}
+
+Node* Node::GetParent(void)
+{
+	return parent;
+}
+
+unsigned int Node::GetID(void)
+{
+	return ID;
 }
