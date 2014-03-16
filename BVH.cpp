@@ -156,7 +156,7 @@ int BVH::BuildSceneGraph()
 
 			//Setting the ID of the node
 			currentJoint.ID = currentIndex;
-			currentNode->ID = currentIndex;
+			currentNode->SetID(currentIndex);
 
 			unsigned int parentIndex = targetIndex;
 
