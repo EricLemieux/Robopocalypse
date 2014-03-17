@@ -161,11 +161,19 @@ OBJModel::OBJModel(const char *modelPath)
 		finalNormals.push_back(normals[facesNormals[i]].z);
 	}
 
+	//TEMP
+	std::vector<float> bones;
+	for (unsigned int i = 0; i < facesVerts.size(); ++i)
+	{
+		bones.push_back(1.0f);
+	}
+
 	//Init and add data
 	VBO->Initialize(finalVerts.size() / 3, true, true);
 	VBO->AddVerticies(&finalVerts[0]);
 	VBO->AddNormals(&finalNormals[0]);
 	VBO->AddTexCoords(&finalTexCoords[0]);
+	VBO->AddBones(&bones[0]);
 }
 OBJModel::~OBJModel(){}
 

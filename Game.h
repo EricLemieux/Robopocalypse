@@ -55,10 +55,10 @@ public:
 	//INITIALISERS
 	//////////
 
-	//Initialises for gameplay
+	//Initializes for gameplay
 	void initGameplay(void);
 
-	//Initialises for the menu
+	//Initializes for the menu
 	void initMainMenu(void);
 
 	//Open a glfw window with defined size
@@ -90,7 +90,7 @@ public:
 	//Update the game
 	void Update(void);
 
-	//Get the players seperate inputs
+	//Get the players separate inputs
 	void playerInput(void);
 
 	//Render the game
@@ -173,6 +173,9 @@ private:
 
 	unsigned int uniform_outline_MVP;
 	unsigned int uniform_outline_scene;
+
+	//TEMP
+	unsigned int uniform_MeshSkin_boneMatricies[31];
 
 	//sound
 	SoundWrap soundSystem;

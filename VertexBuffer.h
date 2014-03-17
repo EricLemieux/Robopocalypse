@@ -11,6 +11,9 @@ private:
 	unsigned int texCoordHandle;
 	unsigned int vaoHandle;
 
+	//TEMP
+	unsigned int boneHandle;
+
 	//number of verticies in the model
 	unsigned int numberOfVerticies;
 
@@ -31,6 +34,7 @@ public:
 	int AddVerticies(float *rawVertices);
 	int AddNormals(float *rawNormals);
 	int AddTexCoords(float *rawTexCoords);
+	int AddBones(float *rawBones);
 
 	//Activate VAO for rendering
 	void Activate(void);

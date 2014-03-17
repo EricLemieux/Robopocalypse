@@ -44,6 +44,8 @@ void VertexBuffer::Release(void)
 //init VAO
 int VertexBuffer::Initialize(unsigned int numVertices, bool useNormals, bool useTexCoords)
 {
+	//TEMP
+	bool useBones = true;
 
 	if (!vaoHandle)
 	{
@@ -86,6 +88,20 @@ int VertexBuffer::Initialize(unsigned int numVertices, bool useNormals, bool use
 
 			glEnableVertexAttribArray(8);
 			glVertexAttribPointer(8, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		}
+
+		//TEMP
+		if (useBones)
+		{
+			glGenBuffers(1, &boneHandle);
+			glBindBuffer(GL_ARRAY_BUFFER, boneHandle);
+
+			const unsigned int boneBufferSize = numVertices * sizeof(float) * 4;
+
+			glBufferData(GL_ARRAY_BUFFER, boneBufferSize, 0, GL_STATIC_DRAW);
+
+			glEnableVertexAttribArray(10);
+			glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, 0, 0);
 		}
 
 		glBindVertexArray(0);
@@ -137,6 +153,22 @@ int VertexBuffer::AddTexCoords(float *rawTexCoords)
 	return 0;
 }
 
+//TEMP
+int VertexBuffer::AddBones(float *rawBones)
+{
+	if (boneHandle && rawBones)
+	{
+		const unsigned int bufferSize = numberOfVerticies * sizeof(float);
+		glBindBuffer(GL_ARRAY_BUFFER, boneHandle);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, bufferSize, rawBones);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		return 1;
+	}
+
+	return 0;
+}
+
 //Activate VAO for rendering
 void VertexBuffer::Activate(void)
 {
@@ -162,7 +194,7 @@ void VertexBuffer::Render(void)
 }
 void VertexBuffer::ActivateAndRender(void)
 {
-	//Call both acticate and render
+	//Call both activate and render
 	//the lazy way...
 	Activate();
 	Render();

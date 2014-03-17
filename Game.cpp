@@ -5,7 +5,7 @@
 //////////
 Game::Game()
 {
-	//Init glfw for widow handleing
+	//Init glfw for widow handling
 	if (!glfwInit())
 		exit(EXIT_FAILURE);
 
@@ -17,7 +17,7 @@ Game::Game()
 	
 	world->AttachNode(sceneGraph);
 
-	//Once initalised the game is now running
+	//Once initialized the game is now running
 	isRunning = true;
 	
 	//load sounds
@@ -32,7 +32,7 @@ Game::~Game()
 //INITIALISERS
 //////////
 
-//Initialises for gameplay
+//Initializes for gameplay
 void Game::initGameplay(void)
 {
 	GAME_STATE = STATE_GAMEPLAY;
@@ -45,7 +45,7 @@ void Game::initGameplay(void)
 	diffuseProgram = new GLSLProgram;
 	int result = 1;
 	GLSLShader diffuseShader_V, diffuseShader_F;
-	result *= diffuseShader_V.CreateShaderFromFile(GLSL_VERTEX_SHADER,	"Resources/Shaders/pass_v.glsl");
+	result *= diffuseShader_V.CreateShaderFromFile(GLSL_VERTEX_SHADER,	"Resources/Shaders/MeshSkinning_v.glsl");	//CHANGE BACK TO 'pass_v.glsl'
 	result *= diffuseShader_F.CreateShaderFromFile(GLSL_FRAGMENT_SHADER,"Resources/Shaders/Diffuse_f.glsl");
 	result *= diffuseProgram->AttachShader(&diffuseShader_V);
 	result *= diffuseProgram->AttachShader(&diffuseShader_F);
@@ -59,6 +59,15 @@ void Game::initGameplay(void)
 	uniform_MVP			= diffuseProgram->GetUniformLocation("MVP");
 	uniform_texture		= diffuseProgram->GetUniformLocation("objectTexture");
 	uniform_normalMap	= diffuseProgram->GetUniformLocation("objectNormalMap");
+
+	//TEMP
+	char *name;
+	for (unsigned int i = 0; i < 31; ++i)
+	{
+		name = new char;
+		sprintf(name, "boneMatricies[%i]", i);
+		uniform_MeshSkin_boneMatricies[i] = diffuseProgram->GetUniformLocation(name);
+	}
 
 	//Set up the HUD
 	{
@@ -179,7 +188,7 @@ void Game::initGameplay(void)
 	sceneGraph->Update();
 }
 
-//Initialises for menu
+//Initializes for menu
 void Game::initMainMenu(void)
 {
 	GAME_STATE = STATE_MAINMENU;
@@ -441,6 +450,12 @@ void Game::RenderHUD(void)
 
 void Game::PreRender(GameObject* object)
 {
+	//TEMP
+	for (unsigned int i = 0; i < 31; ++i)
+	{
+		glUniformMatrix4fv(uniform_MeshSkin_boneMatricies[i], 1, 0, glm::value_ptr(glm::mat4(1)));
+	}
+
 	modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);
 	glUniformMatrix4fv(uniform_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
 	//glUniform3fv(uniform_LightPos, 1, glm::value_ptr(glm::inverse(object->GetNode()->GetWorldTransform()) * LIGHTPOS));
