@@ -10,8 +10,8 @@ enum
 {
 	BVH_H_LOAD_ERROR = 0,
 	BVH_H_LOAD_FINE,
-	BVH_F_LOAD_ERROR,
-	BVH_F_LOAD_FINE,
+	BVH_M_LOAD_ERROR,
+	BVH_M_LOAD_FINE,
 };
 
 struct Joint
@@ -20,7 +20,10 @@ struct Joint
 	char* name;
 
 	Node* node;
-	int numChanels;
+	int numChannels;
+
+	std::vector<glm::vec3> positionChanges;
+	std::vector<glm::vec3> rotationChanges;
 };
 
 class BVH
@@ -32,11 +35,22 @@ public:
 
 	void LoadFile(char* filePath);
 
-	int BuildSceneGraph();
+	int BuildSceneGraph(void);
+	int BuildMotionData(void);
+	
+	//////////
+	//GETTERS
+	//////////
+
+	inline unsigned int GetNumFrames(void){ return numFrames; }
+	inline float GetFrameTime(void){ return frameTime; }
 
 private:
 	char* filePath;
 
 	Node *rootNode;
 	std::vector<Joint> nodeTree;
+
+	unsigned int numFrames;
+	float frameTime;
 };

@@ -87,7 +87,7 @@ int BVH::BuildSceneGraph()
 				else if (!_stricmp(currentWord, "CHANNELS"))
 				{
 					file >> currentWord;
-					currentJoint.numChanels = atoi(currentWord);
+					currentJoint.numChannels = atoi(currentWord);
 
 					//Skip to the end of the line because we can assume the rest of the info based on the number of chanels
 					file.ignore(256, '\n');
@@ -151,7 +151,7 @@ int BVH::BuildSceneGraph()
 			if (!_stricmp(currentWord, "CHANNELS"))
 			{
 				file >> currentWord;
-				currentJoint.numChanels = atoi(currentWord);
+				currentJoint.numChannels = atoi(currentWord);
 			}
 
 			//Setting the ID of the node
@@ -222,4 +222,145 @@ int BVH::BuildSceneGraph()
 	}
 
 	return BVH_H_LOAD_FINE;
+}
+
+int BVH::BuildMotionData(void)
+{
+	//Return an error if there aren't any nodes to apply motion to.
+	if (nodeTree.size() < 1)
+	{
+		return BVH_M_LOAD_ERROR;
+	}
+
+	std::ifstream file;
+	file.open(filePath);
+
+	//Error if the file didn't open properly
+	if (!file.is_open())
+	{
+		std::cout << "Error opening the BVH file " << filePath << std::endl;
+		return BVH_H_LOAD_ERROR;
+	}
+
+	char currentWord[256];
+
+	bool reachedMotion = false;
+
+	//Loop until we are at the MOTION section of the file.
+	while (!reachedMotion)
+	{
+		//Input the current word
+		file >> currentWord;
+
+		//IF the current word is not 'MOTION'
+		if (_stricmp(currentWord, "MOTION"))
+		{
+			//Skip to the end of the line
+			file.ignore(256, '\n');
+		}
+		else
+		{
+			//We have reached the MOTION section of the file exit the loop.
+			reachedMotion = true;
+		}
+	}
+
+	//Collect the amount  of frames in the file
+	file >> currentWord;
+	if (!_stricmp(currentWord, "Frames:"))
+	{
+		file >> currentWord;
+		numFrames = atoi(currentWord);
+	}
+
+	//Collect the amount of time between each frame
+	file >> currentWord;
+	if (!_stricmp(currentWord, "Frame"))
+	{
+		file >> currentWord;
+		if (!_stricmp(currentWord, "Time:"))
+		{
+			file >> currentWord;
+			frameTime = atof(currentWord);
+		}
+	}
+
+	unsigned int index = 0;
+
+	//Read through the Motion data
+	while (!file.eof())
+	{
+		//Update the right number of channels
+		if (nodeTree[index].numChannels == 3)
+		{
+			//When the node only has 3 channels it only captures the rotations and not the positions
+			//It stores the rotations in the format (Z, X, Y)
+
+			glm::vec3 rotation;
+
+			file >> currentWord;
+			rotation.z = atof(currentWord);
+
+			file >> currentWord;
+			rotation.x = atof(currentWord);
+
+			file >> currentWord;
+			rotation.y = atof(currentWord);
+
+			nodeTree[index].rotationChanges.push_back(rotation);
+		}
+		else if (nodeTree[index].numChannels == 6)
+		{
+			//When the node has 6 channels it keeps track of the positions as well as the rotations
+			//Positions are stored in the format of (X, Y, Z)
+			//Rotations are stored in the format of (Z, X, Y)
+
+			//Get positions
+			glm::vec3 position;
+
+			file >> currentWord;
+			position.x = atof(currentWord);
+
+			file >> currentWord;
+			position.y = atof(currentWord);
+
+			file >> currentWord;
+			position.z = atof(currentWord);
+
+			nodeTree[index].positionChanges.push_back(position);
+
+			//Get rotations
+			glm::vec3 rotation;
+
+			file >> currentWord;
+			rotation.z = atof(currentWord);
+
+			file >> currentWord;
+			rotation.x = atof(currentWord);
+
+			file >> currentWord;
+			rotation.y = atof(currentWord);
+
+			nodeTree[index].rotationChanges.push_back(rotation);
+		}
+		else
+		{
+			//There should either be 3 or 6 channels
+			//Something went wrong in the hierarchy building
+			return BVH_M_LOAD_ERROR;
+		}
+
+		//Check if we are at the end of the line
+		//and if we are reset the index
+		if (index == nodeTree.size()-1)
+		{
+			index = 0;
+		}
+		else
+		{
+			index += 1;
+		}
+	}
+
+	return BVH_M_LOAD_FINE;
 }

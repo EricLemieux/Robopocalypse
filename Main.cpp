@@ -5,7 +5,7 @@
 //Graphics
 #include <GL\glew.h>
 
-//Window and input handleing
+//Window and input handling
 //#include <GLFW\glfw3.h>
 
 //Math
