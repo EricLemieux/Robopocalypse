@@ -138,16 +138,18 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 	if ((hitboxListHit[PUNCHBOX] || hitboxListHit[KICKBOX] || hitboxListHit[LASERBOX] 
 	|| hitboxListHit[BLASTBOX]) && currentAction != BLOCK && hasBeenHit == 0){
 		//if hit by attack, interrupt current and trigger stagger if not blocking
-		actionTimer = 0;
-		prevAction = currentAction;
-		nextAction = IDLE;
-		if (onGround == 0){
-			currentAction = STAGGER_A;
+		if(!hitboxListHit[LASERBOX])
+		{
+			actionTimer = 0;
+			prevAction = currentAction;
+			nextAction = IDLE;
+			if (onGround == 0){
+				currentAction = STAGGER_A;
+			}
+			else {
+				currentAction = STAGGER_G;
+			}
 		}
-		else {
-			currentAction = STAGGER_G;
-		}
-
 		//since not blocking, reduce hp/sp according to attack TODO collision shiiit
 		if (hitboxListHit[PUNCHBOX]){
 			hp -= 150;

@@ -59,7 +59,9 @@ Actions PlayerActions::dashLeftAction(int &t, glm::vec3 &vel, int &sp){
 
 	if (sp > 50){
 		vel.x = dashVel;
+		vel.y = 30;
 		sp -= 100;
+
 	}
 
 	return IDLE;
@@ -71,6 +73,7 @@ Actions PlayerActions::dashRightAction(int &t, glm::vec3 &vel, int &sp){
 
 	if (sp > 50){
 		vel.x = dashVel;
+		vel.y = 30;
 		sp -= 100;
 	}
 
@@ -91,7 +94,7 @@ Actions PlayerActions::punchAction(int &t, glm::vec3 &vel, int facing, std::vect
 	float vel_curve[4] = { 0, 0.5, 0.8, 1 };
 
 	float casttime = 10;
-	float recovery = 30;
+	float recovery = 15;
 
 	float punchVel = 150;
 
@@ -129,7 +132,7 @@ Actions PlayerActions::kickAction(int &t, glm::vec3 &vel, int facing, int onGrou
 	float vel_curvedown[4] = { 1, 0.5, 0.8, 0 };
 	glm::vec3 kickVel;
 	float casttime = 20;
-	float recovery = 40;
+	float recovery = 20;
 
 	deactivateAllHitbox(hitboxList);
 
@@ -200,7 +203,7 @@ Actions PlayerActions::kickAction(int &t, glm::vec3 &vel, int facing, int onGrou
 Actions PlayerActions::laserAction(int &t, glm::vec3 &vel, int facing, std::vector<CollisionBox> &hitboxList){
 	float vel_curve[4] = { 0.5, 1, 0.5, 0 };
 	float casttime = 10;
-	float recovery = 60;
+	float recovery = 30;
 
 	deactivateAllHitbox(hitboxList);
 	if (t > casttime + recovery)
@@ -227,7 +230,7 @@ Actions PlayerActions::laserAction(int &t, glm::vec3 &vel, int facing, std::vect
 }
 Actions PlayerActions::blastAction(int &t, glm::vec3 &vel, std::vector<CollisionBox> &hitboxList){
 	float casttime = 20;
-	float recovery = 30;
+	float recovery = 15;
 
 	deactivateAllHitbox(hitboxList);
 	if (t > casttime + recovery)
@@ -271,7 +274,7 @@ Actions PlayerActions::blockAction(int &t, glm::vec3 &vel, std::vector<Collision
 
 Actions PlayerActions::staggerGAction(int &t, glm::vec3 &vel, int facing, std::vector<CollisionBox> &hitboxList, int &hasBeenHit){
 	float vel_curve[4] = { 1, 0.8, 0.5, 0 };
-	float casttime = 25;
+	float casttime = 10;
 	float recovery = 5;
 
 	deactivateAllHitbox(hitboxList);
@@ -281,7 +284,7 @@ Actions PlayerActions::staggerGAction(int &t, glm::vec3 &vel, int facing, std::v
 	}
 
 
-	int staggerGVel = -50;
+	int staggerGVel = -150;
 
 	if (t < casttime)
 		vel.x = Bezier(vel_curve, 1, (float)t / casttime)*staggerGVel*facing;
@@ -295,10 +298,10 @@ Actions PlayerActions::staggerAAction(int &t, glm::vec3 &vel, int facing, std::v
 	float vel_curveX[4] = { 1, 0.4, 0.4, 0 };
 
 
-	float casttime = 25;
+	float casttime = 10;
 	float recovery = 5;
 
-	float staggerAVelX = -50;
+	float staggerAVelX = -150;
 
 	deactivateAllHitbox(hitboxList);
 
