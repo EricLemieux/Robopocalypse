@@ -42,11 +42,8 @@ void VertexBuffer::Release(void)
 }
 
 //init VAO
-int VertexBuffer::Initialize(unsigned int numVertices, bool useNormals, bool useTexCoords)
+int VertexBuffer::Initialize(unsigned int numVertices, bool useNormals, bool useTexCoords, bool useBones)
 {
-	//TEMP
-	bool useBones = true;
-
 	if (!vaoHandle)
 	{
 		numberOfVerticies = numVertices;
@@ -90,18 +87,29 @@ int VertexBuffer::Initialize(unsigned int numVertices, bool useNormals, bool use
 			glVertexAttribPointer(8, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		}
 
-		//TEMP
 		if (useBones)
 		{
-			glGenBuffers(1, &boneHandle);
-			glBindBuffer(GL_ARRAY_BUFFER, boneHandle);
+			//Generate the bone index handle
+			glGenBuffers(1, &boneIndexHandle);
+			glBindBuffer(GL_ARRAY_BUFFER, boneIndexHandle);
 
-			const unsigned int boneBufferSize = numVertices * sizeof(float);
+			const unsigned int boneBufferSize = numVertices * sizeof(float) * 4;
 
 			glBufferData(GL_ARRAY_BUFFER, boneBufferSize, 0, GL_STATIC_DRAW);
 
 			glEnableVertexAttribArray(10);
-			glVertexAttribPointer(10, 1, GL_FLOAT, GL_FALSE, 0, 0);
+			glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, 0, 0);
+
+			//Generate the bone weights handle
+			glGenBuffers(1, &boneWeightHandle);
+			glBindBuffer(GL_ARRAY_BUFFER, boneWeightHandle);
+
+			const unsigned int boneWeightBufferSize = numVertices * sizeof(float)* 4;
+
+			glBufferData(GL_ARRAY_BUFFER, boneWeightBufferSize, 0, GL_STATIC_DRAW);
+
+			glEnableVertexAttribArray(11);
+			glVertexAttribPointer(11, 4, GL_FLOAT, GL_FALSE, 0, 0);
 		}
 
 		glBindVertexArray(0);
@@ -153,19 +161,30 @@ int VertexBuffer::AddTexCoords(float *rawTexCoords)
 	return 0;
 }
 
-//TEMP
-int VertexBuffer::AddBones(float *rawBones)
+int VertexBuffer::AddBoneIndexes(float *rawBoneIndexes)
 {
-	if (boneHandle && rawBones)
+	if (boneIndexHandle && rawBoneIndexes)
 	{
-		const unsigned int bufferSize = numberOfVerticies * sizeof(float);
-		glBindBuffer(GL_ARRAY_BUFFER, boneHandle);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, bufferSize, rawBones);
+		const unsigned int bufferSize = numberOfVerticies * sizeof(float)* 4;
+		glBindBuffer(GL_ARRAY_BUFFER, boneIndexHandle);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, bufferSize, rawBoneIndexes);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		return 1;
 	}
+	return 0;
+}
+int VertexBuffer::AddBoneWeights(float *rawBoneWeights)
+{
+	if (boneWeightHandle && rawBoneWeights)
+	{
+		const unsigned int bufferSize = numberOfVerticies * sizeof(float)* 4;
+		glBindBuffer(GL_ARRAY_BUFFER, boneWeightHandle);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, bufferSize, rawBoneWeights);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+		return 1;
+	}
 	return 0;
 }
 

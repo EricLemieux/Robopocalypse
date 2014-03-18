@@ -55,6 +55,28 @@ void GameObject::AttachModel(VertexBuffer *model)
 	VBO = model;
 }
 
+void GameObject::AttachBones(skinMesh *mesh)
+{
+	this->mesh = mesh;
+
+	if (VBO)
+	{
+		std::vector<float> boneIDs;
+		std::vector<float> boneWeights;
+		for (unsigned int i = 0; i < VBO->GetNumVerticies(); ++i)
+		{
+			for (unsigned int j = 0; j < 4; ++j)
+			{
+				std::cout << "i: " << i << " j: " << j << "\n";
+				boneIDs.push_back(mesh[i].boneInfluenceIDs[j]);
+				boneWeights.push_back(mesh[i].weights[j]);
+			}
+		}
+		VBO->AddBoneIndexes(&boneIDs[0]);
+		VBO->AddBoneWeights(&boneWeights[0]);
+	}
+}
+
 void GameObject::AttachTexture(GLuint tex)
 {
 	textureHandle = tex;

@@ -24,6 +24,9 @@
 
 #include <iostream>
 
+#define GLFW_JOYSTICK_1 0
+#define GLFW_JOYSTICK_2 1
+
 //////////
 //GAME STATE
 //
@@ -163,6 +166,8 @@ private:
 	unsigned int uniform_texture;
 	unsigned int uniform_normalMap;
 
+	unsigned int uniform_boneMat[31];
+
 	unsigned int uniform_Light_LightPos;
 	unsigned int uniform_Light_LightColour;
 	unsigned int uniform_Light_qMap;
@@ -173,9 +178,6 @@ private:
 
 	unsigned int uniform_outline_MVP;
 	unsigned int uniform_outline_scene;
-
-	//TEMP
-	unsigned int uniform_MeshSkin_boneMatricies[31];
 
 	//sound
 	SoundWrap soundSystem;

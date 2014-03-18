@@ -24,6 +24,8 @@ public:
 
 	void AttachWindow(GLFWwindow *gameWindow);
 
+	void Menu::MenuInput(void);
+
 private:
 	GLuint textureHandle;
 

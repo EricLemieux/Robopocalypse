@@ -69,7 +69,7 @@ void Game::initGameplay(void)
 	{
 		name = new char;
 		sprintf(name, "boneMatricies[%i]", i);
-		uniform_MeshSkin_boneMatricies[i] = diffuseProgram->GetUniformLocation(name);
+		uniform_boneMat[i] = diffuseProgram->GetUniformLocation(name);
 	}
 
 	//Set up the HUD
@@ -141,6 +141,7 @@ void Game::initGameplay(void)
 	//Create a game object for player1
 	player1 = new Player;
 	player1->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
+	//player1->AttachBones(LoadSkinWeights("Resources/Bones/body.xml"));
 	player1->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_red.png"));
 	player1->SetPosition(glm::vec3(-17, 0, -15));
 	player1->GetNode()->SetRotation(glm::vec3(90,0,0));
@@ -149,6 +150,7 @@ void Game::initGameplay(void)
 	//Create a game object for player2
 	player2 = new Player;
 	player2->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
+	//player2->AttachBones(LoadSkinWeights("Resources/Bones/body.xml"));
 	player2->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_blue.png"));
 	player2->AttachNormalMap(loadTexture("Resources/NormalMaps/testMap.jpg"));
 	player2->SetPosition(glm::vec3(17, 0, -15));
@@ -280,68 +282,160 @@ void Game::Update(void)
 }
 
 void Game::playerInput(void){
-	//player 1 input
-	if (glfwGetKey(gameWindow, 'S') == GLFW_PRESS){
-		player1->controllerInput(MOVE_LEFT);
+	//joystick player 1
+	if (glfwJoystickPresent(0) == GL_TRUE){
+
+		//initialize player 1 inputs
+		int * joySize;
+		joySize = new int;
+		const float* joystickPointer = glfwGetJoystickAxes(0, joySize);
+		int * buttonSize;
+		buttonSize = new int;
+		const unsigned char* buttonPointer = glfwGetJoystickButtons(0, buttonSize);
+
+		if ((*joystickPointer <= -0.25f) || (*(buttonPointer + 13) == 1)){
+			player1->controllerInput(MOVE_LEFT);
+		}
+		else if ((*joystickPointer >= 0.25f) || (*(buttonPointer + 11) == 1)){
+			player1->controllerInput(MOVE_RIGHT);
+		}
+		if ((*(joystickPointer + 1) <= -0.50f) || (*(buttonPointer + 10) == 1)){
+			player1->controllerInput(JUMP);
+		}
+		if (*(buttonPointer + 4) == 1){
+			player1->controllerInput(DASH_LEFT);
+		}
+		else if (*(buttonPointer + 5) == 1){
+			player1->controllerInput(DASH_RIGHT);
+		}
+		else if ((*(joystickPointer + 1) >= 0.90f) || (*(buttonPointer + 12) == 1)){
+			player1->controllerInput(BLOCK);
+		}
+		else if (*(buttonPointer + 2) == 1){
+			player1->controllerInput(PUNCH);
+		}
+		else if (*buttonPointer == 1){
+			player1->controllerInput(KICK);
+		}
+		else if (*(buttonPointer + 3) == 1){
+			player1->controllerInput(LASER);
+		}
+		else if (*(buttonPointer + 1) == 1){
+			player1->controllerInput(BLAST);
+		}
 	}
-	else if (glfwGetKey(gameWindow, 'F') == GLFW_PRESS){
-		player1->controllerInput(MOVE_RIGHT);
-	}
-	else if (glfwGetKey(gameWindow, 'E') == GLFW_PRESS){
-		player1->controllerInput(JUMP);
-	}
-	else if (glfwGetKey(gameWindow, 'D') == GLFW_PRESS){
-		player1->controllerInput(BLOCK);
-	}
-	else if (glfwGetKey(gameWindow, 'W') == GLFW_PRESS){
-		player1->controllerInput(DASH_LEFT);
-	}
-	else if (glfwGetKey(gameWindow, 'R') == GLFW_PRESS){
-		player1->controllerInput(DASH_RIGHT);
-	}
-	else if (glfwGetKey(gameWindow, 'Q') == GLFW_PRESS){
-		player1->controllerInput(PUNCH);
-	}
-	else if (glfwGetKey(gameWindow, 'A') == GLFW_PRESS){
-		player1->controllerInput(KICK);
-	}
-	else if (glfwGetKey(gameWindow, 'T') == GLFW_PRESS){
-		player1->controllerInput(LASER);
-	}
-	else if (glfwGetKey(gameWindow, 'G') == GLFW_PRESS){
-		player1->controllerInput(BLAST);
+	else
+	{
+		//player 1 input
+		if (glfwGetKey(gameWindow, 'S') == GLFW_PRESS){
+			player1->controllerInput(MOVE_LEFT);
+		}
+		else if (glfwGetKey(gameWindow, 'F') == GLFW_PRESS){
+			player1->controllerInput(MOVE_RIGHT);
+		}
+		else if (glfwGetKey(gameWindow, 'E') == GLFW_PRESS){
+			player1->controllerInput(JUMP);
+		}
+		else if (glfwGetKey(gameWindow, 'D') == GLFW_PRESS){
+			player1->controllerInput(BLOCK);
+		}
+		else if (glfwGetKey(gameWindow, 'W') == GLFW_PRESS){
+			player1->controllerInput(DASH_LEFT);
+		}
+		else if (glfwGetKey(gameWindow, 'R') == GLFW_PRESS){
+			player1->controllerInput(DASH_RIGHT);
+		}
+		else if (glfwGetKey(gameWindow, 'Q') == GLFW_PRESS){
+			player1->controllerInput(PUNCH);
+		}
+		else if (glfwGetKey(gameWindow, 'A') == GLFW_PRESS){
+			player1->controllerInput(KICK);
+		}
+		else if (glfwGetKey(gameWindow, 'T') == GLFW_PRESS){
+			player1->controllerInput(LASER);
+		}
+		else if (glfwGetKey(gameWindow, 'G') == GLFW_PRESS){
+			player1->controllerInput(BLAST);
+		}
 	}
 
-	//player 2 input
-	if (glfwGetKey(gameWindow, 'J') == GLFW_PRESS){
-		player2->controllerInput(MOVE_LEFT);
+
+
+	if (glfwJoystickPresent(1) == GL_TRUE){
+
+		//initialize player 2 inputs
+		int * joySize;
+		joySize = new int;
+		const float* joystickPointer = glfwGetJoystickAxes(1, joySize);
+		int * buttonSize;
+		buttonSize = new int;
+		const unsigned char* buttonPointer = glfwGetJoystickButtons(1, buttonSize);
+
+		//joystick player 2
+		if ((*joystickPointer <= -0.25f) || (*(buttonPointer + 13) == 1)){
+			player2->controllerInput(MOVE_LEFT);
+		}
+		else if ((*joystickPointer >= 0.25f) || (*(buttonPointer + 11) == 1)){
+			player2->controllerInput(MOVE_RIGHT);
+		}
+		if ((*(joystickPointer + 1) <= -0.50f) || (*(buttonPointer + 10) == 1)){
+			player2->controllerInput(JUMP);
+		}
+		if (*(buttonPointer + 4) == 1){
+			player2->controllerInput(DASH_LEFT);
+		}
+		else if (*(buttonPointer + 5) == 1){
+			player2->controllerInput(DASH_RIGHT);
+		}
+		else if ((*(joystickPointer + 1) >= 0.90f) || (*(buttonPointer + 12) == 1)){
+			player2->controllerInput(BLOCK);
+		}
+		else if (*(buttonPointer + 2) == 1){
+			player2->controllerInput(PUNCH);
+		}
+		else if (*buttonPointer == 1){
+			player2->controllerInput(KICK);
+		}
+		else if (*(buttonPointer + 3) == 1){
+			player2->controllerInput(LASER);
+		}
+		else if (*(buttonPointer + 1) == 1){
+			player2->controllerInput(BLAST);
+		}
 	}
-	else if (glfwGetKey(gameWindow, 'L') == GLFW_PRESS){
-		player2->controllerInput(MOVE_RIGHT);
-	}
-	else if (glfwGetKey(gameWindow, 'I') == GLFW_PRESS){
-		player2->controllerInput(JUMP);
-	}
-	else if (glfwGetKey(gameWindow, 'K') == GLFW_PRESS){
-		player2->controllerInput(BLOCK);
-	}
-	else if (glfwGetKey(gameWindow, 'U') == GLFW_PRESS){
-		player2->controllerInput(DASH_LEFT);
-	}
-	else if (glfwGetKey(gameWindow, 'O') == GLFW_PRESS){
-		player2->controllerInput(DASH_RIGHT);
-	}
-	else if (glfwGetKey(gameWindow, 'Y') == GLFW_PRESS){
-		player2->controllerInput(LASER);
-	}
-	else if (glfwGetKey(gameWindow, 'H') == GLFW_PRESS){
-		player2->controllerInput(BLAST);
-	}
-	else if (glfwGetKey(gameWindow, 'P') == GLFW_PRESS){
-		player2->controllerInput(PUNCH);
-	}
-	else if (glfwGetKey(gameWindow, ';') == GLFW_PRESS){
-		player2->controllerInput(KICK);
+	else
+	{
+		//player 2 input
+		if (glfwGetKey(gameWindow, 'J') == GLFW_PRESS){
+			player2->controllerInput(MOVE_LEFT);
+		}
+		else if (glfwGetKey(gameWindow, 'L') == GLFW_PRESS){
+			player2->controllerInput(MOVE_RIGHT);
+		}
+		else if (glfwGetKey(gameWindow, 'I') == GLFW_PRESS){
+			player2->controllerInput(JUMP);
+		}
+		else if (glfwGetKey(gameWindow, 'K') == GLFW_PRESS){
+			player2->controllerInput(BLOCK);
+		}
+		else if (glfwGetKey(gameWindow, 'U') == GLFW_PRESS){
+			player2->controllerInput(DASH_LEFT);
+		}
+		else if (glfwGetKey(gameWindow, 'O') == GLFW_PRESS){
+			player2->controllerInput(DASH_RIGHT);
+		}
+		else if (glfwGetKey(gameWindow, 'Y') == GLFW_PRESS){
+			player2->controllerInput(LASER);
+		}
+		else if (glfwGetKey(gameWindow, 'H') == GLFW_PRESS){
+			player2->controllerInput(BLAST);
+		}
+		else if (glfwGetKey(gameWindow, 'P') == GLFW_PRESS){
+			player2->controllerInput(PUNCH);
+		}
+		else if (glfwGetKey(gameWindow, ';') == GLFW_PRESS){
+			player2->controllerInput(KICK);
+		}
 	}
 }
 
@@ -461,7 +555,7 @@ void Game::PreRender(GameObject* object)
 	//TEMP
 	for (unsigned int i = 0; i < 31; ++i)
 	{
-		glUniformMatrix4fv(uniform_MeshSkin_boneMatricies[i], 1, 0, glm::value_ptr(glm::mat4(1)));
+		glUniformMatrix4fv(uniform_boneMat[i], 1, 0, glm::value_ptr(glm::mat4(1)));
 	}
 
 	modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);

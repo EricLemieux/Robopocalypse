@@ -30,6 +30,8 @@ void Menu::Update(void)
 {
 	glfwPollEvents();
 
+	MenuInput();
+
 	if (glfwWindowShouldClose(window))
 		exit(123);
 }
@@ -66,4 +68,31 @@ void Menu::AttachBackground(char *filePath)
 void Menu::AttachWindow(GLFWwindow *gameWindow)
 {
 	window = gameWindow;
+}
+
+void Menu::MenuInput(void)
+{
+	//Mouse position
+	double * xpos = new double;
+	double * ypos = new double;
+	glfwGetCursorPos(window, xpos, ypos);
+
+	//If pressed right mouse button
+	int pressed = glfwGetMouseButton(window, 0);
+
+	//TODO, if mouse pressed over buttons, STATE change if game start hit, exit hit
+	// Hard coded :(  for 1600:800 resolution
+	if ((*ypos <= 696.0) && (*ypos >= 494.0))
+	{
+		if ((*xpos >= 96.0) && (*xpos <= 298.0))
+		{
+			if (pressed == 1){}
+			//WORKS change gamestate to gameplay
+		}
+		else if ((*xpos >= 1298.0) && (*xpos <= 1500.0))
+		{
+			if (pressed == 1){}
+			//WORKS exit game
+		}
+	}
 }
