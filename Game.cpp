@@ -300,7 +300,7 @@ void Game::playerInput(void){
 			player1->controllerInput(MOVE_RIGHT);
 		}
 		if ((*(joystickPointer + 1) <= -0.50f) || (*(buttonPointer + 10) == 1)){
-			player1->controllerInput(JUMP);
+			player1->controllerInput(BLOCK);
 		}
 		if (*(buttonPointer + 4) == 1){
 			player1->controllerInput(DASH_LEFT);
@@ -309,7 +309,7 @@ void Game::playerInput(void){
 			player1->controllerInput(DASH_RIGHT);
 		}
 		else if ((*(joystickPointer + 1) >= 0.90f) || (*(buttonPointer + 12) == 1)){
-			player1->controllerInput(BLOCK);
+			player1->controllerInput(JUMP);
 		}
 		else if (*(buttonPointer + 2) == 1){
 			player1->controllerInput(PUNCH);
@@ -379,7 +379,7 @@ void Game::playerInput(void){
 			player2->controllerInput(MOVE_RIGHT);
 		}
 		if ((*(joystickPointer + 1) <= -0.50f) || (*(buttonPointer + 10) == 1)){
-			player2->controllerInput(JUMP);
+			player2->controllerInput(BLOCK);
 		}
 		if (*(buttonPointer + 4) == 1){
 			player2->controllerInput(DASH_LEFT);
@@ -388,7 +388,7 @@ void Game::playerInput(void){
 			player2->controllerInput(DASH_RIGHT);
 		}
 		else if ((*(joystickPointer + 1) >= 0.90f) || (*(buttonPointer + 12) == 1)){
-			player2->controllerInput(BLOCK);
+			player2->controllerInput(JUMP);
 		}
 		else if (*(buttonPointer + 2) == 1){
 			player2->controllerInput(PUNCH);
