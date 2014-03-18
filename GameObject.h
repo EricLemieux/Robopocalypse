@@ -39,7 +39,7 @@ public:
 	//Attach a model to the game object
 	void AttachModel(VertexBuffer *model);
 
-	void AttachBones(skinMesh *mesh);
+	void AttachBones(char *meshFilePath);
 
 	//Attach a texture to the game object
 	void AttachTexture(GLuint tex);
@@ -77,8 +77,6 @@ private:
 	Node *sceneGraphObject;
 
 	VertexBuffer *VBO;
-
-	skinMesh *mesh;
 
 	GLuint textureHandle;
 	GLuint normalMapHandle;

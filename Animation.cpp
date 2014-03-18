@@ -11,11 +11,11 @@ Animation::~Animation()
 }
 
 //Load the XML file that is storing the skin weights 
-skinMesh* LoadSkinWeights(char* filePath)
+std::vector<skinMesh> LoadSkinWeights(char* filePath)
 {
 	//skinMesh *mesh;
 	//mesh = new skinMesh;
-	skinMesh mesh[999];
+	std::vector<skinMesh> mesh;
 
 	std::ifstream file;
 	file.open(filePath);
@@ -24,13 +24,53 @@ skinMesh* LoadSkinWeights(char* filePath)
 	if (!file.is_open())
 	{
 		std::cout << "Mesh skin weight XML file "<<filePath<<" failed to load.";
-		return NULL;
+		return mesh;
 	}
 
 	char* currentWord;
 	currentWord = new char;
 
-	//Skip through all of the shape stuff because we already load that in the .OBJ
+	int vSize = 0;
+
+	//skip to the start of the shape data
+	bool keepLookingForSize = true;
+	while (_stricmp(currentWord, "<shape") && keepLookingForSize)
+	{
+		file.ignore(512, ' ');
+		char c = file.get();
+
+		if(c == 's' && file.peek() == 'i')
+		{
+			file.ignore(512, '"');
+
+			std::vector<char> str;
+
+			while(true)
+			{
+				char i = file.get();
+				if(i >= '0' && i <= '9')
+				{
+					str.push_back(i);
+				}
+				else
+				{
+					keepLookingForSize = false;
+					break;
+				}
+			}
+
+			vSize = atoi(&str[0]);
+		}
+	}
+
+	//Fill up the vector with empty values, so we can change them later
+	for(unsigned int i = 0; i < vSize; ++i)
+	{
+		skinMesh temp;
+		mesh.push_back(temp);
+	}
+
+	//Skip the rest of the shape data
 	while (_stricmp(currentWord, "</shape>"))
 	{
 		file.ignore(512, '\n');
@@ -186,7 +226,7 @@ skinMesh* LoadSkinWeights(char* filePath)
 				//Apply the values of the data that we just collected.
 				for (unsigned int i = 0; i < 4; ++i)
 				{
-					if (mesh[index].boneInfluenceIDs[i] == 0)
+					if (mesh[index].weights[i] == 0.0f)
 					{
 						mesh[index].boneInfluenceIDs[i]	= layer;
 						mesh[index].weights[i]			= value;
@@ -205,7 +245,7 @@ skinMesh* LoadSkinWeights(char* filePath)
 			{
 				//Something went wrong you shouldn't be reading data from here.
 				std::cout << "Error loading XML file.";
-				return NULL;
+				return mesh;
 			}
 		}
 	}

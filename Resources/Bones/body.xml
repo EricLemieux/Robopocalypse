@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <deformerWeight>
-  <headerInfo fileName="C:/Users/100266177/Desktop/test.xml" worldMatrix="1.000000 0.000000 0.000000 0.000000 0.000000 1.000000 0.000000 0.000000 0.000000 0.000000 1.000000 0.000000 0.051555 0.000000 0.227942 1.000000 "/>
+  <headerInfo fileName="C:/Users/100456081/Desktop/body.xml" worldMatrix="1.000000 0.000000 0.000000 0.000000 0.000000 1.000000 0.000000 0.000000 0.000000 0.000000 1.000000 0.000000 0.051555 0.000000 0.227942 1.000000 "/>
   <shape name="Shputnik_MeshShape" group="1" stride="3" size="887" max="887">
     <point index="0" value=" 0.846003 2.529559 0.828873"/>
     <point index="1" value=" -0.051590 2.529559 0.828873"/>
@@ -1251,20 +1251,20 @@
     <point index="23" value="0.645"/>
     <point index="24" value="0.916"/>
     <point index="29" value="0.009"/>
-    <point index="171" value="0.322"/>
-    <point index="172" value="0.305"/>
-    <point index="173" value="0.344"/>
-    <point index="174" value="0.348"/>
-    <point index="175" value="0.407"/>
-    <point index="176" value="0.024"/>
-    <point index="177" value="0.043"/>
-    <point index="178" value="0.026"/>
-    <point index="179" value="0.042"/>
-    <point index="180" value="0.052"/>
+    <point index="171" value="0.500"/>
+    <point index="172" value="0.500"/>
+    <point index="173" value="0.500"/>
+    <point index="174" value="0.500"/>
+    <point index="175" value="0.500"/>
+    <point index="176" value="0.500"/>
+    <point index="177" value="0.500"/>
+    <point index="178" value="0.500"/>
+    <point index="179" value="0.500"/>
+    <point index="180" value="0.500"/>
     <point index="182" value="0.010"/>
     <point index="242" value="0.056"/>
     <point index="466" value="0.500"/>
-    <point index="467" value="0.992"/>
+    <point index="467" value="0.991"/>
     <point index="468" value="1.000"/>
     <point index="469" value="0.990"/>
     <point index="470" value="0.500"/>
@@ -1274,26 +1274,26 @@
     <point index="475" value="1.000"/>
     <point index="476" value="1.000"/>
     <point index="481" value="0.645"/>
-    <point index="621" value="0.394"/>
-    <point index="622" value="0.019"/>
-    <point index="623" value="0.366"/>
-    <point index="624" value="0.028"/>
-    <point index="625" value="0.374"/>
-    <point index="626" value="0.010"/>
+    <point index="621" value="0.500"/>
+    <point index="622" value="0.500"/>
+    <point index="623" value="0.500"/>
+    <point index="624" value="0.500"/>
+    <point index="625" value="0.500"/>
+    <point index="626" value="0.500"/>
   </weights>
   <weights deformer="skinCluster1" source="Neck" shape="Shputnik_MeshShape" layer="12" defaultValue="0.000" size="132" max="675">
     <point index="11" value="0.009"/>
     <point index="24" value="0.083"/>
-    <point index="171" value="0.678"/>
-    <point index="172" value="0.695"/>
-    <point index="173" value="0.656"/>
-    <point index="174" value="0.652"/>
-    <point index="175" value="0.593"/>
-    <point index="176" value="0.976"/>
-    <point index="177" value="0.957"/>
-    <point index="178" value="0.974"/>
-    <point index="179" value="0.958"/>
-    <point index="180" value="0.948"/>
+    <point index="171" value="0.500"/>
+    <point index="172" value="0.500"/>
+    <point index="173" value="0.500"/>
+    <point index="174" value="0.500"/>
+    <point index="175" value="0.500"/>
+    <point index="176" value="0.500"/>
+    <point index="177" value="0.500"/>
+    <point index="178" value="0.500"/>
+    <point index="179" value="0.500"/>
+    <point index="180" value="0.500"/>
     <point index="181" value="1.000"/>
     <point index="182" value="0.990"/>
     <point index="183" value="1.000"/>
@@ -1358,13 +1358,13 @@
     <point index="242" value="0.944"/>
     <point index="243" value="1.000"/>
     <point index="244" value="1.000"/>
-    <point index="467" value="0.008"/>
-    <point index="621" value="0.606"/>
-    <point index="622" value="0.981"/>
-    <point index="623" value="0.634"/>
-    <point index="624" value="0.972"/>
-    <point index="625" value="0.626"/>
-    <point index="626" value="0.990"/>
+    <point index="467" value="0.009"/>
+    <point index="621" value="0.500"/>
+    <point index="622" value="0.500"/>
+    <point index="623" value="0.500"/>
+    <point index="624" value="0.500"/>
+    <point index="625" value="0.500"/>
+    <point index="626" value="0.500"/>
     <point index="627" value="1.000"/>
     <point index="628" value="1.000"/>
     <point index="629" value="1.000"/>

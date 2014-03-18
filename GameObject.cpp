@@ -55,19 +55,22 @@ void GameObject::AttachModel(VertexBuffer *model)
 	VBO = model;
 }
 
-void GameObject::AttachBones(skinMesh *mesh)
+void GameObject::AttachBones(char *meshFilePath)
 {
-	this->mesh = mesh;
-
 	if (VBO)
 	{
+		std::vector<skinMesh> mesh = LoadSkinWeights(meshFilePath);
+
 		std::vector<float> boneIDs;
 		std::vector<float> boneWeights;
-		for (unsigned int i = 0; i < VBO->GetNumVerticies(); ++i)
+		for (unsigned int i = 0; i < mesh.size(); ++i)
 		{
 			for (unsigned int j = 0; j < 4; ++j)
 			{
 				std::cout << "i: " << i << " j: " << j << "\n";
+				std::cout <<": " <<mesh[i].boneInfluenceIDs[j] <<"\n";
+				std::cout<<": " <<mesh[i].weights[j] <<"\n";
+
 				boneIDs.push_back(mesh[i].boneInfluenceIDs[j]);
 				boneWeights.push_back(mesh[i].weights[j]);
 			}
