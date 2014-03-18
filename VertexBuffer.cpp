@@ -96,12 +96,12 @@ int VertexBuffer::Initialize(unsigned int numVertices, bool useNormals, bool use
 			glGenBuffers(1, &boneHandle);
 			glBindBuffer(GL_ARRAY_BUFFER, boneHandle);
 
-			const unsigned int boneBufferSize = numVertices * sizeof(float) * 4;
+			const unsigned int boneBufferSize = numVertices * sizeof(float);
 
 			glBufferData(GL_ARRAY_BUFFER, boneBufferSize, 0, GL_STATIC_DRAW);
 
 			glEnableVertexAttribArray(10);
-			glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, 0, 0);
+			glVertexAttribPointer(10, 1, GL_FLOAT, GL_FALSE, 0, 0);
 		}
 
 		glBindVertexArray(0);

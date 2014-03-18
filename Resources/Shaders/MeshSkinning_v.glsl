@@ -20,7 +20,8 @@ void main()
 {
 	//Doing this way because for loops are too slow
 	//mat4 jointMat = boneMatricies[int(boneIndex[0])] * boneWeights[0] + boneMatricies[int(boneIndex[1])] * boneWeights[1] + boneMatricies[int(boneIndex[2])] * boneWeights[2] + boneMatricies[int(boneIndex[3])] * boneWeights[3];
-	mat4 jointMat = mat4(1);
+	mat4 jointMat = mat4(boneIndex[0]);
+	//mat4 jointMat = mat4(1.0);
 	
 	gl_Position = MVP * jointMat * position;
 
