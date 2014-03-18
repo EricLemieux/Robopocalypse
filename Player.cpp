@@ -199,38 +199,41 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 		}
 		hasBeenHit += 1;
 	}
-
-	sfx = EMPTY_P_SFX;
+	
+	if (sfx != BLOCK_IMPACT_SFX)
+	{
+		sfx = EMPTY_P_SFX;
+	}
 
 	//ACTUAL UPDATING OF VEL BELOW
 	//if action is complete, returns IDLE
 	if (currentAction == MOVE_LEFT){
-		sfx = MOVE_SFX;
-		soundCheck(sfx);
+		//sfx = MOVE_SFX;
+		//soundCheck(sfx);
 		currentAction = playerAction.moveLeftAction(actionTimer, vel);
 		
 	}
 	else if (currentAction == MOVE_RIGHT){
-		sfx = MOVE_SFX;
-		soundCheck(sfx);
+		//sfx = MOVE_SFX;
+		//soundCheck(sfx);
 		currentAction = playerAction.moveRightAction(actionTimer, vel);
 		
 	}
 	else if (currentAction == DASH_LEFT){
-		sfx = DASH_SFX;
-		soundCheck(sfx);
+		//sfx = DASH_SFX;
+		//soundCheck(sfx);
 		currentAction = playerAction.dashLeftAction(actionTimer, vel, sp);
 		
 	}
 	else if (currentAction == DASH_RIGHT){
-		sfx = DASH_SFX;
-		soundCheck(sfx);
+		//sfx = DASH_SFX;
+		//soundCheck(sfx);
 		currentAction = playerAction.dashRightAction(actionTimer, vel, sp);
 		
 	}
 	else if (currentAction == JUMP){
-		sfx = JUMP_SFX;
-		soundCheck(sfx);
+		//sfx = JUMP_SFX;
+		//soundCheck(sfx);
 		currentAction = playerAction.jumpAction(vel, onGround);
 		
 	}
@@ -259,7 +262,7 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 	}
 	else if (currentAction == BLOCK){
 		if(sfx != BLOCK_IMPACT_SFX){
-			sfx = BLOCK_SFX;
+			sfx = BLOCK_IMPACT_SFX;
 			actionTimer = 0;
 		}
 		soundCheck(sfx);

@@ -1,3 +1,12 @@
 msfx Resources/sfx/select.mp3
-psfx Resources/sfx/select.mp3
-bgm Resources/bgm/tempbgm.mp3
+psfx Resources/sfx/impact1.mp3
+psfx Resources/sfx/impact2.mp3
+psfx Resources/sfx/impact3.mp3
+psfx Resources/sfx/shieldimpact.mp3
+psfx Resources/sfx/punch1.mp3
+psfx Resources/sfx/kick.mp3
+psfx Resources/sfx/laser.mp3
+psfx Resources/sfx/blast.mp3
+psfx Resources/sfx/shieldup.mp3
+psfx Resources/sfx/shielddown.mp3
+bgm Resources/bgm/untitled.mp3

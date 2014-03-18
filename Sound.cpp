@@ -18,6 +18,8 @@ SoundWrap::SoundWrap(){
 		channelList.push_back(temp);
 	}
 
+	
+
 	listenerflag = true;
 	FMOD_VECTOR tempFMODVEC = { 0.0f, 0.0f, -1.0f * distanceFactor };
 	listenerpos  = tempFMODVEC;
@@ -171,7 +173,9 @@ void SoundWrap::pauseSound(int channelNum){
 void SoundWrap::playSound(int soundNum, int channelNum){
 	channelList[channelNum]->setPaused(false);
 	if(channelNum == BGM_FIGHT_CHANNEL){
-		//system->playSound(FMOD_CHANNEL_FREE, BGMList[soundNum], false, &channelList[channelNum]);
+		system->playSound(FMOD_CHANNEL_FREE, BGMList[soundNum], true, &channelList[channelNum]);
+		channelList[channelNum]->setVolume(0.2f);
+		channelList[channelNum]->setPaused(false);
 		//system->playSound(FMOD_CHANNEL_FREE, BGMList[0], false, &channelList[channelNum]);
 	} else
 	if(channelNum == BGM_VICTORY_CHANNEL){
@@ -179,16 +183,16 @@ void SoundWrap::playSound(int soundNum, int channelNum){
 		//system->playSound(FMOD_CHANNEL_FREE, BGMList[0], false, &channelList[channelNum]);	
 	} else
 	if(channelNum == SFX_PLAYER1_CHANNEL){
-		//system->playSound(FMOD_CHANNEL_FREE, playerSFXList[soundNum], false, &channelList[channelNum]);
-		system->playSound(FMOD_CHANNEL_FREE, playerSFXList[0], false, &channelList[channelNum]);
+		system->playSound(FMOD_CHANNEL_FREE, playerSFXList[soundNum], false, &channelList[channelNum]);
+		//system->playSound(FMOD_CHANNEL_FREE, playerSFXList[0], false, &channelList[channelNum]);
 	} else
 	if(channelNum == SFX_PLAYER2_CHANNEL){
-		//system->playSound(FMOD_CHANNEL_FREE, playerSFXList[soundNum], false, &channelList[channelNum]);
-		system->playSound(FMOD_CHANNEL_FREE, playerSFXList[0], false, &channelList[channelNum]);
+		system->playSound(FMOD_CHANNEL_FREE, playerSFXList[soundNum], false, &channelList[channelNum]);
+		//system->playSound(FMOD_CHANNEL_FREE, playerSFXList[0], false, &channelList[channelNum]);
 	} else
 	if(channelNum == SFX_OTHER_CHANNEL){
-		//system->playSound(FMOD_CHANNEL_FREE, menuSFXList[soundNum], false, &channelList[channelNum]);
-		system->playSound(FMOD_CHANNEL_FREE, menuSFXList[0], false, &channelList[channelNum]);
+		system->playSound(FMOD_CHANNEL_FREE, menuSFXList[soundNum], false, &channelList[channelNum]);
+		//system->playSound(FMOD_CHANNEL_FREE, menuSFXList[0], false, &channelList[channelNum]);
 	}
 	
 }

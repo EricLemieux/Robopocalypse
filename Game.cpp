@@ -191,7 +191,7 @@ void Game::initGameplay(void)
 
 	qMap_handle = loadTexture("Resources/Textures/qMap.png");
 
-	soundSystem.playSound(0, 0);
+	soundSystem.playSound(0, BGM_FIGHT_CHANNEL);
 
 	sceneGraph->Update();
 }
