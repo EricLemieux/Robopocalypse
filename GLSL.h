@@ -13,6 +13,7 @@ enum shaderType
 {
 	GLSL_VERTEX_SHADER,
 	GLSL_FRAGMENT_SHADER,
+	GLSL_GEOMETRY_SHADER,
 	//other shader types
 };
 

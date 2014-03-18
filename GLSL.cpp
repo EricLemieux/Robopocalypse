@@ -41,6 +41,7 @@ int GLSLShader::CreateShaderFromString(shaderType newType, const char *source)
 			{
 				GL_VERTEX_SHADER,
 				GL_FRAGMENT_SHADER,
+				GL_GEOMETRY_SHADER,
 			};
 
 			//create the shader in graphics memory

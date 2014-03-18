@@ -44,15 +44,18 @@ void Game::initGameplay(void)
 
 	diffuseProgram = new GLSLProgram;
 	int result = 1;
-	GLSLShader diffuseShader_V, diffuseShader_F;
+	GLSLShader diffuseShader_V, diffuseShader_G, diffuseShader_F;
 	result *= diffuseShader_V.CreateShaderFromFile(GLSL_VERTEX_SHADER,	"Resources/Shaders/MeshSkinning_v.glsl");	//CHANGE BACK TO 'pass_v.glsl'
+	result *= diffuseShader_G.CreateShaderFromFile(GLSL_GEOMETRY_SHADER,"Resources/Shaders/pass_g.glsl");
 	result *= diffuseShader_F.CreateShaderFromFile(GLSL_FRAGMENT_SHADER,"Resources/Shaders/Diffuse_f.glsl");
 	result *= diffuseProgram->AttachShader(&diffuseShader_V);
+	result *= diffuseProgram->AttachShader(&diffuseShader_G);
 	result *= diffuseProgram->AttachShader(&diffuseShader_F);
 	result *= diffuseProgram->LinkProgram();
 	result *= diffuseProgram->ValidateProgram();
 
 	diffuseShader_F.Release();
+	diffuseShader_G.Release();
 	diffuseShader_V.Release();
 
 	//get uniform variables
@@ -76,15 +79,18 @@ void Game::initGameplay(void)
 		//Set up the pass though shader
 		HUDProgram = new GLSLProgram;
 		int result = 1;
-		GLSLShader HUDShader_V, HUDShader_F;
+		GLSLShader HUDShader_V,HUDShader_G, HUDShader_F;
 		result *= HUDShader_V.CreateShaderFromFile(GLSL_VERTEX_SHADER,	"Resources/Shaders/pass_v.glsl");
+		result *= HUDShader_G.CreateShaderFromFile(GLSL_GEOMETRY_SHADER,"Resources/Shaders/pass_g.glsl");
 		result *= HUDShader_F.CreateShaderFromFile(GLSL_FRAGMENT_SHADER,"Resources/Shaders/HUD_f.glsl");
 		result *= HUDProgram->AttachShader(&HUDShader_V);
+		result *= HUDProgram->AttachShader(&HUDShader_G);
 		result *= HUDProgram->AttachShader(&HUDShader_F);
 		result *= HUDProgram->LinkProgram();
 		result *= HUDProgram->ValidateProgram();
 
 		HUDShader_F.Release();
+		HUDShader_G.Release();
 		HUDShader_V.Release();
 
 		//get uniform variables
@@ -156,8 +162,9 @@ void Game::initGameplay(void)
 	//Setting up the outline shader for use with toon shading
 	OutlineProgram = new GLSLProgram;
 	result = 1;
-	GLSLShader outlineShader_V, outlineShader_F;
+	GLSLShader outlineShader_V, outlineShader_G, outlineShader_F;
 	result *= outlineShader_V.CreateShaderFromFile(GLSL_VERTEX_SHADER,	"Resources/Shaders/pass_v.glsl");
+	result *= outlineShader_G.CreateShaderFromFile(GLSL_GEOMETRY_SHADER,"Resources/Shaders/pass_g.glsl");
 	result *= outlineShader_F.CreateShaderFromFile(GLSL_FRAGMENT_SHADER,"Resources/Shaders/outline_f.glsl");
 	result *= OutlineProgram->AttachShader(&outlineShader_V);
 	result *= OutlineProgram->AttachShader(&outlineShader_F);
@@ -165,6 +172,7 @@ void Game::initGameplay(void)
 	result *= OutlineProgram->ValidateProgram();
 
 	outlineShader_F.Release();
+	outlineShader_G.Release();
 	outlineShader_V.Release();
 
 	uniform_outline_MVP = OutlineProgram->GetUniformLocation("MVP");
