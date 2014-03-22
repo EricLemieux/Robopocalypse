@@ -63,14 +63,7 @@ void Game::initGameplay(void)
 	uniform_texture		= diffuseProgram->GetUniformLocation("objectTexture");
 	uniform_normalMap	= diffuseProgram->GetUniformLocation("objectNormalMap");
 
-	//TEMP
-	char *name;
-	for (unsigned int i = 0; i < 31; ++i)
-	{
-		name = new char;
-		sprintf(name, "boneMatricies[%i]", i);
-		uniform_boneMat[i] = diffuseProgram->GetUniformLocation(name);
-	}
+	uniform_boneMat = diffuseProgram->GetUniformLocation("boneMatricies");
 
 	//Set up the HUD
 	{
@@ -456,12 +449,12 @@ void Game::Render(void)
 	{
 		firstPass->SetTexture(1);
 
-		//Render all of the background objects
-		for (unsigned int i = 0;i < BackgroundObjects.GetSize(); ++i)
-		{
-			firstPass->SetTexture(0);
-			PreRender(BackgroundObjects.GetObjectAtIndex(i));
-		}
+		////Render all of the background objects
+		//for (unsigned int i = 0;i < BackgroundObjects.GetSize(); ++i)
+		//{
+		//	firstPass->SetTexture(0);
+		//	PreRender(BackgroundObjects.GetObjectAtIndex(i));
+		//}
 		
 		//Render the two player game objects
 		PreRender(player1);
@@ -552,11 +545,12 @@ void Game::RenderHUD(void)
 
 void Game::PreRender(GameObject* object)
 {
-	//TEMP
-	for (unsigned int i = 0; i < 31; ++i)
+	glm::mat4 skinningOutputList[64];
+	for (unsigned int i = 0; i < 64; ++i)
 	{
-		glUniformMatrix4fv(uniform_boneMat[i], 1, 0, glm::value_ptr(glm::mat4(1)));
+		skinningOutputList[i] = glm::mat4(1.0f);
 	}
+	glUniformMatrix4fv(uniform_boneMat, 64, 0, (float*)skinningOutputList);
 
 	modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);
 	glUniformMatrix4fv(uniform_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
@@ -579,6 +573,8 @@ void Game::PreRender(GameObject* object)
 	//glUniform1i(uniform_qMap, 2);
 
 	object->Render();
+
+	int a = 0;
 }
 
 //void Game::PreRender(GameObject* object, Light* light)

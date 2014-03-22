@@ -93,9 +93,9 @@ int VertexBuffer::Initialize(unsigned int numVertices, bool useNormals, bool use
 			glGenBuffers(1, &boneIndexHandle);
 			glBindBuffer(GL_ARRAY_BUFFER, boneIndexHandle);
 
-			const unsigned int boneBufferSize = numVertices * sizeof(float) * 4;
+			const unsigned int boneIndexBufferSize = numVertices * sizeof(float) * 4;
 
-			glBufferData(GL_ARRAY_BUFFER, boneBufferSize, 0, GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, boneIndexBufferSize, 0, GL_STATIC_DRAW);
 
 			glEnableVertexAttribArray(10);
 			glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, 0, 0);
@@ -104,9 +104,9 @@ int VertexBuffer::Initialize(unsigned int numVertices, bool useNormals, bool use
 			glGenBuffers(1, &boneWeightHandle);
 			glBindBuffer(GL_ARRAY_BUFFER, boneWeightHandle);
 
-			const unsigned int boneWeightBufferSize = numVertices * sizeof(float)* 4;
+			const unsigned int bonewWeightBufferSize = numVertices * sizeof(float) * 4;
 
-			glBufferData(GL_ARRAY_BUFFER, boneWeightBufferSize, 0, GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, bonewWeightBufferSize, 0, GL_STATIC_DRAW);
 
 			glEnableVertexAttribArray(11);
 			glVertexAttribPointer(11, 4, GL_FLOAT, GL_FALSE, 0, 0);
@@ -207,8 +207,12 @@ void VertexBuffer::Render(void)
 	//if this vao exists in memory
 	if (vaoHandle)
 	{
+		GLenum error = glGetError();
+
 		//Render it
 		glDrawArrays(GL_TRIANGLES, 0, numberOfVerticies);
+
+		int a = 0;
 	}
 }
 void VertexBuffer::ActivateAndRender(void)

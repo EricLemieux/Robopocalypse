@@ -67,10 +67,6 @@ void GameObject::AttachBones(char *meshFilePath)
 		{
 			for (unsigned int j = 0; j < 4; ++j)
 			{
-				std::cout << "i: " << i << " j: " << j << "\n";
-				std::cout <<": " <<mesh[i].boneInfluenceIDs[j] <<"\n";
-				std::cout<<": " <<mesh[i].weights[j] <<"\n";
-
 				boneIDs.push_back(mesh[i].boneInfluenceIDs[j]);
 				boneWeights.push_back(mesh[i].weights[j]);
 			}

@@ -166,7 +166,7 @@ private:
 	unsigned int uniform_texture;
 	unsigned int uniform_normalMap;
 
-	unsigned int uniform_boneMat[31];
+	unsigned int uniform_boneMat;
 
 	unsigned int uniform_Light_LightPos;
 	unsigned int uniform_Light_LightColour;
