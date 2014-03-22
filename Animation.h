@@ -30,4 +30,6 @@ public:
 	~Animation();
 };
 
-std::vector<skinMesh> LoadSkinWeights(char* filePath);
+std::vector<skinMesh> LoadSkinWeightsXML(char* filePath);
+
+std::vector<skinMesh> LoadSkinWeightsIMG(char* filePath);

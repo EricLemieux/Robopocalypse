@@ -139,6 +139,7 @@ private:
 
 	//GLSL programs
 	GLSLProgram *diffuseProgram;
+	GLSLProgram *meshSkinProgram;
 	GLSLProgram *lightProgram;
 	GLSLProgram *HUDProgram;
 	GLSLProgram *OutlineProgram;
@@ -166,7 +167,10 @@ private:
 	unsigned int uniform_texture;
 	unsigned int uniform_normalMap;
 
-	unsigned int uniform_boneMat;
+	unsigned int uniform_meshSkin_MVP;
+	unsigned int uniform_meshSkin_texture;
+	unsigned int uniform_meshSkin_normalMap;
+	unsigned int uniform_meshSkin_boneMat;
 
 	unsigned int uniform_Light_LightPos;
 	unsigned int uniform_Light_LightColour;

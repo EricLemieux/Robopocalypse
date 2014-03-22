@@ -59,7 +59,7 @@ void GameObject::AttachBones(char *meshFilePath)
 {
 	if (VBO)
 	{
-		std::vector<skinMesh> mesh = LoadSkinWeights(meshFilePath);
+		std::vector<skinMesh> mesh = LoadSkinWeightsXML(meshFilePath);
 
 		std::vector<float> boneIDs;
 		std::vector<float> boneWeights;

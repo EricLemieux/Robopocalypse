@@ -18,6 +18,8 @@ private:
 	//number of verticies in the model
 	unsigned int numberOfVerticies;
 
+	bool usingTexcoords, usingNormals, usingBones;
+
 public:
 	//Constructor
 	VertexBuffer(void);
@@ -51,4 +53,9 @@ public:
 
 	//Get the amount of verticies in the VBO
 	inline unsigned int GetNumVerticies(void){ return numberOfVerticies; }
+
+	//Get whether the VBO is using atributes such as textures and normals
+	inline bool UsingTexcoords(void){return usingTexcoords;}
+	inline bool Usingnormals(void)	{return usingNormals;}
+	inline bool UsingBones(void)	{return usingBones;}
 };

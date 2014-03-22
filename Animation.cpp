@@ -11,7 +11,7 @@ Animation::~Animation()
 }
 
 //Load the XML file that is storing the skin weights 
-std::vector<skinMesh> LoadSkinWeights(char* filePath)
+std::vector<skinMesh> LoadSkinWeightsXML(char* filePath)
 {
 	//skinMesh *mesh;
 	//mesh = new skinMesh;
@@ -251,4 +251,10 @@ std::vector<skinMesh> LoadSkinWeights(char* filePath)
 	}
 
 	return mesh;
+}
+
+std::vector<skinMesh> LoadSkinWeightsIMG(char* filePath)
+{
+	std::vector<skinMesh> a;
+	return a;
 }

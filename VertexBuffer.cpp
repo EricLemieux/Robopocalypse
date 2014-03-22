@@ -44,6 +44,10 @@ void VertexBuffer::Release(void)
 //init VAO
 int VertexBuffer::Initialize(unsigned int numVertices, bool useNormals, bool useTexCoords, bool useBones)
 {
+	usingTexcoords	= useTexCoords;
+	usingNormals	= useNormals;
+	usingBones		= useBones;
+
 	if (!vaoHandle)
 	{
 		numberOfVerticies = numVertices;

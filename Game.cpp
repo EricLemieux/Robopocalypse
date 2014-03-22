@@ -45,7 +45,7 @@ void Game::initGameplay(void)
 	diffuseProgram = new GLSLProgram;
 	int result = 1;
 	GLSLShader diffuseShader_V, diffuseShader_G, diffuseShader_F;
-	result *= diffuseShader_V.CreateShaderFromFile(GLSL_VERTEX_SHADER,	"Resources/Shaders/MeshSkinning_v.glsl");	//CHANGE BACK TO 'pass_v.glsl'
+	result *= diffuseShader_V.CreateShaderFromFile(GLSL_VERTEX_SHADER,	"Resources/Shaders/pass_v.glsl");
 	result *= diffuseShader_G.CreateShaderFromFile(GLSL_GEOMETRY_SHADER,"Resources/Shaders/pass_g.glsl");
 	result *= diffuseShader_F.CreateShaderFromFile(GLSL_FRAGMENT_SHADER,"Resources/Shaders/Diffuse_f.glsl");
 	result *= diffuseProgram->AttachShader(&diffuseShader_V);
@@ -63,7 +63,26 @@ void Game::initGameplay(void)
 	uniform_texture		= diffuseProgram->GetUniformLocation("objectTexture");
 	uniform_normalMap	= diffuseProgram->GetUniformLocation("objectNormalMap");
 
-	uniform_boneMat = diffuseProgram->GetUniformLocation("boneMatricies");
+	meshSkinProgram = new GLSLProgram;
+	result = 1;
+	GLSLShader meshSkinShader_V, meshSkinShader_G, meshSkinShader_F;
+	result *= meshSkinShader_V.CreateShaderFromFile(GLSL_VERTEX_SHADER, "Resources/Shaders/MeshSkinning_v.glsl");
+	result *= meshSkinShader_G.CreateShaderFromFile(GLSL_GEOMETRY_SHADER, "Resources/Shaders/pass_g.glsl");
+	result *= meshSkinShader_F.CreateShaderFromFile(GLSL_FRAGMENT_SHADER, "Resources/Shaders/Diffuse_f.glsl");
+	result *= meshSkinProgram->AttachShader(&meshSkinShader_V);
+	result *= meshSkinProgram->AttachShader(&meshSkinShader_G);
+	result *= meshSkinProgram->AttachShader(&meshSkinShader_F);
+	result *= meshSkinProgram->LinkProgram();
+	result *= meshSkinProgram->ValidateProgram();
+
+	meshSkinShader_F.Release();
+	meshSkinShader_G.Release();
+	meshSkinShader_V.Release();
+
+	uniform_meshSkin_MVP		= meshSkinProgram->GetUniformLocation("MVP");
+	uniform_meshSkin_texture	= meshSkinProgram->GetUniformLocation("objectTexture");
+	uniform_meshSkin_normalMap	= meshSkinProgram->GetUniformLocation("objectNormalMap");
+	uniform_meshSkin_boneMat	= meshSkinProgram->GetUniformLocation("boneMatricies");
 
 	//Set up the HUD
 	{
@@ -449,12 +468,12 @@ void Game::Render(void)
 	{
 		firstPass->SetTexture(1);
 
-		////Render all of the background objects
-		//for (unsigned int i = 0;i < BackgroundObjects.GetSize(); ++i)
-		//{
-		//	firstPass->SetTexture(0);
-		//	PreRender(BackgroundObjects.GetObjectAtIndex(i));
-		//}
+		//Render all of the background objects
+		for (unsigned int i = 0;i < BackgroundObjects.GetSize(); ++i)
+		{
+			firstPass->SetTexture(0);
+			PreRender(BackgroundObjects.GetObjectAtIndex(i));
+		}
 		
 		//Render the two player game objects
 		PreRender(player1);
@@ -545,36 +564,63 @@ void Game::RenderHUD(void)
 
 void Game::PreRender(GameObject* object)
 {
-	glm::mat4 skinningOutputList[64];
-	for (unsigned int i = 0; i < 64; ++i)
+	//if the object has bones that need to be transformed
+	if (object->GetModel()->UsingBones())
 	{
-		skinningOutputList[i] = glm::mat4(1.0f);
+		glm::mat4 skinningOutputList[64];
+		for (unsigned int i = 0; i < 64; ++i)
+		{
+			skinningOutputList[i] = glm::mat4(1.0f);
+		}
+		glUniformMatrix4fv(uniform_meshSkin_boneMat, 64, 0, (float*)skinningOutputList);
+
+		modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);
+		glUniformMatrix4fv(uniform_meshSkin_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
+		//glUniform3fv(uniform_LightPos, 1, glm::value_ptr(glm::inverse(object->GetNode()->GetWorldTransform()) * LIGHTPOS));
+		//glUniform3fv(uniform_LightColour, 1, glm::value_ptr(glm::vec3(1, 1, 1)));
+
+		//Pass in texture
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, object->GetTextureHandle());
+		glUniform1i(uniform_meshSkin_texture, 0);
+
+		//Pass in normal map
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, object->GetNormalMapHandle());
+		glUniform1i(uniform_meshSkin_normalMap, 1);
+
+		////pass in qMap
+		//glActiveTexture(GL_TEXTURE2);
+		//glBindTexture(GL_TEXTURE_2D, qMap_handle);
+		//glUniform1i(uniform_qMap, 2);
+
+		object->Render();
 	}
-	glUniformMatrix4fv(uniform_boneMat, 64, 0, (float*)skinningOutputList);
 
-	modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);
-	glUniformMatrix4fv(uniform_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
-	//glUniform3fv(uniform_LightPos, 1, glm::value_ptr(glm::inverse(object->GetNode()->GetWorldTransform()) * LIGHTPOS));
-	//glUniform3fv(uniform_LightColour, 1, glm::value_ptr(glm::vec3(1, 1, 1)));
-	
-	//Pass in texture
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, object->GetTextureHandle());
-	glUniform1i(uniform_texture, 0);
-	
-	//Pass in normal map
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, object->GetNormalMapHandle());
-	glUniform1i(uniform_normalMap, 1);
+	else
+	{
+		modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);
+		glUniformMatrix4fv(uniform_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
+		//glUniform3fv(uniform_LightPos, 1, glm::value_ptr(glm::inverse(object->GetNode()->GetWorldTransform()) * LIGHTPOS));
+		//glUniform3fv(uniform_LightColour, 1, glm::value_ptr(glm::vec3(1, 1, 1)));
 
-	////pass in qMap
-	//glActiveTexture(GL_TEXTURE2);
-	//glBindTexture(GL_TEXTURE_2D, qMap_handle);
-	//glUniform1i(uniform_qMap, 2);
+		//Pass in texture
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, object->GetTextureHandle());
+		glUniform1i(uniform_texture, 0);
 
-	object->Render();
+		//Pass in normal map
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, object->GetNormalMapHandle());
+		glUniform1i(uniform_normalMap, 1);
 
-	int a = 0;
+		////pass in qMap
+		//glActiveTexture(GL_TEXTURE2);
+		//glBindTexture(GL_TEXTURE_2D, qMap_handle);
+		//glUniform1i(uniform_qMap, 2);
+
+		object->Render();
+	}
 }
 
 //void Game::PreRender(GameObject* object, Light* light)
