@@ -71,8 +71,8 @@ void GameObject::AttachBones(char *meshFilePath)
 				boneWeights.push_back(mesh[i].weights[j]);
 			}
 		}
-		VBO->AddBoneIndexes(&boneIDs[0]);
-		VBO->AddBoneWeights(&boneWeights[0]);
+		VBO->AddBoneIndexes(&boneIDs[0], boneIDs.size());
+		VBO->AddBoneWeights(&boneWeights[0], boneWeights.size());
 	}
 }
 

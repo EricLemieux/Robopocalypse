@@ -38,8 +38,8 @@ public:
 	int AddNormals(float *rawNormals);
 	int AddTexCoords(float *rawTexCoords);
 
-	int AddBoneIndexes(float *rawBoneIndexes);
-	int AddBoneWeights(float *rawBoneWeights);
+	int AddBoneIndexes(float *rawBoneIndexes, unsigned int size);
+	int AddBoneWeights(float *rawBoneWeights, unsigned int size);
 
 	//Activate VAO for rendering
 	void Activate(void);

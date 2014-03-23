@@ -166,11 +166,11 @@ int VertexBuffer::AddTexCoords(float *rawTexCoords)
 	return 0;
 }
 
-int VertexBuffer::AddBoneIndexes(float *rawBoneIndexes)
+int VertexBuffer::AddBoneIndexes(float *rawBoneIndexes, unsigned int size)
 {
 	if (boneIndexHandle && rawBoneIndexes)
 	{
-		const unsigned int bufferSize = numberOfVerticies/3 * sizeof(float)* 4;
+		const unsigned int bufferSize = size * sizeof(float);
 		glBindBuffer(GL_ARRAY_BUFFER, boneIndexHandle);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, bufferSize, rawBoneIndexes);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -179,11 +179,11 @@ int VertexBuffer::AddBoneIndexes(float *rawBoneIndexes)
 	}
 	return 0;
 }
-int VertexBuffer::AddBoneWeights(float *rawBoneWeights)
+int VertexBuffer::AddBoneWeights(float *rawBoneWeights, unsigned int size)
 {
 	if (boneWeightHandle && rawBoneWeights)
 	{
-		const unsigned int bufferSize = numberOfVerticies/3 * sizeof(float)* 4;
+		const unsigned int bufferSize = size * sizeof(float);
 		glBindBuffer(GL_ARRAY_BUFFER, boneWeightHandle);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, bufferSize, rawBoneWeights);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
