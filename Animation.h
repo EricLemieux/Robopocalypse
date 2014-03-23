@@ -5,6 +5,11 @@
 #include <iostream>
 #include <fstream>
 
+#undef _UNICODE
+#include <IL\il.h>
+#include <IL\ilu.h>
+#include <IL\ilut.h>
+
 #include "BVH.h"
 
 class skinMesh
@@ -13,7 +18,7 @@ public:
 	float boneInfluenceIDs[4];
 	float weights[4];
 
-	inline skinMesh()
+	skinMesh()
 	{
 		for (unsigned int i = 0; i < 4; ++i)
 		{
@@ -21,13 +26,6 @@ public:
 			weights[i]			= 0.0f;
 		}
 	}
-};
-
-class Animation
-{
-public:
-	Animation();
-	~Animation();
 };
 
 std::vector<skinMesh> LoadSkinWeightsXML(char* filePath);

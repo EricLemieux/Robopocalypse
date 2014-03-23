@@ -127,6 +127,7 @@ int VertexBuffer::Initialize(unsigned int numVertices, bool useNormals, bool use
 //Add attribute data
 int VertexBuffer::AddVerticies(float *rawVertices)
 {
+	
 	if (vertexHandle && rawVertices)
 	{
 		const unsigned int bufferSize = numberOfVerticies * sizeof(float)* 3;
@@ -169,7 +170,7 @@ int VertexBuffer::AddBoneIndexes(float *rawBoneIndexes)
 {
 	if (boneIndexHandle && rawBoneIndexes)
 	{
-		const unsigned int bufferSize = numberOfVerticies * sizeof(float)* 4;
+		const unsigned int bufferSize = numberOfVerticies/3 * sizeof(float)* 4;
 		glBindBuffer(GL_ARRAY_BUFFER, boneIndexHandle);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, bufferSize, rawBoneIndexes);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -182,7 +183,7 @@ int VertexBuffer::AddBoneWeights(float *rawBoneWeights)
 {
 	if (boneWeightHandle && rawBoneWeights)
 	{
-		const unsigned int bufferSize = numberOfVerticies * sizeof(float)* 4;
+		const unsigned int bufferSize = numberOfVerticies/3 * sizeof(float)* 4;
 		glBindBuffer(GL_ARRAY_BUFFER, boneWeightHandle);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, bufferSize, rawBoneWeights);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);

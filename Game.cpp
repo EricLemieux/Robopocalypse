@@ -152,7 +152,8 @@ void Game::initGameplay(void)
 	
 	//Create a game object for player1
 	player1 = new Player;
-	player1->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
+	OBJModel player1Model = OBJModel("Resources/Models/Robot.obj");
+	player1->AttachModel(player1Model.GetVBO());
 	player1->AttachBones("Resources/Bones/body.xml");
 	player1->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_red.png"));
 	player1->SetPosition(glm::vec3(-17, 0, -15));
@@ -161,7 +162,8 @@ void Game::initGameplay(void)
 	
 	//Create a game object for player2
 	player2 = new Player;
-	player2->AttachModel(OBJModel("Resources/Models/Robot.obj").GetVBO());
+	OBJModel player2Model = OBJModel("Resources/Models/Robot.obj");
+	player2->AttachModel(player2Model.GetVBO());
 	player2->AttachBones("Resources/Bones/body.xml");
 	player2->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_blue.png"));
 	player2->AttachNormalMap(loadTexture("Resources/NormalMaps/testMap.jpg"));

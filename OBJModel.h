@@ -43,6 +43,8 @@ public:
 	inline glm::vec3 GetMaxVect(void){ return maxVect; }
 	inline glm::vec3 GetMinVect(void){ return minVect; }
 
+	inline std::vector<glm::vec2> GetTexcoords(void){ return texcoords; }
+
 private:
 	//Max and min vectors
 	//used for the generation of the collision box
@@ -51,6 +53,9 @@ private:
 
 	//VBO for rendering
 	VertexBuffer *VBO;
+
+	//Store the uv texcoords
+	std::vector<glm::vec2> texcoords;
 
 	//Texture handle
 	GLuint texture;

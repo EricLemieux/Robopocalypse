@@ -151,6 +151,12 @@ OBJModel::OBJModel(const char *modelPath)
 	{
 		finalTexCoords.push_back(texCoords[facesTexCoords[i]].x);
 		finalTexCoords.push_back(texCoords[facesTexCoords[i]].y);
+
+		//store in a vec2 vector for later use in a different program.
+		glm::vec2 temp;
+		temp.x = texCoords[facesTexCoords[i]].x;
+		temp.y = texCoords[facesTexCoords[i]].y;
+		this->texcoords.push_back(temp);
 	}
 
 	std::vector<float> finalNormals;
@@ -162,7 +168,7 @@ OBJModel::OBJModel(const char *modelPath)
 	}
 	
 	//Init and add data
-	VBO->Initialize(finalVerts.size() / 3, true, true, true);
+	VBO->Initialize(facesVerts.size(), true, true, true);
 	VBO->AddVerticies(&finalVerts[0]);
 	VBO->AddNormals(&finalNormals[0]);
 	VBO->AddTexCoords(&finalTexCoords[0]);

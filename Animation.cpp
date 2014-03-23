@@ -1,20 +1,8 @@
 #include "Animation.h"
 
-
-Animation::Animation()
-{
-}
-
-
-Animation::~Animation()
-{
-}
-
 //Load the XML file that is storing the skin weights 
 std::vector<skinMesh> LoadSkinWeightsXML(char* filePath)
 {
-	//skinMesh *mesh;
-	//mesh = new skinMesh;
 	std::vector<skinMesh> mesh;
 
 	std::ifstream file;
@@ -255,6 +243,69 @@ std::vector<skinMesh> LoadSkinWeightsXML(char* filePath)
 
 std::vector<skinMesh> LoadSkinWeightsIMG(char* filePath)
 {
-	std::vector<skinMesh> a;
-	return a;
+	std::vector<skinMesh> mesh;
+
+	//Load the file that stores the different skin weight maps
+	std::fstream file;
+	file.open(filePath);
+
+	if (!file.is_open())
+	{
+		std::cout << "Error opening the skin weight manager file.\n See function LoadSkinWeightsIMG() in animation.cpp for more details.\n";
+		return mesh;
+	}
+
+	char *currentWord = new char;
+	int index = 0;
+
+	//Read the manger file to know what files to open and check the values for the weight maps
+	while (!file.eof())
+	{
+		file >> currentWord;
+
+		//this line is a comment skip it
+		if (!_stricmp(currentWord,"//"))
+		{
+			file.ignore(256, '\n');
+		}
+		else
+		{
+			//Get the name of the joint
+			char *jointName = new char;
+			file >> jointName;
+
+			//Get the file path to the image that stores the weights
+			char *imageFilePath = new char;
+			file >> imageFilePath;
+
+			//Load the image using DevIL
+			ILuint *tex;
+			tex = new ILuint;
+			ilGenImages(1, tex);
+			ilBindImage(*tex);
+			
+			ilLoadImage(imageFilePath);
+			ILubyte* data = ilGetData();
+			
+			ILuint width, height;
+			width = ilGetInteger(IL_IMAGE_WIDTH);
+			height = ilGetInteger(IL_IMAGE_HEIGHT);
+			
+			glm::vec3 pixelData;
+			
+			for (int i = 0; i < height; i++)
+			{
+				for (int j = 0; j < width; j++)
+				{
+					pixelData.r = (data[(i*width + j) * 4 + 0]);
+					pixelData.g = (data[(i*width + j) * 4 + 1]);
+					pixelData.b = (data[(i*width + j) * 4 + 2]);
+				}
+			}
+
+			index++;
+		}
+	}
+
+	return mesh;
 }
