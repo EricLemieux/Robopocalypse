@@ -241,7 +241,7 @@ std::vector<skinMesh> LoadSkinWeightsXML(char* filePath)
 	return mesh;
 }
 
-std::vector<skinMesh> LoadSkinWeightsIMG(char* filePath)
+std::vector<skinMesh> LoadSkinWeightsIMG(char* filePath, std::vector<glm::vec2> texcoords)
 {
 	std::vector<skinMesh> mesh;
 
@@ -256,7 +256,7 @@ std::vector<skinMesh> LoadSkinWeightsIMG(char* filePath)
 	}
 
 	char *currentWord = new char;
-	int index = 0;
+	std::vector<std::string> weightMapsFilePaths;
 
 	//Read the manger file to know what files to open and check the values for the weight maps
 	while (!file.eof())
@@ -264,47 +264,64 @@ std::vector<skinMesh> LoadSkinWeightsIMG(char* filePath)
 		file >> currentWord;
 
 		//this line is a comment skip it
-		if (!_stricmp(currentWord,"//"))
+		if (!_stricmp(currentWord, "//") || !_stricmp(currentWord, ""))
 		{
 			file.ignore(256, '\n');
 		}
 		else
 		{
 			//Get the name of the joint
-			char *jointName = new char;
+			std::string jointName;
 			file >> jointName;
 
 			//Get the file path to the image that stores the weights
-			char *imageFilePath = new char;
+			std::string imageFilePath;
 			file >> imageFilePath;
 
-			//Load the image using DevIL
-			ILuint *tex;
-			tex = new ILuint;
-			ilGenImages(1, tex);
-			ilBindImage(*tex);
-			
-			ilLoadImage(imageFilePath);
-			ILubyte* data = ilGetData();
-			
-			ILuint width, height;
-			width = ilGetInteger(IL_IMAGE_WIDTH);
-			height = ilGetInteger(IL_IMAGE_HEIGHT);
-			
-			glm::vec3 pixelData;
-			
-			for (int i = 0; i < height; i++)
-			{
-				for (int j = 0; j < width; j++)
-				{
-					pixelData.r = (data[(i*width + j) * 4 + 0]);
-					pixelData.g = (data[(i*width + j) * 4 + 1]);
-					pixelData.b = (data[(i*width + j) * 4 + 2]);
-				}
-			}
+			//Concatenate the folder directory into the file path
+			std::string finalFilePath;
+			finalFilePath = std::string("Resources\\Bones\\testweightmaps\\" + std::string(imageFilePath));
 
-			index++;
+			//Add this file path to the list of file paths.
+			weightMapsFilePaths.push_back(finalFilePath);
+			int a = 0;
 		}
+	}
+
+	//vect of vects that stores all of the values of the colour for each of the vectors.
+	std::vector<std::vector<float>> vertStorage;
+
+	//Loop through each of the textures
+	for (unsigned int i = 0; i < weightMapsFilePaths.size(); ++i)
+	{
+		//Load the image using DevIL
+		ILuint *tex;
+		tex = new ILuint;
+		ilGenImages(1, tex);
+		ilBindImage(*tex);
+
+		ilLoadImage(weightMapsFilePaths[i].c_str());
+		ILubyte* data = ilGetData();
+
+		ILuint width, height;
+		width = ilGetInteger(IL_IMAGE_WIDTH);
+		height = ilGetInteger(IL_IMAGE_HEIGHT);
+
+		//Store 
+		std::vector<float> values;
+	
+		//Get the value of the pixel at the UV coordinate
+		for (unsigned int j = 0; j < texcoords.size(); ++j)
+		{
+			float value = (data[int( texcoords[j].x*width + texcoords[j].y) * 4]);
+			values.push_back(value);
+		}
+
+		vertStorage.push_back(values);
+
+		//Remove the texture from memory.
+		ilDeleteImage(*tex);
+		delete tex;
 	}
 
 	return mesh;

@@ -39,7 +39,7 @@ public:
 	//Attach a model to the game object
 	void AttachModel(VertexBuffer *model);
 
-	void AttachBones(char *meshFilePath);
+	void AttachBones(char *meshFilePath, std::vector<glm::vec2> texcoords);
 
 	//Attach a texture to the game object
 	void AttachTexture(GLuint tex);

@@ -55,11 +55,12 @@ void GameObject::AttachModel(VertexBuffer *model)
 	VBO = model;
 }
 
-void GameObject::AttachBones(char *meshFilePath)
+void GameObject::AttachBones(char *meshFilePath, std::vector<glm::vec2> texcoords)
 {
 	if (VBO)
 	{
-		std::vector<skinMesh> mesh = LoadSkinWeightsXML(meshFilePath);
+		//std::vector<skinMesh> mesh = LoadSkinWeightsXML(meshFilePath);
+		std::vector<skinMesh> mesh = LoadSkinWeightsIMG(meshFilePath, texcoords);
 
 		std::vector<float> boneIDs;
 		std::vector<float> boneWeights;

@@ -30,4 +30,4 @@ public:
 
 std::vector<skinMesh> LoadSkinWeightsXML(char* filePath);
 
-std::vector<skinMesh> LoadSkinWeightsIMG(char* filePath);
+std::vector<skinMesh> LoadSkinWeightsIMG(char* filePath, std::vector<glm::vec2> texcoords);
