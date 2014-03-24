@@ -12,6 +12,12 @@
 
 #include "BVH.h"
 
+struct IDval
+{
+	float value;
+	unsigned int ID;
+};
+
 class skinMesh
 {
 public:

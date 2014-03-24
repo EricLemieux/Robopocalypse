@@ -280,7 +280,7 @@ std::vector<skinMesh> LoadSkinWeightsIMG(char* filePath, std::vector<glm::vec2> 
 
 			//Concatenate the folder directory into the file path
 			std::string finalFilePath;
-			finalFilePath = std::string("Resources\\Bones\\testweightmaps\\" + std::string(imageFilePath));
+			finalFilePath = std::string("Resources\\Bones\\skin\\" + std::string(imageFilePath));
 
 			//Add this file path to the list of file paths.
 			weightMapsFilePaths.push_back(finalFilePath);
@@ -301,7 +301,7 @@ std::vector<skinMesh> LoadSkinWeightsIMG(char* filePath, std::vector<glm::vec2> 
 		ilBindImage(*tex);
 
 		ilLoadImage(weightMapsFilePaths[i].c_str());
-		ILubyte* data = ilGetData();
+		//ILubyte *data = ilGetData();
 
 		ILuint width, height;
 		width = ilGetInteger(IL_IMAGE_WIDTH);
@@ -313,8 +313,17 @@ std::vector<skinMesh> LoadSkinWeightsIMG(char* filePath, std::vector<glm::vec2> 
 		//Get the value of the pixel at the UV coordinate
 		for (unsigned int j = 0; j < texcoords.size(); ++j)
 		{
-			float value = (data[int( texcoords[j].x*width + texcoords[j].y) * 4]);
-			values.push_back(value);
+			ILuint data;
+			ilCopyPixels(texcoords[j].x * width, /*1.0f -*/texcoords[j].y*height, 0, 1, 1, 1, IL_RGBA, IL_UNSIGNED_BYTE, &data);
+			int r, g, b, a;
+			a = (data >> 24) & 0xFF;
+			b = (data >> 16) & 0xFF;
+			g = (data >> 8) & 0xFF;
+			r = (data)& 0xFF;
+
+			float value = (float)g/255.0f;
+
+			values.push_back(value);			
 		}
 
 		vertStorage.push_back(values);
@@ -322,6 +331,57 @@ std::vector<skinMesh> LoadSkinWeightsIMG(char* filePath, std::vector<glm::vec2> 
 		//Remove the texture from memory.
 		ilDeleteImage(*tex);
 		delete tex;
+	}
+
+	//Loop through each vert and store the top four values and their IDs;
+	for (unsigned int i = 0; i < vertStorage.size(); ++i)
+	{
+		skinMesh tempMesh;
+
+		for (unsigned int j = 0; j < vertStorage[i].size(); ++j)
+		{
+			//If the value from the file is bigger than the current largest then shift everything down.
+			if (vertStorage[i][j] >= tempMesh.weights[0])
+			{
+				tempMesh.weights[3]				= tempMesh.weights[2];
+				tempMesh.boneInfluenceIDs[3]	= tempMesh.boneInfluenceIDs[2];
+
+				tempMesh.weights[2]				= tempMesh.weights[1];
+				tempMesh.boneInfluenceIDs[2]	= tempMesh.boneInfluenceIDs[1];
+
+				tempMesh.weights[1]				= tempMesh.weights[0];
+				tempMesh.boneInfluenceIDs[1]	= tempMesh.boneInfluenceIDs[0];
+
+				tempMesh.weights[0]				= vertStorage[i][j];
+				tempMesh.boneInfluenceIDs[0]	= j;
+			}
+			else if (vertStorage[i][j] >= tempMesh.weights[1])
+			{
+				tempMesh.weights[3] = tempMesh.weights[2];
+				tempMesh.boneInfluenceIDs[3] = tempMesh.boneInfluenceIDs[2];
+
+				tempMesh.weights[2] = tempMesh.weights[1];
+				tempMesh.boneInfluenceIDs[2] = tempMesh.boneInfluenceIDs[1];
+
+				tempMesh.weights[1] = vertStorage[i][j];
+				tempMesh.boneInfluenceIDs[1] = j;
+			}
+			else if (vertStorage[i][j] >= tempMesh.weights[2])
+			{
+				tempMesh.weights[3] = tempMesh.weights[2];
+				tempMesh.boneInfluenceIDs[3] = tempMesh.boneInfluenceIDs[2];
+
+				tempMesh.weights[2] = vertStorage[i][j];
+				tempMesh.boneInfluenceIDs[2] = j;
+			}
+			else if (vertStorage[i][j] >= tempMesh.weights[3])
+			{
+				tempMesh.weights[3] = vertStorage[i][j];
+				tempMesh.boneInfluenceIDs[3] = j;
+			}
+		}
+
+		mesh.push_back(tempMesh);
 	}
 
 	return mesh;

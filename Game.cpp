@@ -154,7 +154,7 @@ void Game::initGameplay(void)
 	player1 = new Player;
 	OBJModel player1Model = OBJModel("Resources/Models/Robot.obj");
 	player1->AttachModel(player1Model.GetVBO());
-	player1->AttachBones("Resources/Bones/testweightmaps.weightMap", player1Model.GetTexcoords());
+	player1->AttachBones("Resources/Bones/skin.weightMap", player1Model.GetTexcoords());
 	player1->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_red.png"));
 	player1->SetPosition(glm::vec3(-17, 0, -15));
 	player1->GetNode()->SetRotation(glm::vec3(90,0,0));
