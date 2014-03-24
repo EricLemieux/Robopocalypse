@@ -20,7 +20,13 @@ out vertex
 
 void main()
 {
-	gl_Position = MVP * position;
+	mat4 jointMat;
+	for(uint i = 0; i < 4; ++i)
+	{
+		jointMat += boneMatricies[int(boneIndex[i])] * boneWeights[i];
+	}
+
+	gl_Position = MVP * jointMat * position;
 
 	data.pos	= position.xyz;
 	data.norm	= normal;
