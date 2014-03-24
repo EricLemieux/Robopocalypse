@@ -333,54 +333,53 @@ std::vector<skinMesh> LoadSkinWeightsIMG(char* filePath, std::vector<glm::vec2> 
 		delete tex;
 	}
 
-	//Loop through each vert and store the top four values and their IDs;
-	for (unsigned int i = 0; i < vertStorage.size(); ++i)
+	//Loop through each vertex to store the top 4 weight values per vertex.
+	for (unsigned int i = 0; i < texcoords.size(); ++i)
 	{
 		skinMesh tempMesh;
 
-		for (unsigned int j = 0; j < vertStorage[i].size(); ++j)
+		//Loop through the data collected from the textures
+		for (unsigned int j = 0; j < vertStorage.size(); ++j)
 		{
-			//If the value from the file is bigger than the current largest then shift everything down.
-			if (vertStorage[i][j] >= tempMesh.weights[0])
+			if (vertStorage[j][i] >= tempMesh.weights[0])
 			{
 				tempMesh.weights[3]				= tempMesh.weights[2];
 				tempMesh.boneInfluenceIDs[3]	= tempMesh.boneInfluenceIDs[2];
-
+			
 				tempMesh.weights[2]				= tempMesh.weights[1];
 				tempMesh.boneInfluenceIDs[2]	= tempMesh.boneInfluenceIDs[1];
-
+			
 				tempMesh.weights[1]				= tempMesh.weights[0];
 				tempMesh.boneInfluenceIDs[1]	= tempMesh.boneInfluenceIDs[0];
-
-				tempMesh.weights[0]				= vertStorage[i][j];
+			
+				tempMesh.weights[0]				= vertStorage[j][i];
 				tempMesh.boneInfluenceIDs[0]	= j;
 			}
-			else if (vertStorage[i][j] >= tempMesh.weights[1])
+			else if (vertStorage[j][i] >= tempMesh.weights[1])
 			{
 				tempMesh.weights[3] = tempMesh.weights[2];
 				tempMesh.boneInfluenceIDs[3] = tempMesh.boneInfluenceIDs[2];
-
+			
 				tempMesh.weights[2] = tempMesh.weights[1];
 				tempMesh.boneInfluenceIDs[2] = tempMesh.boneInfluenceIDs[1];
-
-				tempMesh.weights[1] = vertStorage[i][j];
+			
+				tempMesh.weights[1] = vertStorage[j][i];
 				tempMesh.boneInfluenceIDs[1] = j;
 			}
-			else if (vertStorage[i][j] >= tempMesh.weights[2])
+			else if (vertStorage[j][i] >= tempMesh.weights[2])
 			{
 				tempMesh.weights[3] = tempMesh.weights[2];
 				tempMesh.boneInfluenceIDs[3] = tempMesh.boneInfluenceIDs[2];
-
-				tempMesh.weights[2] = vertStorage[i][j];
+			
+				tempMesh.weights[2] = vertStorage[j][i];
 				tempMesh.boneInfluenceIDs[2] = j;
 			}
-			else if (vertStorage[i][j] >= tempMesh.weights[3])
+			else if (vertStorage[j][i] >= tempMesh.weights[3])
 			{
-				tempMesh.weights[3] = vertStorage[i][j];
+				tempMesh.weights[3] = vertStorage[j][i];
 				tempMesh.boneInfluenceIDs[3] = j;
 			}
 		}
-
 		mesh.push_back(tempMesh);
 	}
 

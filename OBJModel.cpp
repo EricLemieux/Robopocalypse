@@ -136,6 +136,9 @@ OBJModel::OBJModel(const char *modelPath)
 		file.ignore(256, '\n');
 	}
 
+	//store the texcoords
+	this->texcoords = texCoords;
+
 	//create vertex data for faces
 	//float* finalVerts[];
 	std::vector<float> finalVerts;
@@ -151,12 +154,6 @@ OBJModel::OBJModel(const char *modelPath)
 	{
 		finalTexCoords.push_back(texCoords[facesTexCoords[i]].x);
 		finalTexCoords.push_back(texCoords[facesTexCoords[i]].y);
-
-		//store in a vec2 vector for later use in a different program.
-		glm::vec2 temp;
-		temp.x = texCoords[facesTexCoords[i]].x;
-		temp.y = texCoords[facesTexCoords[i]].y;
-		this->texcoords.push_back(temp);
 	}
 
 	std::vector<float> finalNormals;
