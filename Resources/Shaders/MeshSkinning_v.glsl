@@ -18,17 +18,35 @@ out vertex
 	vec2 UV;
 }data;
 
-void main()
+void skinVertex(in vec4 vPos, in vec3 vNorm,
+				out vec4 newPos, out vec3 newNorm,
+				in vec4 vertexWeight, in vec4 vertexIndex)
 {
-	mat4 jointMat;
+	vec4 weightedPos	= vec4(0.0);
+	vec3 weightedNorm	= vec3(0.0);
+
+	vec4 normal			= vec4(vNorm, 0.0);
+
 	for(uint i = 0; i < 4; ++i)
 	{
-		jointMat += boneMatricies[int(boneIndex[i])] * boneWeights[i];
+		weightedPos		+= (boneMatricies[int(vertexIndex[i])] * vPos)		* vertexWeight[i];
+		weightedNorm	+= (boneMatricies[int(vertexIndex[i])] * normal)	* vertexWeight[i];
 	}
 
-	gl_Position = MVP * jointMat * position;
+	newPos		= weightedPos;
+	newNorm		= weightedNorm.xyz;
+}
 
-	data.pos	= position.xyz;
-	data.norm	= normal;
+void main()
+{
+	vec4 skinPos;
+	vec4 skinNorm;
+
+	skinVertex(position, normal, skinPos, skinNorm, boneWeights, boneIndex);
+
+	gl_Position = MVP * skinPos;
+
+	data.pos	= skinPos.xyz;
+	data.norm	= skinNorm.xyz;
 	data.UV		= texcoord;
 }

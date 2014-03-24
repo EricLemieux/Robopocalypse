@@ -11,6 +11,8 @@ VertexBuffer::VertexBuffer(void)
 	vaoHandle = 0;
 
 	numberOfVerticies = 0;
+
+	usingBones = false;
 }
 
 //Destructor
@@ -170,7 +172,7 @@ int VertexBuffer::AddBoneIndexes(float *rawBoneIndexes, unsigned int size)
 {
 	if (boneIndexHandle && rawBoneIndexes)
 	{
-		const unsigned int bufferSize = size * sizeof(float);
+		const unsigned int bufferSize = numberOfVerticies * sizeof(float)* 4;
 		glBindBuffer(GL_ARRAY_BUFFER, boneIndexHandle);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, bufferSize, rawBoneIndexes);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -183,7 +185,7 @@ int VertexBuffer::AddBoneWeights(float *rawBoneWeights, unsigned int size)
 {
 	if (boneWeightHandle && rawBoneWeights)
 	{
-		const unsigned int bufferSize = size * sizeof(float);
+		const unsigned int bufferSize = numberOfVerticies * sizeof(float)* 4;
 		glBindBuffer(GL_ARRAY_BUFFER, boneWeightHandle);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, bufferSize, rawBoneWeights);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);

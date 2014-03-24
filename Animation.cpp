@@ -323,6 +323,8 @@ std::vector<skinMesh> LoadSkinWeightsIMG(char* filePath, std::vector<glm::vec2> 
 
 			float value = (float)g/255.0f;
 
+			value += 0.0001f;
+
 			values.push_back(value);			
 		}
 

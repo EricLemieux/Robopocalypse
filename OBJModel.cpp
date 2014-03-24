@@ -2,7 +2,7 @@
 
 OBJModel::OBJModel(){}
 
-OBJModel::OBJModel(const char *modelPath)
+OBJModel::OBJModel(const char *modelPath, bool useBones)
 {
 	VBO = new VertexBuffer;
 
@@ -136,9 +136,6 @@ OBJModel::OBJModel(const char *modelPath)
 		file.ignore(256, '\n');
 	}
 
-	//store the texcoords
-	this->texcoords = texCoords;
-
 	//create vertex data for faces
 	//float* finalVerts[];
 	std::vector<float> finalVerts;
@@ -154,6 +151,8 @@ OBJModel::OBJModel(const char *modelPath)
 	{
 		finalTexCoords.push_back(texCoords[facesTexCoords[i]].x);
 		finalTexCoords.push_back(texCoords[facesTexCoords[i]].y);
+
+		this->texcoords.push_back(glm::vec2(texCoords[facesTexCoords[i]].x, texCoords[facesTexCoords[i]].y));
 	}
 
 	std::vector<float> finalNormals;
@@ -165,7 +164,7 @@ OBJModel::OBJModel(const char *modelPath)
 	}
 	
 	//Init and add data
-	VBO->Initialize(facesVerts.size(), true, true, true);
+	VBO->Initialize(facesVerts.size(), true, true, useBones);
 	VBO->AddVerticies(&finalVerts[0]);
 	VBO->AddNormals(&finalNormals[0]);
 	VBO->AddTexCoords(&finalTexCoords[0]);

@@ -55,7 +55,7 @@ unsigned int Assets::Load(char* fileName)
 			file >> objPath;
 
 			//Attach the model to the game object
-			newObject->AttachModel(OBJModel(objPath).GetVBO());
+			newObject->AttachModel(OBJModel(objPath, false).GetVBO());
 
 			//Skip ahead to the end of the line
 			file.ignore(256, '\n');

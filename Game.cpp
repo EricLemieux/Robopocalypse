@@ -152,7 +152,7 @@ void Game::initGameplay(void)
 	
 	//Create a game object for player1
 	player1 = new Player;
-	OBJModel player1Model = OBJModel("Resources/Models/Robot.obj");
+	OBJModel player1Model = OBJModel("Resources/Models/Robot.obj", true);
 	player1->AttachModel(player1Model.GetVBO());
 	player1->AttachBones("Resources/Bones/skin.weightMap", player1Model.GetTexcoords());
 	player1->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_red.png"));
@@ -162,7 +162,7 @@ void Game::initGameplay(void)
 	
 	//Create a game object for player2
 	player2 = new Player;
-	OBJModel player2Model = OBJModel("Resources/Models/Robot.obj");
+	OBJModel player2Model = OBJModel("Resources/Models/Robot.obj", true);
 	player2->AttachModel(player2Model.GetVBO());
 	player2->AttachBones("Resources/Bones/skin.weightMap", player2Model.GetTexcoords());
 	player2->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_blue.png"));
@@ -200,7 +200,7 @@ void Game::initGameplay(void)
 
 	mainLight = new Light;
 	mainLight->SetColour(glm::vec3(1, 1, 1));
-	mainLight->AttachModel(OBJModel("Resources/Models/Ball.obj").GetVBO());
+	mainLight->AttachModel(OBJModel("Resources/Models/Ball.obj", false).GetVBO());
 	mainLight->SetPosition(glm::vec3(0.0f, 1.0f, 1.0f));
 	mainLight->GetNode()->SetScale(glm::vec3(0.1f, 0.1f, 0.1f));
 	sceneGraph->AttachNode(mainLight->GetNode());
@@ -466,7 +466,7 @@ void Game::Render(void)
 	mainCamera->Update(viewMatrix);
 
 	//Activate the shader and render the player
-	diffuseProgram->Activate();
+	//diffuseProgram->Activate();
 	{
 		firstPass->SetTexture(1);
 
@@ -487,7 +487,7 @@ void Game::Render(void)
 		PreRender(player1->GetCollisionBoxes());
 		PreRender(player2->GetCollisionBoxes());
 	}
-	lightProgram->Deactivate();
+	//diffuseProgram->Deactivate();
 	
 	firstPass->Deactivate();
 	
@@ -569,10 +569,13 @@ void Game::PreRender(GameObject* object)
 	//if the object has bones that need to be transformed
 	if (object->GetModel()->UsingBones())
 	{
+		meshSkinProgram->Activate();
+
 		glm::mat4 skinningOutputList[64];
 		for (unsigned int i = 0; i < 64; ++i)
 		{
-			skinningOutputList[i] = glm::mat4(1.0f);
+			glm::mat4 a = glm::mat4(1.0f);
+			skinningOutputList[i] = a;
 		}
 		glUniformMatrix4fv(uniform_meshSkin_boneMat, 64, 0, (float*)skinningOutputList);
 
@@ -597,10 +600,14 @@ void Game::PreRender(GameObject* object)
 		//glUniform1i(uniform_qMap, 2);
 
 		object->Render();
+
+		meshSkinProgram->Deactivate();
 	}
 
 	else
 	{
+		diffuseProgram->Activate();
+
 		modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);
 		glUniformMatrix4fv(uniform_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
 		//glUniform3fv(uniform_LightPos, 1, glm::value_ptr(glm::inverse(object->GetNode()->GetWorldTransform()) * LIGHTPOS));
@@ -622,6 +629,8 @@ void Game::PreRender(GameObject* object)
 		//glUniform1i(uniform_qMap, 2);
 
 		object->Render();
+
+		diffuseProgram->Deactivate();
 	}
 }
 
