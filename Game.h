@@ -27,6 +27,8 @@
 #define GLFW_JOYSTICK_1 0
 #define GLFW_JOYSTICK_2 1
 
+#define MAX_BONE_SIZE 64
+
 //////////
 //GAME STATE
 //

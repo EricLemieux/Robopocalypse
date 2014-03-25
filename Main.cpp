@@ -57,11 +57,17 @@ int main()
 	//Set the time to zero before running the game loop so we know it starts from scratch.
 	glfwSetTime(0.0f);
 
+	float deltaTime		= 0.0f;
+	double timeOfLastUpdate	= 0.0f;
+
 	//While the window is open run the game
 	while (Robopocalypse->GetIfRunning())
 	{
+		//Update the deltaTime
+		deltaTime = glfwGetTime() - timeOfLastUpdate;
+
 		//Makes sure there has been enough time between updates before rendering to the screen.
-		if (glfwGetTime() >= FPS_REFRESH_CAP)
+		if (deltaTime >= FPS_REFRESH_CAP)
 		{
 			if (Robopocalypse->GetState() == STATE_GAMEPLAY)
 			{
@@ -75,7 +81,8 @@ int main()
 			}
 
 			//Reset the time between updates
-			glfwSetTime(0.0f);
+			deltaTime			= 0.0f;
+			timeOfLastUpdate	= glfwGetTime();
 		}		
 	}
 	

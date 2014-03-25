@@ -569,14 +569,31 @@ void Game::PreRender(GameObject* object)
 	//if the object has bones that need to be transformed
 	if (object->GetModel()->UsingBones())
 	{
+		object->animations.Update();
+		glm::mat4 skinningOutputList[MAX_BONE_SIZE];
+
+		for (unsigned int i = 0; i < MAX_BONE_SIZE; ++i)
+		{
+			skinningOutputList[i] = *object->animations.GetBoneFransformations();
+		}
+
 		meshSkinProgram->Activate();
 
-		glm::mat4 skinningOutputList[64];
-		for (unsigned int i = 0; i < 64; ++i)
-		{
-			glm::mat4 a = glm::mat4(1.0f);
-			skinningOutputList[i] = a;
-		}
+		//glm::mat4 skinningOutputList[MAX_BONE_SIZE];
+		//for (unsigned int i = 0; i < 64; ++i)
+		//{
+		//	glm::mat4 a = glm::mat4(1.0f);
+		//	if (i > 20)
+		//	{
+		//		a[3] = glm::vec4(0, 0, 10, 1);
+		//	}
+		//	else if (i > 10)
+		//	{
+		//		a[3] = glm::vec4(0, 20, 0, 1);
+		//	}
+		//	
+		//	skinningOutputList[i] = a;
+		//}
 		glUniformMatrix4fv(uniform_meshSkin_boneMat, 64, 0, (float*)skinningOutputList);
 
 		modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);

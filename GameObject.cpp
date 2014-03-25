@@ -6,6 +6,12 @@ GameObject::GameObject()
 	sceneGraphObject = new Node;
 	
 	normalMapHandle = 1;/// loadTexture("Resources/NormalMaps/blank.jpg");
+
+	BVH temp = BVH("Resources\\BVH\\test.bvh");
+	temp.BuildSceneGraph();
+	temp.BuildMotionData();
+	bvhFiles.push_back(temp);
+	animations.SetAnimations(bvhFiles);
 }
 
 

@@ -5,12 +5,16 @@
 #include <iostream>
 #include <fstream>
 
+#include <GLFW\glfw3.h>
+
 #undef _UNICODE
 #include <IL\il.h>
 #include <IL\ilu.h>
 #include <IL\ilut.h>
 
 #include "BVH.h"
+
+#define MAX_BONE_SIZE 64
 
 struct IDval
 {
@@ -37,3 +41,33 @@ public:
 std::vector<skinMesh> LoadSkinWeightsXML(char* filePath);
 
 std::vector<skinMesh> LoadSkinWeightsIMG(char* filePath, std::vector<glm::vec2> texcoords);
+
+class AnimationManager
+{
+private:
+	std::vector<BVH> animations;
+
+	unsigned int currentAnimation;
+	
+	unsigned int currentFrame;
+	unsigned int nextFrame;
+
+	float deltaTime;
+	double timeOfLastUpdate = 0.0f;
+
+	bool looping;
+
+	glm::mat4 boneTransformations[MAX_BONE_SIZE];
+
+public:
+	AnimationManager();
+	~AnimationManager();
+
+	void SetAnimations(std::vector<BVH> newAnimations);
+
+	inline void SetCurrentAnimation(int animationIndex){ currentAnimation = animationIndex; }
+
+	void Update(void);
+
+	inline glm::mat4* GetBoneFransformations(void){ return boneTransformations; }
+};

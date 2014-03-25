@@ -69,6 +69,11 @@ public:
 
 	inline VertexBuffer* GetModel(void){ return VBO; }
 
+
+	//TEMP
+	AnimationManager animations;
+	std::vector<BVH> bvhFiles;
+
 private:
 	//////////
 	//DATA

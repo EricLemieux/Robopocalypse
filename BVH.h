@@ -45,6 +45,9 @@ public:
 	inline unsigned int GetNumFrames(void){ return numFrames; }
 	inline float GetFrameTime(void){ return frameTime; }
 
+	inline Node* GetRootNode(void){	return rootNode; }
+	inline std::vector<Joint> GetNodeTree(void){ return nodeTree; }
+
 private:
 	char* filePath;
 

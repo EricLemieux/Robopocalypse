@@ -387,3 +387,55 @@ std::vector<skinMesh> LoadSkinWeightsIMG(char* filePath, std::vector<glm::vec2> 
 
 	return mesh;
 }
+
+//ANIMATION MANAGER CLASS
+
+AnimationManager::AnimationManager()
+{
+	currentAnimation = 0;
+	currentFrame = 0;
+	nextFrame = 0;
+	looping = true;
+}
+AnimationManager::~AnimationManager()
+{
+
+}
+
+void AnimationManager::SetAnimations(std::vector<BVH> newAnimations)
+{
+	animations = newAnimations;
+}
+
+void AnimationManager::Update(void)
+{
+	//Update the current and next frames
+	currentFrame = nextFrame;
+	if (nextFrame+1 >= animations[currentAnimation].GetNumFrames())
+	{
+		if (looping)
+		{
+			nextFrame = 0;
+		}
+	}
+	else
+	{
+		nextFrame++;
+	}
+
+	//Get the transformation matrices for all joints
+	for (unsigned int i = 0; i < animations[currentAnimation].GetNodeTree().size(); ++i)
+	{
+		glm::mat4 temp = glm::mat4(1.0f);
+		
+		//Rotate
+		temp = glm::rotate(temp, animations[currentAnimation].GetNodeTree()[i].rotationChanges[currentFrame].z, glm::vec3(0, 0, 1));
+		temp = glm::rotate(temp, animations[currentAnimation].GetNodeTree()[i].rotationChanges[currentFrame].x, glm::vec3(1, 0, 0));
+		temp = glm::rotate(temp, animations[currentAnimation].GetNodeTree()[i].rotationChanges[currentFrame].y, glm::vec3(0, 1, 0));
+
+
+		temp[3] = glm::vec4(animations[currentAnimation].GetNodeTree()[i].positionChanges[currentFrame], 1);
+
+		boneTransformations[i] = temp;
+	}
+}
