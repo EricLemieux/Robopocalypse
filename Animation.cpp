@@ -423,6 +423,9 @@ void AnimationManager::Update(void)
 		nextFrame++;
 	}
 
+	//Update scene graph
+	//animations[currentAnimation].GetRootNode()->Update();
+
 	//Get the transformation matrices for all joints
 	for (unsigned int i = 0; i < animations[currentAnimation].GetNodeTree().size(); ++i)
 	{
@@ -433,8 +436,9 @@ void AnimationManager::Update(void)
 		temp = glm::rotate(temp, animations[currentAnimation].GetNodeTree()[i].rotationChanges[currentFrame].x, glm::vec3(1, 0, 0));
 		temp = glm::rotate(temp, animations[currentAnimation].GetNodeTree()[i].rotationChanges[currentFrame].y, glm::vec3(0, 1, 0));
 
-
-		temp[3] = glm::vec4(animations[currentAnimation].GetNodeTree()[i].positionChanges[currentFrame], 1);
+		//temp[3] = glm::vec4(animations[currentAnimation].GetNodeTree()[i].node->GetLocalPosition(), 1.0f);
+		
+		//temp[3] = glm::vec4(animations[currentAnimation].GetNodeTree()[i].positionChanges[currentFrame], 1);
 
 		boneTransformations[i] = temp;
 	}

@@ -483,9 +483,9 @@ void Game::Render(void)
 
 		//PreRender(light);
 		
-		//This is for debugging only and will be removed later on.
-		PreRender(player1->GetCollisionBoxes());
-		PreRender(player2->GetCollisionBoxes());
+		////This is for debugging only and will be removed later on.
+		//PreRender(player1->GetCollisionBoxes());
+		//PreRender(player2->GetCollisionBoxes());
 	}
 	//diffuseProgram->Deactivate();
 	
@@ -572,10 +572,12 @@ void Game::PreRender(GameObject* object)
 		object->animations.Update();
 		glm::mat4 skinningOutputList[MAX_BONE_SIZE];
 
-		for (unsigned int i = 0; i < MAX_BONE_SIZE; ++i)
-		{
-			skinningOutputList[i] = *object->animations.GetBoneFransformations();
-		}
+		//for (unsigned int i = 0; i < MAX_BONE_SIZE; ++i)
+		//{
+		//	skinningOutputList[i] = object->animations.GetBoneFransformations()[i];
+		//}
+
+		//*skinningOutputList = *object->animations.GetBoneFransformations();
 
 		meshSkinProgram->Activate();
 
@@ -594,7 +596,7 @@ void Game::PreRender(GameObject* object)
 		//	
 		//	skinningOutputList[i] = a;
 		//}
-		glUniformMatrix4fv(uniform_meshSkin_boneMat, 64, 0, (float*)skinningOutputList);
+		glUniformMatrix4fv(uniform_meshSkin_boneMat, 64, 0, (float*)object->animations.GetBoneFransformations());
 
 		modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);
 		glUniformMatrix4fv(uniform_meshSkin_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));

@@ -214,8 +214,6 @@ void VertexBuffer::Render(void)
 	//if this vao exists in memory
 	if (vaoHandle)
 	{
-		GLenum error = glGetError();
-
 		//Render it
 		glDrawArrays(GL_TRIANGLES, 0, numberOfVerticies);
 
