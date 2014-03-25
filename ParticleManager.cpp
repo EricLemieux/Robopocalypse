@@ -1,41 +1,22 @@
 #include "ParticleManager.h"
 
 ParticleManager::ParticleManager(){
-
+	emitterList = new std::vector<ParticleEmitter*>;
 }
 
-ParticleManager::~ParticleManager(){
+ParticleManager::~ParticleManager(){}
 
-}
-
-void ParticleManager::AddSmokeEmitter(){
-	SmokeEmitter temp;
-	smokeList.push_back(temp);
-}
-void ParticleManager::AddFireEmitter(){
-	FireEmitter temp;
-	fireList.push_back(temp);
-}
-void ParticleManager::AddSparkEmitter(){
-	SparkEmitter temp;
-	sparkList.push_back(temp);
-}
-void ParticleManager::AddImpactEmitter(){
-	ImpactEmitter temp;
-	impactList.push_back(temp);
+void ParticleManager::addEmitter(Node *parent, ParticleType type){
+	emitterList->push_back(new ParticleEmitter);
+	typeList.push_back(type);
+	parent->AttachNode(emitterList->back()->GetNode());
+	int a = 0;
 }
 
-void ParticleManager::update(float playerVel){
-	for(int i = 0, size = smokeList.size(); i < size; ++i){
-		smokeList[i].update(playerVel);
+int ParticleManager::update(){
+	for(int i = 0, size = emitterList->size(); i<size; ++i){
+		emitterList->at(i)->update(typeList[i]);
 	}
-	for(int i = 0, size = fireList.size(); i < size; ++i){
-		fireList[i].update();
-	}
-	for(int i = 0, size = sparkList.size(); i < size; ++i){
-		sparkList[i].update();
-	}
-	for(int i = 0, size = impactList.size(); i < size; ++i){
-		impactList[i].update();
-	}
+
+	return 0;
 }

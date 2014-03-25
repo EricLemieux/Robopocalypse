@@ -1,21 +1,20 @@
 #pragma once
 
-#include "ParticleEmitters.h"
+#include <vector>
+#include "ParticleEmitter.h"
 
 class ParticleManager{
 private:
-	std::vector<SmokeEmitter> smokeList;
-	std::vector<FireEmitter> fireList;
-	std::vector<SparkEmitter> sparkList;
-	std::vector<ImpactEmitter> impactList;
+	std::vector<ParticleEmitter*> *emitterList;
+	std::vector<ParticleType> typeList;
 public:
 	ParticleManager();
 	~ParticleManager();
 
-	void AddSmokeEmitter();
-	void AddFireEmitter();
-	void AddSparkEmitter();
-	void AddImpactEmitter();
+	void addEmitter(Node* parent,ParticleType type);
 
-	void update(float playerVel);
+	int update();
+
+	std::vector<ParticleEmitter*>* getEmitterList(){return emitterList;}
+	std::vector<ParticleType> getType(){return typeList;}
 };

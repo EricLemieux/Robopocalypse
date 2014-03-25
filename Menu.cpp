@@ -9,14 +9,15 @@ Menu::Menu()
 	int result = 1;
 	GLSLShader passShader_V, passShader_F;
 	result *= passShader_V.CreateShaderFromFile(GLSL_VERTEX_SHADER,		"Resources/Shaders/pass_v.glsl");
-	result *= passShader_F.CreateShaderFromFile(GLSL_FRAGMENT_SHADER,	"Resources/Shaders/pass_f.glsl");
+	result *= passShader_F.CreateShaderFromFile(GLSL_FRAGMENT_SHADER,	"Resources/Shaders/HUD_f.glsl");
 	result *= program->AttachShader(&passShader_V);
 	result *= program->AttachShader(&passShader_F);
 	result *= program->LinkProgram();
 	result *= program->ValidateProgram();
 
-	uniform_MVP		= program->GetUniformLocation("MVP");
-	uniform_texture = program->GetUniformLocation("objectTexture");
+	uniform_MVP				= program->GetUniformLocation("MVP");
+	uniform_texture			= program->GetUniformLocation("objectTexture");
+	uniform_flipDirection	= program->GetUniformLocation("flipDirection");
 
 	FSQ = ShapeFullScreenQuad();
 }
@@ -26,11 +27,11 @@ Menu::~Menu()
 {
 }
 
-void Menu::Update(void)
+void Menu::Update(Game* game)
 {
 	glfwPollEvents();
 
-	MenuInput();
+	MenuInput(game);
 
 	if (glfwWindowShouldClose(window))
 		exit(123);
@@ -44,6 +45,8 @@ void Menu::Render(void)
 	program->Activate();
 
 	glUniformMatrix4fv(uniform_MVP, 1, 0, glm::value_ptr(glm::mat4(1)));
+
+	glUniform2fv(uniform_flipDirection, 1, glm::value_ptr(glm::vec2(1,1)));
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textureHandle);
@@ -63,6 +66,7 @@ void Menu::Render(void)
 void Menu::AttachBackground(char *filePath)
 {
 	textureHandle = ilutGLLoadImage(filePath);
+	int a = 0;
 }
 
 void Menu::AttachWindow(GLFWwindow *gameWindow)
@@ -70,7 +74,7 @@ void Menu::AttachWindow(GLFWwindow *gameWindow)
 	window = gameWindow;
 }
 
-void Menu::MenuInput(void)
+void Menu::MenuInput(Game* game)
 {
 	//Mouse position
 	double * xpos = new double;
@@ -86,13 +90,18 @@ void Menu::MenuInput(void)
 	{
 		if ((*xpos >= 96.0) && (*xpos <= 298.0))
 		{
-			if (pressed == 1){}
-			//WORKS change gamestate to gameplay
+			if (pressed == 1)
+			{
+				game->SetState(STATE_GAMEPLAY);
+				game->initGameplay();
+			}
 		}
 		else if ((*xpos >= 1298.0) && (*xpos <= 1500.0))
 		{
-			if (pressed == 1){}
-			//WORKS exit game
+			if (pressed == 1)
+			{
+				exit(99);
+			}
 		}
 	}
 }

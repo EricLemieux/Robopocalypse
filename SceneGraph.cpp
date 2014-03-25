@@ -81,8 +81,9 @@ void Node::DetatchNode(Node *childNode)
 }
 void Node::DetatchNode(const int index)
 {
-	children[index] = 0;
 	children[index]->parent = 0;
+	children[index] = 0;
+	children.erase(children.begin() + index);
 }
 //Detach all of the node children objects
 void Node::DetatchAllNodes(void)

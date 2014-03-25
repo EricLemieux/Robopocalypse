@@ -19,6 +19,8 @@ Game::Game()
 
 	//Once initialized the game is now running
 	isRunning = true;
+
+	gameOver = false;
 	
 	//load sounds
 	soundSystem.loadSound("Resources/sound_assets.txt");
@@ -194,6 +196,34 @@ void Game::initGameplay(void)
 	uniform_outline_MVP = OutlineProgram->GetUniformLocation("MVP");
 	uniform_outline_scene = OutlineProgram->GetUniformLocation("scene");
 
+	//set up particle shaders
+	ParticleProgram = new GLSLProgram;
+	result = 1;
+	GLSLShader particleShader_V, particleShader_G, particleShader_F;
+	result *= particleShader_V.CreateShaderFromFile(GLSL_VERTEX_SHADER, "Resources/Shaders/particle_v.glsl");
+	result *= particleShader_G.CreateShaderFromFile(GLSL_GEOMETRY_SHADER, "Resources/Shaders/particle_g.glsl");
+	result *= particleShader_F.CreateShaderFromFile(GLSL_FRAGMENT_SHADER, "Resources/Shaders/particle_f.glsl");
+	result *= ParticleProgram->AttachShader(&particleShader_V);
+	result *= ParticleProgram->AttachShader(&particleShader_G);
+	result *= ParticleProgram->AttachShader(&particleShader_F);
+	result *= ParticleProgram->LinkProgram();
+	result *= ParticleProgram->ValidateProgram();
+
+	particleShader_F.Release();
+	particleShader_G.Release();
+	particleShader_V.Release();
+
+	uniform_particle_MVP = ParticleProgram->GetUniformLocation("MVP");
+	uniform_particle_modelview = ParticleProgram->GetUniformLocation("modelview");
+	uniform_particle_projection = ParticleProgram->GetUniformLocation("projection");
+	uniform_particle_distort = ParticleProgram->GetUniformLocation("distortion");
+	uniform_particle_squaresize = ParticleProgram->GetUniformLocation("squareSize");
+	uniform_particle_texture = ParticleProgram->GetUniformLocation("objectTexture");
+
+	squareSize = new float;
+	*squareSize = 5.f;
+
+
 	//Set up the first pass Frame buffer
 	firstPass = new FrameBuffer;
 	firstPass->Initialize(windowWidth, windowHeight, 2, true, false);
@@ -208,6 +238,17 @@ void Game::initGameplay(void)
 	qMap_handle = loadTexture("Resources/Textures/qMap.png");
 
 	soundSystem.playSound(0, BGM_FIGHT_CHANNEL);
+
+	particleManager.addEmitter(player1->GetNode(), SMOKE);
+	particleManager.addEmitter(player1->GetNode(), SPARK);
+	particleManager.addEmitter(player2->GetNode(), SMOKE);
+	particleManager.addEmitter(player2->GetNode(), SPARK);
+	particleManager.addEmitter(player1->GetNode(), SHIELD);
+	particleManager.addEmitter(player2->GetNode(), SHIELD);
+
+	redStartPlayed = false;
+	blueStartPlayed = false;
+	soundCounter = 0;
 
 	sceneGraph->Update();
 }
@@ -275,6 +316,25 @@ void Game::Update(void)
 	soundSystem.setChannelPos(SFX_PLAYER1_CHANNEL, player1->getPos());
 	soundSystem.setChannelPos(SFX_PLAYER2_CHANNEL, player2->getPos());
 
+	if (player1->GetHP() < player1->GetMaxHP()*0.5f){
+		particleManager.getEmitterList()->at(0)->ActivateEmitter();
+		particleManager.getEmitterList()->at(1)->ActivateEmitter();
+	}
+
+	if (player2->GetHP() < player2->GetMaxHP()*0.5f){
+		particleManager.getEmitterList()->at(2)->ActivateEmitter();
+		particleManager.getEmitterList()->at(3)->ActivateEmitter();
+	}
+	++soundCounter;
+	if (!redStartPlayed){
+		pl1SFX = START_DIALOGUE1;
+		redStartPlayed = true;
+	}
+	else if (!blueStartPlayed && soundCounter == 180){
+		pl2SFX = START_DIALOGUE2;
+		blueStartPlayed = true;
+	}
+
 	if (pl1SFX != EMPTY_P_SFX)
 		soundSystem.playSound(pl1SFX, SFX_PLAYER1_CHANNEL);
 
@@ -292,7 +352,28 @@ void Game::Update(void)
 
 	soundSystem.updateSound();
 
+	if (player1->getCurrentAction() == BLOCK){
+		particleManager.getEmitterList()->at(4)->ActivateEmitter();
+	}
+	else {
+		particleManager.getEmitterList()->at(4)->DeactivateEmitter();
+	}
+
+	if (player2->getCurrentAction() == BLOCK){
+		particleManager.getEmitterList()->at(5)->ActivateEmitter();
+	}
+	else {
+		particleManager.getEmitterList()->at(5)->DeactivateEmitter();
+	}
+
+	particleManager.update();
+
 	sceneGraph->Update();
+
+	if (player1->GetHP() <= 0.0f || player2->GetHP() <= 0.0f)
+	{
+		gameOver = true;
+	}
 }
 
 void Game::playerInput(void){
@@ -457,70 +538,96 @@ void Game::playerInput(void){
 //Render the game
 void Game::Render(void)
 {
-	firstPass->Activate();
-
-	//Clear the colour and depth buffers
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	//Update the view matrix
-	mainCamera->Update(viewMatrix);
-
-	//Activate the shader and render the player
-	//diffuseProgram->Activate();
+	if (!gameOver)
 	{
-		firstPass->SetTexture(1);
+		firstPass->Activate();
 
-		//Render all of the background objects
-		for (unsigned int i = 0;i < BackgroundObjects.GetSize(); ++i)
+		//Clear the colour and depth buffers
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		//Update the view matrix
+		mainCamera->Update(viewMatrix);
+
+		//Activate the shader and render the player
+		//diffuseProgram->Activate();
 		{
-			firstPass->SetTexture(0);
-			PreRender(BackgroundObjects.GetObjectAtIndex(i));
+			firstPass->SetTexture(1);
+
+			//Render all of the background objects
+			for (unsigned int i = 0; i < BackgroundObjects.GetSize(); ++i)
+			{
+				firstPass->SetTexture(0);
+				PreRender(BackgroundObjects.GetObjectAtIndex(i));
+			}
+
+			//Render the two player game objects
+			PreRender(player1);
+			PreRender(player2);
+
+			//PreRender(light);
+
+			////This is for debugging only and will be removed later on.
+			//PreRender(player1->GetCollisionBoxes());
+			//PreRender(player2->GetCollisionBoxes());
 		}
-		
-		//Render the two player game objects
-		PreRender(player1);
-		PreRender(player2);
+		//diffuseProgram->Deactivate();
 
-		//PreRender(light);
-		
-		////This is for debugging only and will be removed later on.
-		//PreRender(player1->GetCollisionBoxes());
-		//PreRender(player2->GetCollisionBoxes());
-	}
-	//diffuseProgram->Deactivate();
-	
-	firstPass->Deactivate();
-	
+		ParticleProgram->Activate();
+		{
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+			glEnable(GL_BLEND);
 
-	glDisable(GL_DEPTH_TEST);
-	
-	//Enable new shader
-	OutlineProgram->Activate();
-	{
-		//Set textures for the FBO
-		firstPass->SetTexture(0);
-		firstPass->BindColour(0);
-		firstPass->SetTexture(1);
-		firstPass->BindColour(1);
+			PreRender(particleManager.getEmitterList());
+			glDisable(GL_BLEND);
+		} ParticleProgram->Deactivate();
+
+		firstPass->Deactivate();
+
+
+		glDisable(GL_DEPTH_TEST);
+
+		//Enable new shader
+		OutlineProgram->Activate();
+		{
+			//Set textures for the FBO
+			firstPass->SetTexture(0);
+			firstPass->BindColour(0);
+			firstPass->SetTexture(1);
+			firstPass->BindColour(1);
+			firstPass->SetTexture(2);
+			firstPass->BindDepth();
+
+			glUniformMatrix4fv(uniform_outline_MVP, 1, 0, glm::value_ptr(glm::mat4(1)));
+
+			fullScreenQuad->ActivateAndRender();
+		}
+		OutlineProgram->Deactivate();
+
+		//Unbind the FBO textures
 		firstPass->SetTexture(2);
-		firstPass->BindDepth();
-		
-		glUniformMatrix4fv(uniform_outline_MVP, 1, 0, glm::value_ptr(glm::mat4(1)));
-	
-		fullScreenQuad->ActivateAndRender();
+		firstPass->UnbindTextures();
+		firstPass->SetTexture(1);
+		firstPass->UnbindTextures();
+		firstPass->SetTexture(0);
+		firstPass->UnbindTextures();
+
+		//Render the HUD on top of everything else.
+		RenderHUD();
 	}
-	OutlineProgram->Deactivate();
+	else
+	{
+		static const GLuint winImageHandle = ilutGLLoadImage("Resources/Textures/win.jpg");
+
+		OutlineProgram->Activate();
+		{
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, winImageHandle);
+			glUniform1i(glGetUniformLocation(OutlineProgram->GetHandle(), "scene"), 0);
 	
-	//Unbind the FBO textures
-	firstPass->SetTexture(2);
-	firstPass->UnbindTextures();
-	firstPass->SetTexture(1);
-	firstPass->UnbindTextures();
-	firstPass->SetTexture(0);
-	firstPass->UnbindTextures();
-	
-	//Render the HUD on top of everything else.
-	RenderHUD();
+			glUniformMatrix4fv(uniform_outline_MVP, 1, 0, glm::value_ptr(glm::mat4(1)));
+			fullScreenQuad->ActivateAndRender();
+		}OutlineProgram->Deactivate();
+	}
 
 	GLSLProgram::Deactivate();
 	FrameBuffer::Deactivate();
@@ -572,31 +679,16 @@ void Game::PreRender(GameObject* object)
 		object->animations.Update();
 		glm::mat4 skinningOutputList[MAX_BONE_SIZE];
 
-		//for (unsigned int i = 0; i < MAX_BONE_SIZE; ++i)
-		//{
-		//	skinningOutputList[i] = object->animations.GetBoneFransformations()[i];
-		//}
+		for (unsigned int i = 0; i < MAX_BONE_SIZE; ++i)
+		{
+			skinningOutputList[i] = *object->animations.GetBoneFransformations();
+		}
 
 		//*skinningOutputList = *object->animations.GetBoneFransformations();
 
 		meshSkinProgram->Activate();
 
-		//glm::mat4 skinningOutputList[MAX_BONE_SIZE];
-		//for (unsigned int i = 0; i < 64; ++i)
-		//{
-		//	glm::mat4 a = glm::mat4(1.0f);
-		//	if (i > 20)
-		//	{
-		//		a[3] = glm::vec4(0, 0, 10, 1);
-		//	}
-		//	else if (i > 10)
-		//	{
-		//		a[3] = glm::vec4(0, 20, 0, 1);
-		//	}
-		//	
-		//	skinningOutputList[i] = a;
-		//}
-		glUniformMatrix4fv(uniform_meshSkin_boneMat, 64, 0, (float*)object->animations.GetBoneFransformations());
+		glUniformMatrix4fv(uniform_meshSkin_boneMat, 64, 0, (float*)skinningOutputList);
 
 		modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);
 		glUniformMatrix4fv(uniform_meshSkin_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
@@ -676,4 +768,48 @@ void Game::PreRender(std::vector<CollisionBox> hitboxes)
 	}
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void Game::PreRender(std::vector<ParticleEmitter*>* emitterList){
+	for (int i = 0, size = emitterList->size(); i<size; ++i){
+
+		ParticleType type = particleManager.getType()[i];
+
+		if (type == SMOKE){
+			*squareSize = 40.f;
+		}
+		else if (type == SPARK){
+			*squareSize = 25.f;
+		}
+		else if (type == SHIELD){
+			*squareSize = 150.f;
+		}
+
+
+		for (int j = 0, size = emitterList->at(i)->getParticleList()->size(); j < size; ++j){
+
+			modelViewProjectionMatrix = emitterList->at(i)->getParticleList()->at(j)->UpdateModelViewProjection(projectionMatrix, viewMatrix);
+			glm::mat4 modelviewMatrix = viewMatrix*emitterList->at(i)->getParticleList()->at(j)->GetNode()->GetWorldTransform();
+
+			glUniformMatrix4fv(uniform_particle_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
+			glUniformMatrix4fv(uniform_particle_modelview, 1, 0, glm::value_ptr(modelviewMatrix));
+			glUniformMatrix4fv(uniform_particle_projection, 1, 0, glm::value_ptr(projectionMatrix));
+			glUniform1fv(uniform_particle_squaresize, 1, squareSize);
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, emitterList->at(i)->getParticleList()->at(j)->GetTextureHandle());
+			glUniform1i(uniform_texture, 0);
+
+			emitterList->at(i)->getParticleList()->at(j)->GetModel()->Activate();
+			glDrawArrays(GL_POINTS, 0, 1);
+		}
+
+
+		//emitterList[i]->Render();
+
+		////Pass in texture
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, emitterList[i]->GetTextureHandle());
+		//glUniform1i(uniform_texture, 0);
+	}
 }

@@ -10,7 +10,7 @@ void ERRCHECK(FMOD_RESULT result){
 
 SoundWrap::SoundWrap(){
 	updateTime = 50;//ms
-	distanceFactor = 1.f;
+	distanceFactor = 5.f;
 
 	//set channel to 0
 	for(int i = 0; i < 5; ++i){
@@ -161,9 +161,9 @@ void SoundWrap::clearAllSound(){
 
 
 void SoundWrap::setChannelPos(int chanNum, glm::vec3 pos){
-	FMOD_VECTOR temp = {pos.x,pos.y,pos.z};
+	FMOD_VECTOR temp = {pos.x*0.5f,0,0};
 	FMOD_VECTOR temp2 = {0,0,0};
-	//channelList[chanNum]->set3DAttributes(&temp,&temp2);
+	channelList[chanNum]->set3DAttributes(&temp,&temp2);
 }
 
 void SoundWrap::pauseSound(int channelNum){

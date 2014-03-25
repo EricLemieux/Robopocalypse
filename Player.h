@@ -77,4 +77,6 @@ public:
 	 //for affecting other player on blocking melee attack
 	 void setNextAction(Actions newAction);
 	 int getOnGround();
+
+	 Actions getCurrentAction(){ return currentAction; }
 };

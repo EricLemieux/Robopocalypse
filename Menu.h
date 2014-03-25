@@ -11,6 +11,11 @@
 
 #include <GLFW\glfw3.h>
 
+#include "Game.h"
+
+//Predefine for Cyclic Dependency
+class Game;
+
 class Menu
 {
 public:
@@ -18,19 +23,20 @@ public:
 	~Menu();
 
 	void Render(void);
-	void Update(void);
+	void Update(Game* game);
 
 	void AttachBackground(char *filePath);
 
 	void AttachWindow(GLFWwindow *gameWindow);
 
-	void Menu::MenuInput(void);
+	void Menu::MenuInput(Game* game);
 
 private:
 	GLuint textureHandle;
 
 	unsigned int uniform_texture;
 	unsigned int uniform_MVP;
+	unsigned int uniform_flipDirection;
 
 	GLSLProgram *program;
 

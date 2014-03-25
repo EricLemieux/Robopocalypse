@@ -38,5 +38,5 @@ public:
 
 	void release();
 
-	Node* getParticleNode(){ return particleNode; }
+	Node* getParticleNode(){return particleNode;}
 };

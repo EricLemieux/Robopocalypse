@@ -15,6 +15,7 @@
 #include "Sound.h"
 #include "FrameBuffer.h"
 #include "Light.h"
+#include "ParticleManager.h"
 
 #include <GLFW\glfw3.h>
 
@@ -39,6 +40,9 @@ enum gameStates
 	STATE_GAMEPLAY = 0,
 	STATE_MAINMENU,
 };
+
+//Predefine for circular inclusion
+class Menu;
 
 
 //////////
@@ -73,6 +77,8 @@ public:
 	//SETTERS
 	//////////
 
+	//Set the games current state
+	inline void SetState(gameStates newState){ GAME_STATE = newState; }
 
 
 	//////////
@@ -106,6 +112,7 @@ public:
 	void PreRender(GameObject* object);
 	void PreRender(GameObject* object, Light* light);
 	void PreRender(std::vector<CollisionBox> hitboxes);
+	void PreRender(std::vector<ParticleEmitter*>* emitterList);
 
 private:
 
@@ -115,6 +122,9 @@ private:
 
 	unsigned int windowWidth;
 	unsigned int windowHeight;
+
+	//Stores whether the game is over or not
+	bool gameOver;
 
 	//Scene Graph nodes
 	Node *world;
@@ -145,6 +155,7 @@ private:
 	GLSLProgram *lightProgram;
 	GLSLProgram *HUDProgram;
 	GLSLProgram *OutlineProgram;
+	GLSLProgram *ParticleProgram;
 
 	//Matricies for use in the shader
 	glm::mat4 projectionMatrix;
@@ -185,12 +196,28 @@ private:
 	unsigned int uniform_outline_MVP;
 	unsigned int uniform_outline_scene;
 
+	unsigned int uniform_particle_MVP;
+	unsigned int uniform_particle_modelview;
+	unsigned int uniform_particle_projection;
+	unsigned int uniform_particle_distort;
+	unsigned int uniform_particle_squaresize;
+	unsigned int uniform_particle_texture;
+	
+	float *squareSize;
+
 	//sound
 	SoundWrap soundSystem;
+
+	bool redStartPlayed;
+	bool blueStartPlayed;
+	int soundCounter;
 
 	playerSFX pl1SFX;
 	playerSFX pl2SFX;
 	menuSFX mSFX;
+
+	//Particle
+	ParticleManager particleManager;
 
 	//Full screen quad used for drawing the frame buffer object to.
 	VertexBuffer *fullScreenQuad;

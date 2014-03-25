@@ -2,7 +2,7 @@
 
 
 Player::Player(){
-	sceneGraphNode = GetNode();
+	sceneGraphNode = this->GetNode();
 
 	vel = glm::vec3(0,0,0);
 
@@ -56,12 +56,11 @@ Player::Player(){
 
 	hasBeenHit = 0;
 
-
 }
 Player::~Player(){}
 void Player::update(Player *otherPlayer, playerSFX &sfx){
 
-	pos = sceneGraphNode->GetWorldPosition();
+	pos = this->GetNode()->GetWorldPosition();
 
 	//if player is not in the middle of an action and 
 	if (currentAction == IDLE && otherPlayer->pos.x > pos.x){
@@ -137,9 +136,8 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 	
 	if ((hitboxListHit[PUNCHBOX] || hitboxListHit[KICKBOX] || hitboxListHit[LASERBOX] 
 	|| hitboxListHit[BLASTBOX]) && currentAction != BLOCK && hasBeenHit == 0){
-		//if hit by attack, interrupt current and trigger stagger if not blocking
-		if(!hitboxListHit[LASERBOX])
-		{
+		if(!hitboxListHit[LASERBOX]){
+			//if hit by attack, interrupt current and trigger stagger if not blocking
 			actionTimer = 0;
 			prevAction = currentAction;
 			nextAction = IDLE;
@@ -150,6 +148,7 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 				currentAction = STAGGER_G;
 			}
 		}
+
 		//since not blocking, reduce hp/sp according to attack TODO collision shiiit
 		if (hitboxListHit[PUNCHBOX]){
 			hp -= 150;
@@ -288,20 +287,33 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 	//cycle actions if IDLE
 	if (currentAction == IDLE){
 		cycleActions();
+	} else if (currentAction == IDLE && prevAction == IDLE){
+		cycleActions();
 	}
 
+
+
 	//x velocity damping
-	if (vel.x > 0){
-		if (onGround == 1)
-			vel.x -= 1.f;
-		if (vel.x < 0)
-			vel.x = 0;
-	}
-	else if (vel.x < 0){
-		if (onGround == 1)
-			vel.x += 1.f;
-		if (vel.x > 0)
-			vel.x = 0;
+	if(prevAction!=MOVE_LEFT || prevAction!=MOVE_RIGHT){
+		
+		if (vel.x > 0){
+			if (onGround == 1){
+				vel.x -= 25.f;
+			} else {
+				vel.x -= 5.f;
+			}
+			if (vel.x < 0)
+				vel.x = 0;
+		}
+		else if (vel.x < 0){
+			if (onGround == 1){
+				vel.x += 25.f;
+			} else {
+				vel.x += 5.f;
+			}
+			if (vel.x > 0)
+				vel.x = 0;
+		}
 	}
 
 	//gravity
@@ -351,7 +363,7 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 	this->GetNode()->SetRotation(glm::vec3(isFacing*90, 0, 0));
 
 	//Final update to the scene graph
-	sceneGraphNode->SetLocalPosition(pos);
+	this->GetNode()->SetLocalPosition(pos);
 }
 void draw(){
 
@@ -376,6 +388,7 @@ void Player::cycleActions(){
 	nextAction = IDLE;
 	actionTimer = 0;
 	hasBeenHit = 0;
+	
 }
 
 std::vector<CollisionBox> Player::GetCollisionBoxes(void)

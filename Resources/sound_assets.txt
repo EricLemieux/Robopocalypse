@@ -9,4 +9,8 @@ psfx Resources/sfx/laser.mp3
 psfx Resources/sfx/blast.mp3
 psfx Resources/sfx/shieldup.mp3
 psfx Resources/sfx/shielddown.mp3
+psfx Resources/dialogue/red.mp3
+psfx Resources/dialogue/blue.mp3
+psfx Resources/dialogue/redw.mp3
+psfx Resources/dialogue/bluew.mp3
 bgm Resources/bgm/untitled.mp3
