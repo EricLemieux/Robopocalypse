@@ -23,11 +23,11 @@ void skinVertex(in vec4 vPos, in vec3 vNorm,
 				in vec4 vertexWeight, in vec4 vertexIndex)
 {
 	vec4 weightedPos	= vec4(0.0);
-	vec3 weightedNorm	= vec3(0.0);
+	vec4 weightedNorm	= vec4(0.0);
 
 	vec4 normal			= vec4(vNorm, 0.0);
 
-	for(uint i = 0; i < 4; ++i)
+	for(int i = 0; i < 4; ++i)
 	{
 		weightedPos		+= (boneMatricies[int(vertexIndex[i])] * vPos)		* vertexWeight[i];
 		weightedNorm	+= (boneMatricies[int(vertexIndex[i])] * normal)	* vertexWeight[i];
@@ -40,7 +40,7 @@ void skinVertex(in vec4 vPos, in vec3 vNorm,
 void main()
 {
 	vec4 skinPos;
-	vec4 skinNorm;
+	vec3 skinNorm;
 
 	skinVertex(position, normal, skinPos, skinNorm, boneWeights, boneIndex);
 

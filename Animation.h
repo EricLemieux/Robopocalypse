@@ -53,7 +53,7 @@ private:
 	unsigned int nextFrame;
 
 	float deltaTime;
-	double timeOfLastUpdate = 0.0f;
+	double timeOfLastUpdate;
 
 	bool looping;
 

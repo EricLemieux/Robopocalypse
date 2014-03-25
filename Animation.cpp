@@ -396,6 +396,8 @@ AnimationManager::AnimationManager()
 	currentFrame = 0;
 	nextFrame = 0;
 	looping = true;
+
+	timeOfLastUpdate = 0.0f;
 }
 AnimationManager::~AnimationManager()
 {
