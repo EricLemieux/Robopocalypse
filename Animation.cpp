@@ -427,21 +427,26 @@ void AnimationManager::Update(void)
 
 	//Update scene graph
 	//animations[currentAnimation].GetRootNode()->Update();
+	
+	glm::mat4 temp = glm::mat4(1.0f);
+	
+	//TODO:
+	//This for look is cutting frame rate in half, even when there is nothing in it, needs to be looked into
 
 	//Get the transformation matrices for all joints
 	for (unsigned int i = 0; i < animations[currentAnimation].GetNodeTree().size(); ++i)
 	{
-		glm::mat4 temp = glm::mat4(1.0f);
-		
-		//Rotate
-		temp = glm::rotate(temp, animations[currentAnimation].GetNodeTree()[i].rotationChanges[currentFrame].z, glm::vec3(0, 0, 1));
-		temp = glm::rotate(temp, animations[currentAnimation].GetNodeTree()[i].rotationChanges[currentFrame].x, glm::vec3(1, 0, 0));
-		temp = glm::rotate(temp, animations[currentAnimation].GetNodeTree()[i].rotationChanges[currentFrame].y, glm::vec3(0, 1, 0));
+		temp = glm::mat4(1.0f);
 
-		//temp[3] = glm::vec4(animations[currentAnimation].GetNodeTree()[i].node->GetLocalPosition(), 1.0f);
-		
+		////Rotate
+		//temp = glm::rotate(temp, animations[currentAnimation].GetNodeTree()[i].rotationChanges[currentFrame].z, glm::vec3(0, 0, 1));
+		//temp = glm::rotate(temp, animations[currentAnimation].GetNodeTree()[i].rotationChanges[currentFrame].x, glm::vec3(1, 0, 0));
+		//temp = glm::rotate(temp, animations[currentAnimation].GetNodeTree()[i].rotationChanges[currentFrame].y, glm::vec3(0, 1, 0));
+		//
+		////temp[3] = glm::vec4(animations[currentAnimation].GetNodeTree()[i].node->GetLocalPosition(), 1.0f);
+		//
 		//temp[3] = glm::vec4(animations[currentAnimation].GetNodeTree()[i].positionChanges[currentFrame], 1);
-
+		//
 		boneTransformations[i] = temp;
 	}
 }
