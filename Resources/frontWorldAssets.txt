@@ -1,44 +1,6 @@
 #Simple asset file made to test asset file loading
 new
 pos 0 -20 -50
-obj Resources/Models/Level/BackB4.obj
-tex Resources/Textures/Level/BackB4.jpg
-load
-new
-pos 0 -20 -50
-obj Resources/Models/Level/BackB3.obj
-tex Resources/Textures/Level/BackB3.jpg
-loadnew
-pos 0 -20 -50
-obj Resources/Models/Level/BackB2.obj
-tex Resources/Textures/Level/BackB2.jpg
-loadnew
-pos 0 -20 -50
-obj Resources/Models/Level/BackB1.obj
-tex Resources/Textures/Level/BackB1.jpg
-load
-new
-pos 0 -20 -50
-obj Resources/Models/Level/BackFloor.obj
-tex Resources/Textures/Level/Floor_Texture.jpg
-load
-new
-pos 0 -20 -50
-obj Resources/Models/Level/BackLittleTower.obj
-tex Resources/Textures/Level/Tower.jpg
-load
-new
-pos 0 -20 -50
-obj Resources/Models/Level/BackSpire.obj
-tex Resources/Textures/Level/BackSpire.jpg
-load
-new
-pos 0 -20 -50
-obj Resources/Models/Level/BackTower.obj
-tex Resources/Textures/Level/Tower.jpg
-load
-new
-pos 0 -20 -50
 obj Resources/Models/Level/FrontB1.obj
 tex Resources/Textures/Level/FrontB1.jpg
 load

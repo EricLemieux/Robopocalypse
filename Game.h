@@ -137,7 +137,8 @@ private:
 
 	Camera *mainCamera;
 
-	Assets BackgroundObjects;
+	Assets frontWorldAssetsObjects;
+	Assets backWorldAssetsObjects;
 
 	//Stores if the game should be running
 	bool isRunning;

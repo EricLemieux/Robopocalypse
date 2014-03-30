@@ -39,7 +39,7 @@ void Game::initGameplay(void)
 {
 	GAME_STATE = STATE_GAMEPLAY;
 
-	projectionMatrix = glm::perspective(90.0f, (float)1280 / (float)720, 0.1f, 1000.0f);
+	projectionMatrix = glm::perspective(90.0f, (float)1280 / (float)720, 0.1f, 750.0f);
 	
 	//Create the full screen quad
 	fullScreenQuad = ShapeFullScreenQuad();
@@ -176,8 +176,11 @@ void Game::initGameplay(void)
 	sceneGraph->AttachNode(player2->GetNode());
 	
 	//Load the background objects into a asset list
-	BackgroundObjects.Load("Resources/assets.txt");
-	BackgroundObjects.AttachAllObjectsToNode(sceneGraph);
+	frontWorldAssetsObjects.Load("Resources/frontWorldAssets.txt");
+	frontWorldAssetsObjects.AttachAllObjectsToNode(sceneGraph);
+
+	backWorldAssetsObjects.Load("Resources/backWorldAssets.txt");
+	backWorldAssetsObjects.AttachAllObjectsToNode(sceneGraph);
 
 	//Setting up the outline shader for use with toon shading
 	OutlineProgram = new GLSLProgram;
@@ -555,18 +558,27 @@ void Game::Render(void)
 		{
 			firstPass->SetTexture(1);
 
-			//Render all of the background objects
-			for (unsigned int i = 0; i < BackgroundObjects.GetSize(); ++i)
+			////Render all of the background objects
+			//projectionMatrix = glm::perspective(90.0f, (float)1280 / (float)720, 0.1f, 750.0f);
+			//for (unsigned int i = 0; i < backWorldAssetsObjects.GetSize(); ++i)
+			//{
+			//	firstPass->SetTexture(0);
+			//	PreRender(backWorldAssetsObjects.GetObjectAtIndex(i));
+			//}
+
+			//Render all of the foreground objects
+			projectionMatrix = glm::perspective(90.0f, (float)1280 / (float)720, 0.1f, 50.0f);
+			for (unsigned int i = 0; i < frontWorldAssetsObjects.GetSize(); ++i)
 			{
 				firstPass->SetTexture(0);
-				PreRender(BackgroundObjects.GetObjectAtIndex(i));
+				PreRender(frontWorldAssetsObjects.GetObjectAtIndex(i));
 			}
 
 			//Render the two player game objects
 			PreRender(player1);
 			PreRender(player2);
 
-			//PreRender(light);
+			//PreRender(mainLight);
 
 			////This is for debugging only and will be removed later on.
 			//PreRender(player1->GetCollisionBoxes());
@@ -602,22 +614,25 @@ void Game::Render(void)
 			glUniformMatrix4fv(uniform_outline_MVP, 1, 0, glm::value_ptr(glm::mat4(1)));
 
 			fullScreenQuad->ActivateAndRender();
+
+			//Unbind the FBO textures
+			firstPass->SetTexture(2);
+			firstPass->UnbindTextures();
+			firstPass->SetTexture(1);
+			firstPass->UnbindTextures();
+			firstPass->SetTexture(0);
+			firstPass->UnbindTextures();
+
 		}
 		OutlineProgram->Deactivate();
-
-		//Unbind the FBO textures
-		firstPass->SetTexture(2);
-		firstPass->UnbindTextures();
-		firstPass->SetTexture(1);
-		firstPass->UnbindTextures();
-		firstPass->SetTexture(0);
-		firstPass->UnbindTextures();
 
 		//Render the HUD on top of everything else.
 		RenderHUD();
 	}
 	else
 	{
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		static const GLuint winImageHandle = ilutGLLoadImage("Resources/Textures/win.jpg");
 
 		OutlineProgram->Activate();

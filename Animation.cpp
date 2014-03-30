@@ -314,7 +314,7 @@ std::vector<skinMesh> LoadSkinWeightsIMG(char* filePath, std::vector<glm::vec2> 
 		for (unsigned int j = 0; j < texcoords.size(); ++j)
 		{
 			ILuint data;
-			ilCopyPixels(texcoords[j].x * width, /*1.0f -*/texcoords[j].y*height, 0, 1, 1, 1, IL_RGBA, IL_UNSIGNED_BYTE, &data);
+			ilCopyPixels(texcoords[j].x * width, (1.0f - texcoords[j].y)*height, 0, 1, 1, 1, IL_RGBA, IL_UNSIGNED_BYTE, &data);
 			int r, g, b, a;
 			a = (data >> 24) & 0xFF;
 			b = (data >> 16) & 0xFF;
