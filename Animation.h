@@ -69,5 +69,5 @@ public:
 
 	void Update(void);
 
-	inline glm::mat4* GetBoneFransformations(void){ return boneTransformations; }
+	inline glm::mat4* GetBoneTransformations(void){ return boneTransformations; }
 };

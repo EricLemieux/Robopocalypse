@@ -24,7 +24,7 @@ void BVH::LoadFile(char* filePath)
 	this->filePath = filePath;
 }
 
-int BVH::BuildSceneGraph()
+int BVH::BuildSceneGraph(Node *parent)
 {
 	unsigned int currentIndex	= 0;
 	unsigned int targetIndex	= 0;
@@ -82,6 +82,10 @@ int BVH::BuildSceneGraph()
 					pos.z = atof(currentWord);
 
 					currentNode->SetLocalPosition(pos);
+
+					glm::mat4 startingPos;
+					startingPos[3] = glm::vec4(pos, 1.0f);
+					currentJoint.offset = startingPos;
 				}
 
 				else if (!_stricmp(currentWord, "CHANNELS"))
@@ -104,7 +108,7 @@ int BVH::BuildSceneGraph()
 			nodeTree.push_back(currentJoint);
 		}
 
-		
+		parent->AttachNode(rootNode);
 
 		if (!_stricmp(currentWord, "JOINT"))
 		{
@@ -143,6 +147,10 @@ int BVH::BuildSceneGraph()
 				pos.z = atof(currentWord);
 
 				currentNode->SetLocalPosition(pos);
+
+				glm::mat4 startingPos;
+				startingPos[3] = glm::vec4(pos, 1.0f);
+				currentJoint.offset = startingPos;
 
 				file.ignore(256, '\n');
 				file >> currentWord;

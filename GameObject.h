@@ -74,6 +74,8 @@ public:
 	AnimationManager animations;
 	std::vector<BVH> bvhFiles;
 
+	void bvhTest(void);
+
 private:
 	//////////
 	//DATA

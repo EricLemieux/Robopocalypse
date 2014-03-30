@@ -160,6 +160,7 @@ void Game::initGameplay(void)
 	player1->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_red.png"));
 	player1->SetPosition(glm::vec3(-17, 0, -15));
 	player1->GetNode()->SetRotation(glm::vec3(90,0,0));
+	player1->bvhTest();
 	sceneGraph->AttachNode(player1->GetNode());
 	
 	//Create a game object for player2
@@ -171,6 +172,7 @@ void Game::initGameplay(void)
 	player2->AttachNormalMap(loadTexture("Resources/NormalMaps/testMap.jpg"));
 	player2->SetPosition(glm::vec3(17, 0, -15));
 	player2->GetNode()->SetRotation(glm::vec3(-90, 0, 0));
+	player2->bvhTest();
 	sceneGraph->AttachNode(player2->GetNode());
 	
 	//Load the background objects into a asset list
@@ -635,6 +637,7 @@ void Game::Render(void)
 
 	//Swap front and back buffers
 	glfwSwapBuffers(gameWindow);
+	
 }
 
 //Render the HUD of the game
@@ -681,7 +684,7 @@ void Game::PreRender(GameObject* object)
 
 		for (unsigned int i = 0; i < MAX_BONE_SIZE; ++i)
 		{
-			skinningOutputList[i] = *object->animations.GetBoneFransformations();
+			skinningOutputList[i] = object->animations.GetBoneTransformations()[i];
 		}
 
 		//*skinningOutputList = *object->animations.GetBoneFransformations();

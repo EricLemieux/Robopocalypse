@@ -6,12 +6,6 @@ GameObject::GameObject()
 	sceneGraphObject = new Node;
 	
 	normalMapHandle = 1;/// loadTexture("Resources/NormalMaps/blank.jpg");
-
-	BVH temp = BVH("Resources\\BVH\\test.bvh");
-	temp.BuildSceneGraph();
-	temp.BuildMotionData();
-	bvhFiles.push_back(temp);
-	animations.SetAnimations(bvhFiles);
 }
 
 
@@ -96,4 +90,14 @@ void GameObject::AttachNormalMap(GLuint nMap)
 void GameObject::AttachCollisionBox(CollisionBox *box)
 {
 	collisionBox = box;
+}
+
+
+void GameObject::bvhTest(void)
+{
+	BVH temp = BVH("Resources\\BVH\\test.bvh");
+	temp.BuildSceneGraph(sceneGraphObject);
+	temp.BuildMotionData();
+	bvhFiles.push_back(temp);
+	animations.SetAnimations(bvhFiles);
 }

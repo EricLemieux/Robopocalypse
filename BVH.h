@@ -24,6 +24,7 @@ struct Joint
 
 	std::vector<glm::vec3> positionChanges;
 	std::vector<glm::vec3> rotationChanges;
+	glm::mat4 offset;
 };
 
 class BVH
@@ -35,7 +36,7 @@ public:
 
 	void LoadFile(char* filePath);
 
-	int BuildSceneGraph(void);
+	int BuildSceneGraph(Node *parent);
 	int BuildMotionData(void);
 	
 	//////////

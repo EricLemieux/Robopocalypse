@@ -424,9 +424,6 @@ void AnimationManager::Update(void)
 	{
 		nextFrame++;
 	}
-
-	//Update scene graph
-	//animations[currentAnimation].GetRootNode()->Update();
 	
 	glm::mat4 temp = glm::mat4(1.0f);
 
@@ -439,14 +436,20 @@ void AnimationManager::Update(void)
 	for (unsigned int i = 0; i < size; ++i)
 	{
 		temp = glm::mat4(1.0f);
-
+	
 		//Rotate
 		temp = glm::rotate(temp, animation[i].rotationChanges[currentFrame].z, glm::vec3(0, 0, 1));
 		temp = glm::rotate(temp, animation[i].rotationChanges[currentFrame].x, glm::vec3(1, 0, 0));
 		temp = glm::rotate(temp, animation[i].rotationChanges[currentFrame].y, glm::vec3(0, 1, 0));
 		
-		temp[3] = glm::vec4(animation[i].positionChanges[currentFrame], 1);
+		animation[i].node->SetRotation(temp);
 		
-		boneTransformations[i] = temp;
+		temp[3] = glm::vec4(animation[i].positionChanges[currentFrame], 1);
+	
+		animations[currentAnimation].GetRootNode()->Update();
+		
+		 glm::mat4 worldRotation = animation[i].node->GetWorldTransform();
+		 worldRotation[3] = glm::vec4(0, 0, 0, 1);
+		 boneTransformations[i] = worldRotation * glm::inverse(animation[i].offset);
 	}
 }
