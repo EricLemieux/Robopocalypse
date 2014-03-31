@@ -160,8 +160,9 @@ void Game::initGameplay(void)
 	player1->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_red.png"));
 	player1->SetPosition(glm::vec3(-17, 0, -15));
 	player1->GetNode()->SetRotation(glm::vec3(90,0,0));
-	player1->bvhTest();
 	sceneGraph->AttachNode(player1->GetNode());
+	sceneGraph->Update();
+	player1->bvhTest();
 	
 	//Create a game object for player2
 	player2 = new Player;
@@ -172,8 +173,9 @@ void Game::initGameplay(void)
 	player2->AttachNormalMap(loadTexture("Resources/NormalMaps/testMap.jpg"));
 	player2->SetPosition(glm::vec3(17, 0, -15));
 	player2->GetNode()->SetRotation(glm::vec3(-90, 0, 0));
-	player2->bvhTest();
 	sceneGraph->AttachNode(player2->GetNode());
+	sceneGraph->Update();
+	player2->bvhTest();
 	
 	//Load the background objects into a asset list
 	frontWorldAssetsObjects.Load("Resources/frontWorldAssets.txt");
@@ -558,16 +560,16 @@ void Game::Render(void)
 		{
 			firstPass->SetTexture(1);
 
-			////Render all of the background objects
-			//projectionMatrix = glm::perspective(90.0f, (float)1280 / (float)720, 0.1f, 750.0f);
-			//for (unsigned int i = 0; i < backWorldAssetsObjects.GetSize(); ++i)
-			//{
-			//	firstPass->SetTexture(0);
-			//	PreRender(backWorldAssetsObjects.GetObjectAtIndex(i));
-			//}
+			//Render all of the background objects
+			projectionMatrix = glm::perspective(90.0f, (float)1280 / (float)720, 0.1f, 750.0f);
+			for (unsigned int i = 0; i < backWorldAssetsObjects.GetSize(); ++i)
+			{
+				firstPass->SetTexture(0);
+				PreRender(backWorldAssetsObjects.GetObjectAtIndex(i));
+			}
 
 			//Render all of the foreground objects
-			projectionMatrix = glm::perspective(90.0f, (float)1280 / (float)720, 0.1f, 50.0f);
+			projectionMatrix = glm::perspective(90.0f, (float)1280 / (float)720, 0.1f, 200.0f);
 			for (unsigned int i = 0; i < frontWorldAssetsObjects.GetSize(); ++i)
 			{
 				firstPass->SetTexture(0);
@@ -694,15 +696,13 @@ void Game::PreRender(GameObject* object)
 	//if the object has bones that need to be transformed
 	if (object->GetModel()->UsingBones())
 	{
-		object->animations.Update();
+		object->animations.Update(object->GetNode());
 		glm::mat4 skinningOutputList[MAX_BONE_SIZE];
 
 		for (unsigned int i = 0; i < MAX_BONE_SIZE; ++i)
 		{
 			skinningOutputList[i] = object->animations.GetBoneTransformations()[i];
 		}
-
-		//*skinningOutputList = *object->animations.GetBoneFransformations();
 
 		meshSkinProgram->Activate();
 

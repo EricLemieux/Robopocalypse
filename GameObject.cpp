@@ -95,7 +95,7 @@ void GameObject::AttachCollisionBox(CollisionBox *box)
 
 void GameObject::bvhTest(void)
 {
-	BVH temp = BVH("Resources\\BVH\\test.bvh");
+	BVH temp = BVH("Resources\\BVH\\testbackup.bvh");
 	temp.BuildSceneGraph(sceneGraphObject);
 	temp.BuildMotionData();
 	bvhFiles.push_back(temp);

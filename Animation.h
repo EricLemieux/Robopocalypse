@@ -67,7 +67,7 @@ public:
 
 	inline void SetCurrentAnimation(int animationIndex){ currentAnimation = animationIndex; }
 
-	void Update(void);
+	void Update(Node *parent);
 
 	inline glm::mat4* GetBoneTransformations(void){ return boneTransformations; }
 };

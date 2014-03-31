@@ -55,6 +55,7 @@ public:
 	glm::vec3 GetWorldPosition(void);
 
 	glm::vec3 GetLocalPosition(void);
+	glm::mat4 GetLocalTransform(void);
 
 	glm::vec3 GetScale(void);
 

@@ -83,9 +83,10 @@ int BVH::BuildSceneGraph(Node *parent)
 
 					currentNode->SetLocalPosition(pos);
 
-					glm::mat4 startingPos;
+					glm::mat4 startingPos = glm::mat4(1.0f);
 					startingPos[3] = glm::vec4(pos, 1.0f);
-					currentJoint.offset = startingPos;
+					startingPos *= parent->GetWorldTransform();
+					currentJoint.objSpaceAtBind = startingPos;
 				}
 
 				else if (!_stricmp(currentWord, "CHANNELS"))
@@ -106,9 +107,11 @@ int BVH::BuildSceneGraph(Node *parent)
 
 			//Add the node to the vector
 			nodeTree.push_back(currentJoint);
+
+			parent->AttachNode(rootNode);
 		}
 
-		parent->AttachNode(rootNode);
+		
 
 		if (!_stricmp(currentWord, "JOINT"))
 		{
@@ -148,9 +151,19 @@ int BVH::BuildSceneGraph(Node *parent)
 
 				currentNode->SetLocalPosition(pos);
 
-				glm::mat4 startingPos;
+				unsigned int parentIndex = targetIndex;
+				for (unsigned int i = 0; i < difference; ++i)
+				{
+					parentIndex = nodeTree[parentIndex].node->GetParent()->GetID();
+				}
+				
+				glm::mat4 startingPos = glm::mat4(1.0f);
 				startingPos[3] = glm::vec4(pos, 1.0f);
-				currentJoint.offset = startingPos;
+				startingPos *= nodeTree[parentIndex].node->GetWorldTransform();//parent->GetWorldTransform();
+				currentJoint.objSpaceAtBind = startingPos;
+
+				//glm::mat4 startingPos = glm::mat4(1.0f);
+				//startingPos[3] = glm::vec4(pos, 1.0f);
 
 				file.ignore(256, '\n');
 				file >> currentWord;
@@ -179,6 +192,8 @@ int BVH::BuildSceneGraph(Node *parent)
 
 			//Add the node to the vector
 			nodeTree.push_back(currentJoint);
+
+			parent->AttachNode(nodeTree[currentIndex].node);
 
 			//Reset the difference so that only this first node after the End site is affected.
 			difference = 0;

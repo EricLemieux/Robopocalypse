@@ -132,6 +132,11 @@ glm::vec3 Node::GetLocalPosition(void)
 	return glm::vec3(localTransform[3].x, localTransform[3].y, localTransform[3].z);
 }
 
+glm::mat4 Node::GetLocalTransform(void)
+{
+	return localTransform;
+}
+
 Node* Node::GetParent(void)
 {
 	return parent;

@@ -409,7 +409,7 @@ void AnimationManager::SetAnimations(std::vector<BVH> newAnimations)
 	animations = newAnimations;
 }
 
-void AnimationManager::Update(void)
+void AnimationManager::Update(Node *parent)
 {
 	//Update the current and next frames
 	currentFrame = nextFrame;
@@ -443,13 +443,14 @@ void AnimationManager::Update(void)
 		temp = glm::rotate(temp, animation[i].rotationChanges[currentFrame].y, glm::vec3(0, 1, 0));
 		
 		animation[i].node->SetRotation(temp);
+		////
+		//////animation[i].node->SetLocalPosition(animation[i].positionChanges[currentFrame]);
+		//animation[i].node->SetLocalPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 		
-		temp[3] = glm::vec4(animation[i].positionChanges[currentFrame], 1);
-	
-		animations[currentAnimation].GetRootNode()->Update();
+		animation[i].node->GetParent()->Update();
+
+		glm::mat4 objectSpace = animation[i].node->GetParent()->GetWorldTransform() * temp;
 		
-		 glm::mat4 worldRotation = animation[i].node->GetWorldTransform();
-		 worldRotation[3] = glm::vec4(0, 0, 0, 1);
-		 boneTransformations[i] = worldRotation * glm::inverse(animation[i].offset);
+		boneTransformations[i] = objectSpace * glm::inverse(animation[i].objSpaceAtBind);
 	}
 }
