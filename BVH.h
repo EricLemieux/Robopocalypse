@@ -25,6 +25,8 @@ struct Joint
 	std::vector<glm::vec3> positionChanges;
 	std::vector<glm::vec3> rotationChanges;
 	glm::mat4 objSpaceAtBind;
+
+	Joint *parent;
 };
 
 class BVH

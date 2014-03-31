@@ -37,6 +37,8 @@ public:
 
 	//Get the texture handle
 	GLfloat GetTex();
+
+	std::vector<float> GetVerts(void);
 	
 	//Get the max and min vectors
 	//Used for collision box
@@ -59,4 +61,7 @@ private:
 
 	//Texture handle
 	GLuint texture;
+
+	//The verts used by the vbo
+	std::vector<float> verts;
 };

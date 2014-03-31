@@ -87,6 +87,8 @@ int BVH::BuildSceneGraph(Node *parent)
 					startingPos[3] = glm::vec4(pos, 1.0f);
 					startingPos *= parent->GetWorldTransform();
 					currentJoint.objSpaceAtBind = startingPos;
+
+					currentJoint.parent = new Joint;
 				}
 
 				else if (!_stricmp(currentWord, "CHANNELS"))
@@ -164,6 +166,8 @@ int BVH::BuildSceneGraph(Node *parent)
 
 				//glm::mat4 startingPos = glm::mat4(1.0f);
 				//startingPos[3] = glm::vec4(pos, 1.0f);
+
+				currentJoint.parent = &nodeTree[parentIndex];
 
 				file.ignore(256, '\n');
 				file >> currentWord;

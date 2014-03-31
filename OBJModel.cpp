@@ -162,6 +162,8 @@ OBJModel::OBJModel(const char *modelPath, bool useBones)
 		finalNormals.push_back(normals[facesNormals[i]].y);
 		finalNormals.push_back(normals[facesNormals[i]].z);
 	}
+
+	this->verts = finalVerts;
 	
 	//Init and add data
 	VBO->Initialize(facesVerts.size(), true, true, useBones);
@@ -189,4 +191,9 @@ GLfloat OBJModel::GetTex()
 VertexBuffer* OBJModel::GetVBO(void)
 {
 	return VBO;
+}
+
+std::vector<float> OBJModel::GetVerts(void)
+{
+	return verts;
 }

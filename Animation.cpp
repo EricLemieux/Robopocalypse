@@ -447,9 +447,15 @@ void AnimationManager::Update(Node *parent)
 		//////animation[i].node->SetLocalPosition(animation[i].positionChanges[currentFrame]);
 		//animation[i].node->SetLocalPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 		
-		animation[i].node->GetParent()->Update();
+		//animation[i].node->GetParent()->Update();
+		animation[0].node->Update();
 
-		glm::mat4 objectSpace = animation[i].node->GetParent()->GetWorldTransform() * temp;
+		//glm::mat4 objectSpace = animation[i].node->GetParent()->GetWorldTransform() * temp;
+
+		glm::mat4 parentObjectSpace;
+		parentObjectSpace = animation[i].parent->node->GetWorldTransform();
+
+		glm::mat4 objectSpace = parentObjectSpace * temp;
 		
 		boneTransformations[i] = objectSpace * glm::inverse(animation[i].objSpaceAtBind);
 	}
