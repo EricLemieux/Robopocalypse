@@ -352,8 +352,8 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 	//cheating on walls
 	if (pos.x > 400)
 		pos.x = 400;
-	if (pos.x < -400)
-		pos.x = -400;
+	if (pos.x < -265)
+		pos.x = -265;
 
 	//regen SP unless frozen by blast attack
 	if (blastStunCooldown != 0){

@@ -54,3 +54,14 @@ pos 0 -20 -50
 obj Resources/Models/Level/FrontSpire.obj
 tex Resources/Textures/Level/FrontSpire.jpg
 load
+
+new
+pos 385 -20 -10
+obj Resources/Models/Level/FrontB2.obj
+tex Resources/Textures/Level/FrontB2.jpg
+load
+new
+pos -330 -20 0 
+obj Resources/Models/Level/FrontB2.obj
+tex Resources/Textures/Level/FrontB2.jpg
+load

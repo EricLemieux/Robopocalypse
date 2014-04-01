@@ -330,11 +330,13 @@ void Game::Update(void)
 		val += 0.30f;
 	else
 		val -= 0.01f;
+	static float val2 = 0.0f;
+	val2 += 0.3f;
 	player1->GetMorphTargets()->Update(&val);
-	//player2->GetMorphTargets()->Update(&val);
+	player2->GetMorphTargets()->Update(&val2);
 
 	player1->GetModel()->AddVerticies(player1->GetMorphTargets()->GetFinalVerts());
-	//player2->GetModel()->AddVerticies(player2->GetMorphTargets()->GetFinalVerts());
+	player2->GetModel()->AddVerticies(player2->GetMorphTargets()->GetFinalVerts());
 
 	soundSystem.setChannelPos(SFX_PLAYER1_CHANNEL, player1->getPos());
 	soundSystem.setChannelPos(SFX_PLAYER2_CHANNEL, player2->getPos());
