@@ -6,6 +6,9 @@ GameObject::GameObject()
 	sceneGraphObject = new Node;
 	
 	normalMapHandle = 1;/// loadTexture("Resources/NormalMaps/blank.jpg");
+
+	target = new MorphTargets;
+	target->LoadAnimations();
 }
 
 

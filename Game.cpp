@@ -166,7 +166,7 @@ void Game::initGameplay(void)
 	
 	//Create a game object for player2
 	player2 = new Player;
-	OBJModel player2Model = OBJModel("Resources/Models/Robot.obj", true);
+	OBJModel player2Model = OBJModel("Resources/Models/Robot2.obj", true);
 	player2->AttachModel(player2Model.GetVBO());
 	player2->AttachBones("Resources/Bones/skin.weightMap", player2Model.GetTexcoords());
 	player2->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_blue.png"));
@@ -319,6 +319,19 @@ void Game::Update(void)
 	
 	player1->update(player2, pl1SFX);
 	player2->update(player1, pl2SFX);
+
+	static float val = 0.01f;
+	static bool way = true;
+	if (way)
+		val += 0.01f;
+	else
+		val -= 0.01f;
+	if (val > 1.0f || val < 0.0f)
+		way = !way;
+	player1->GetMorphTargets()->Update(val);
+	//player2->GetMorphTargets()->Update(val);
+
+	player1->GetModel()->AddVerticies(player1->GetMorphTargets()->GetFinalVerts());
 
 	soundSystem.setChannelPos(SFX_PLAYER1_CHANNEL, player1->getPos());
 	soundSystem.setChannelPos(SFX_PLAYER2_CHANNEL, player2->getPos());
@@ -694,46 +707,46 @@ void Game::RenderHUD(void)
 void Game::PreRender(GameObject* object)
 {
 	//if the object has bones that need to be transformed
-	if (object->GetModel()->UsingBones())
-	{
-		object->animations.Update(object->GetNode());
-		glm::mat4 skinningOutputList[MAX_BONE_SIZE];
-
-		for (unsigned int i = 0; i < MAX_BONE_SIZE; ++i)
-		{
-			skinningOutputList[i] = object->animations.GetBoneTransformations()[i];
-		}
-
-		meshSkinProgram->Activate();
-
-		glUniformMatrix4fv(uniform_meshSkin_boneMat, 64, 0, (float*)skinningOutputList);
-
-		modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);
-		glUniformMatrix4fv(uniform_meshSkin_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
-		//glUniform3fv(uniform_LightPos, 1, glm::value_ptr(glm::inverse(object->GetNode()->GetWorldTransform()) * LIGHTPOS));
-		//glUniform3fv(uniform_LightColour, 1, glm::value_ptr(glm::vec3(1, 1, 1)));
-
-		//Pass in texture
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, object->GetTextureHandle());
-		glUniform1i(uniform_meshSkin_texture, 0);
-
-		//Pass in normal map
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, object->GetNormalMapHandle());
-		glUniform1i(uniform_meshSkin_normalMap, 1);
-
-		////pass in qMap
-		//glActiveTexture(GL_TEXTURE2);
-		//glBindTexture(GL_TEXTURE_2D, qMap_handle);
-		//glUniform1i(uniform_qMap, 2);
-
-		object->Render();
-
-		meshSkinProgram->Deactivate();
-	}
-
-	else
+	//if (object->GetModel()->UsingBones())
+	//{
+	//	//object->animations.Update(object->GetNode());
+	//	glm::mat4 skinningOutputList[MAX_BONE_SIZE];
+	//
+	//	for (unsigned int i = 0; i < MAX_BONE_SIZE; ++i)
+	//	{
+	//		skinningOutputList[i] = object->animations.GetBoneTransformations()[i];
+	//	}
+	//
+	//	meshSkinProgram->Activate();
+	//
+	//	glUniformMatrix4fv(uniform_meshSkin_boneMat, 64, 0, (float*)skinningOutputList);
+	//
+	//	modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);
+	//	glUniformMatrix4fv(uniform_meshSkin_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
+	//	//glUniform3fv(uniform_LightPos, 1, glm::value_ptr(glm::inverse(object->GetNode()->GetWorldTransform()) * LIGHTPOS));
+	//	//glUniform3fv(uniform_LightColour, 1, glm::value_ptr(glm::vec3(1, 1, 1)));
+	//
+	//	//Pass in texture
+	//	glActiveTexture(GL_TEXTURE0);
+	//	glBindTexture(GL_TEXTURE_2D, object->GetTextureHandle());
+	//	glUniform1i(uniform_meshSkin_texture, 0);
+	//
+	//	//Pass in normal map
+	//	glActiveTexture(GL_TEXTURE1);
+	//	glBindTexture(GL_TEXTURE_2D, object->GetNormalMapHandle());
+	//	glUniform1i(uniform_meshSkin_normalMap, 1);
+	//
+	//	////pass in qMap
+	//	//glActiveTexture(GL_TEXTURE2);
+	//	//glBindTexture(GL_TEXTURE_2D, qMap_handle);
+	//	//glUniform1i(uniform_qMap, 2);
+	//
+	//	object->Render();
+	//
+	//	meshSkinProgram->Deactivate();
+	//}
+	//
+	//else
 	{
 		diffuseProgram->Activate();
 

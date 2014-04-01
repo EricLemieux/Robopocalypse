@@ -11,6 +11,7 @@
 #include "Texture.h"
 #include "CollisionBox.h"
 #include "Animation.h"
+#include "MorphTargets.h"
 
 //////////
 //GAME OBJECT CLASS
@@ -69,6 +70,8 @@ public:
 
 	inline VertexBuffer* GetModel(void){ return VBO; }
 
+	inline MorphTargets* GetMorphTargets(void){ return target; }
+
 
 	//TEMP
 	AnimationManager animations;
@@ -89,4 +92,6 @@ private:
 	GLuint normalMapHandle;
 
 	CollisionBox *collisionBox;
+
+	MorphTargets *target;
 };

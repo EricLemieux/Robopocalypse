@@ -39,4 +39,3 @@ public:
 
 	float* GetFinalVerts(void);
 };
-
