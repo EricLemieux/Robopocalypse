@@ -154,7 +154,8 @@ void Game::initGameplay(void)
 	
 	//Create a game object for player1
 	player1 = new Player;
-	OBJModel player1Model = OBJModel("Resources/Models/Robot.obj", true);
+	//OBJModel player1Model = OBJModel("Resources/Models/Robot.obj", true);
+	OBJModel player1Model = OBJModel("Resources/Animations/RunAnimation/run1.obj", true);
 	player1->AttachModel(player1Model.GetVBO());
 	player1->AttachBones("Resources/Bones/skin.weightMap", player1Model.GetTexcoords());
 	player1->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_red.png"));
@@ -163,10 +164,11 @@ void Game::initGameplay(void)
 	sceneGraph->AttachNode(player1->GetNode());
 	sceneGraph->Update();
 	player1->bvhTest();
+	player1->GetMorphTargets()->LoadAnimations();
 	
 	//Create a game object for player2
 	player2 = new Player;
-	OBJModel player2Model = OBJModel("Resources/Models/Robot2.obj", true);
+	OBJModel player2Model = OBJModel("Resources/Animations/RunAnimation/run1.obj", true);
 	player2->AttachModel(player2Model.GetVBO());
 	player2->AttachBones("Resources/Bones/skin.weightMap", player2Model.GetTexcoords());
 	player2->AttachTexture(loadTexture("Resources/Textures/Shputnik_Texture_blue.png"));
@@ -176,6 +178,7 @@ void Game::initGameplay(void)
 	sceneGraph->AttachNode(player2->GetNode());
 	sceneGraph->Update();
 	player2->bvhTest();
+	player2->GetMorphTargets()->LoadAnimations();
 	
 	//Load the background objects into a asset list
 	frontWorldAssetsObjects.Load("Resources/frontWorldAssets.txt");
@@ -321,18 +324,17 @@ void Game::Update(void)
 	player1->update(player2, pl1SFX);
 	player2->update(player1, pl2SFX);
 
-	static float val = 0.01f;
+	static float val = 0.0f;
 	static bool way = true;
 	if (way)
-		val += 0.01f;
+		val += 0.30f;
 	else
 		val -= 0.01f;
-	if (val > 1.0f || val < 0.0f)
-		way = !way;
-	player1->GetMorphTargets()->Update(val);
-	//player2->GetMorphTargets()->Update(val);
+	player1->GetMorphTargets()->Update(&val);
+	//player2->GetMorphTargets()->Update(&val);
 
 	player1->GetModel()->AddVerticies(player1->GetMorphTargets()->GetFinalVerts());
+	//player2->GetModel()->AddVerticies(player2->GetMorphTargets()->GetFinalVerts());
 
 	soundSystem.setChannelPos(SFX_PLAYER1_CHANNEL, player1->getPos());
 	soundSystem.setChannelPos(SFX_PLAYER2_CHANNEL, player2->getPos());

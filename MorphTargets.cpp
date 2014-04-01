@@ -21,26 +21,92 @@ void MorphTargets::LoadAnimations(void)
 	//TODO
 	//Load a text file that contains all of the animations
 
-	std::vector<OBJModel> temp;
+	double time = glfwGetTime();
 
-	this;
+	char *folder = "Resources/Animations/";
+	char currentIndex[256] = "";
 
-	OBJModel frame1 = OBJModel("Resources/Models/Robot.obj", false);
-	temp.push_back(frame1);
-	OBJModel frame2 = OBJModel("Resources/Models/Robot2.obj", false);
-	temp.push_back(frame2);
+	std::vector<OBJModel> idle;
+	for (unsigned int i = 1; i <= 10; ++i)
+	{
+		char filePath[256] = "";
+	
+		//Load the file
+		strcat_s(filePath, folder);
+		strcat_s(filePath, "IdleAnimation/idle");
+		_itoa_s(i, currentIndex, 10);
+		strcat_s(filePath, currentIndex);
+		strcat_s(filePath,".obj");
+	
+		idle.push_back(OBJModel(filePath, false));
+	}
+	
+	animations.push_back(idle);
 
-	animations.push_back(temp);
+	std::vector<OBJModel> move;
+	for (unsigned int i = 1; i <= 10; ++i)
+	{
+		char filePath[256] = "";
+
+		//Load the file
+		strcat_s(filePath, folder);
+		strcat_s(filePath, "RunAnimation/run");
+		_itoa_s(i, currentIndex, 10);
+		strcat_s(filePath, currentIndex);
+		strcat_s(filePath, ".obj");
+
+		move.push_back(OBJModel(filePath, false));
+	}
+
+	animations.push_back(move);
+
+	std::vector<OBJModel> punch;
+	for (unsigned int i = 1; i <= 10; ++i)
+	{
+		char filePath[256] = "";
+
+		//Load the file
+		strcat_s(filePath, folder);
+		strcat_s(filePath, "PunchAnimation/punch");
+		_itoa_s(i, currentIndex, 10);
+		strcat_s(filePath, currentIndex);
+		strcat_s(filePath, ".obj");
+
+		punch.push_back(OBJModel(filePath, false));
+	}
+
+	animations.push_back(punch);
+
+	std::vector<OBJModel> block;
+	for (unsigned int i = 1; i <= 10; ++i)
+	{
+		char filePath[256] = "";
+
+		//Load the file
+		strcat_s(filePath, folder);
+		strcat_s(filePath, "BlockAnimation/block");
+		_itoa_s(i, currentIndex, 10);
+		strcat_s(filePath, currentIndex);
+		strcat_s(filePath, ".obj");
+
+		block.push_back(OBJModel(filePath, false));
+	}
+
+	animations.push_back(block);
+
+	double newTime = glfwGetTime();
+	newTime -= time;
+	std::cout << "That took " << newTime << "\n";
 }
 
-void MorphTargets::Update(float dt)
+void MorphTargets::Update(float *dt)
 {
-	if (dt >= 1.0f)
+	if (*dt >= 1.0f)
 	{
-		dt = 0.0f;
+		*dt = 0.0f;
 
 		currentFrame = nextFrame;
-		if (nextFrame >= MAX_FRAMES_IN_ANIMATION)
+		if (nextFrame >= MAX_FRAMES_IN_ANIMATION-1)
 		{
 			if (looping)
 			{
@@ -54,15 +120,15 @@ void MorphTargets::Update(float dt)
 	}
 
 	//These are needed to store the vector before turning it into an array for faster looping through
-	std::vector<float> currentFrameVertsVector = animations[0][0].GetVerts();
-	std::vector<float> nextFrameVertsVector = animations[0][1].GetVerts();
+	std::vector<float> currentFrameVertsVector	= animations[currentAnimation][currentFrame].GetVerts();
+	std::vector<float> nextFrameVertsVector		= animations[currentAnimation][nextFrame].GetVerts();
 
 	//Load the current frame of the animation
-	float *currentFrameVerts = &currentFrameVertsVector[0];//= &animations[currentAnimation][currentFrame].GetVerts()[0];
-	unsigned int numVerts = animations[0][0].GetVerts().size();//= animations[currentAnimation][currentFrame].GetVerts().size();
+	float *currentFrameVerts	= &currentFrameVertsVector[0];
+	unsigned int numVerts		= currentFrameVertsVector.size();
 	
 	//Load the next frame of the animation
-	float *nextFrameVerts = &nextFrameVertsVector[0];// &animations[currentAnimation][currentFrame].GetVerts()[0];
+	float *nextFrameVerts = &nextFrameVertsVector[0];
 
 	//create an empty array to store the new values of the verts
 	finalVerts = new float[numVerts];
@@ -70,7 +136,7 @@ void MorphTargets::Update(float dt)
 	//Update each of the verts by LERPing between the current and next frame
 	for (unsigned int i = 0; i < numVerts; ++i)
 	{
-		finalVerts[i] = LERP(currentFrameVerts[i], nextFrameVerts[i], dt);
+		finalVerts[i] = LERP(currentFrameVerts[i], nextFrameVerts[i], *dt);
 	}
 }
 

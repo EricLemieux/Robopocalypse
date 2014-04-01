@@ -8,7 +8,6 @@ GameObject::GameObject()
 	normalMapHandle = 1;/// loadTexture("Resources/NormalMaps/blank.jpg");
 
 	target = new MorphTargets;
-	target->LoadAnimations();
 }
 
 
