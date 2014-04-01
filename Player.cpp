@@ -214,14 +214,14 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 		
 		currentAction = playerAction.moveLeftAction(actionTimer, vel);
 		
-		
+		this->GetMorphTargets()->SetAnimation(PLAYER_ANIMATION_MOVE);
 	}
 	else if (currentAction == MOVE_RIGHT){
 		//sfx = MOVE_SFX;
 		//soundCheck(sfx);
 		currentAction = playerAction.moveRightAction(actionTimer, vel);
 		
-		
+		this->GetMorphTargets()->SetAnimation(PLAYER_ANIMATION_MOVE);
 	}
 	else if (currentAction == DASH_LEFT){
 		//sfx = DASH_SFX;
@@ -245,6 +245,8 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 		currentAction = playerAction.punchAction(actionTimer, vel, isFacing, hitboxList, onGround);
 		sfx = PUNCH_SFX;
 		soundCheck(sfx);
+
+		this->GetMorphTargets()->SetAnimation(PLAYER_ANIMATION_PUNCH);
 	}
 	else if (currentAction == KICK){
 		sfx = KICK_SFX;
@@ -272,7 +274,7 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 		soundCheck(sfx);
 		currentAction = playerAction.blockAction(actionTimer, vel, hitboxList, sp);
 		
-		
+		this->GetMorphTargets()->SetAnimation(PLAYER_ANIMATION_BLOCK);
 	}
 	else if (currentAction == STAGGER_G){
 		sfx = IMPACT1_SFX;
@@ -286,13 +288,19 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 		currentAction = playerAction.staggerAAction(actionTimer, vel, isFacing, hitboxList, hasBeenHit);
 		
 	}
+	else
+	{
+		
+	}
 
 	//cycle actions if IDLE
-	if ((currentAction == IDLE)||(currentAction == MOVE_LEFT || currentAction == MOVE_RIGHT)){
+	if (currentAction == IDLE && prevAction == IDLE){
 		cycleActions();
-	} else if (currentAction == IDLE && prevAction == IDLE){
-		cycleActions();
+		this->GetMorphTargets()->SetAnimation(PLAYER_ANIMATION_IDLE);
 	}
+	else if ((currentAction == IDLE)||(currentAction == MOVE_LEFT || currentAction == MOVE_RIGHT)){
+		cycleActions();
+	} 
 
 
 

@@ -93,10 +93,6 @@ void MorphTargets::LoadAnimations(void)
 	}
 
 	animations.push_back(block);
-
-	double newTime = glfwGetTime();
-	newTime -= time;
-	std::cout << "That took " << newTime << "\n";
 }
 
 void MorphTargets::Update(float *dt)
