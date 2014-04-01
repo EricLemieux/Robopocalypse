@@ -112,7 +112,7 @@ public:
 	void PreRender(GameObject* object);
 	void PreRender(GameObject* object, Light* light);
 	void PreRender(std::vector<CollisionBox> hitboxes);
-	void PreRender(std::vector<ParticleEmitter*>* emitterList);
+	void PreRender(std::vector<ParticleEmitter*> emitterList);
 
 private:
 

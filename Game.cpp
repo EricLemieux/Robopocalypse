@@ -230,7 +230,6 @@ void Game::initGameplay(void)
 	squareSize = new float;
 	*squareSize = 5.f;
 
-
 	//Set up the first pass Frame buffer
 	firstPass = new FrameBuffer;
 	firstPass->Initialize(windowWidth, windowHeight, 2, true, false);
@@ -252,6 +251,8 @@ void Game::initGameplay(void)
 	particleManager.addEmitter(player2->GetNode(), SPARK);
 	particleManager.addEmitter(player1->GetNode(), SHIELD);
 	particleManager.addEmitter(player2->GetNode(), SHIELD);
+	particleManager.addEmitter(player1->GetNode(), IMPACT);
+	particleManager.addEmitter(player2->GetNode(), IMPACT);
 
 	redStartPlayed = false;
 	blueStartPlayed = false;
@@ -337,13 +338,13 @@ void Game::Update(void)
 	soundSystem.setChannelPos(SFX_PLAYER2_CHANNEL, player2->getPos());
 
 	if (player1->GetHP() < player1->GetMaxHP()*0.5f){
-		particleManager.getEmitterList()->at(0)->ActivateEmitter();
-		particleManager.getEmitterList()->at(1)->ActivateEmitter();
+		particleManager.getEmitterList()[0]->ActivateEmitter();
+		particleManager.getEmitterList()[1]->ActivateEmitter();
 	}
 
 	if (player2->GetHP() < player2->GetMaxHP()*0.5f){
-		particleManager.getEmitterList()->at(2)->ActivateEmitter();
-		particleManager.getEmitterList()->at(3)->ActivateEmitter();
+		particleManager.getEmitterList()[2]->ActivateEmitter();
+		particleManager.getEmitterList()[3]->ActivateEmitter();
 	}
 	++soundCounter;
 	if (!redStartPlayed){
@@ -373,21 +374,31 @@ void Game::Update(void)
 	soundSystem.updateSound();
 
 	if (player1->getCurrentAction() == BLOCK){
-		particleManager.getEmitterList()->at(4)->ActivateEmitter();
+		particleManager.getEmitterList()[4]->ActivateEmitter();
 	}
 	else {
-		particleManager.getEmitterList()->at(4)->DeactivateEmitter();
+		particleManager.getEmitterList()[4]->DeactivateEmitter();
 	}
 
 	if (player2->getCurrentAction() == BLOCK){
-		particleManager.getEmitterList()->at(5)->ActivateEmitter();
+		particleManager.getEmitterList()[5]->ActivateEmitter();
 	}
 	else {
-		particleManager.getEmitterList()->at(5)->DeactivateEmitter();
+		particleManager.getEmitterList()[5]->DeactivateEmitter();
 	}
-
-	particleManager.update();
-
+	if(player1->getHit() != 0 && player1->getHit() < 2){
+		particleManager.getEmitterList()[6]->ActivateEmitter();    
+	} else {
+		particleManager.getEmitterList()[6]->DeactivateEmitter();        
+	}
+	
+	if(player2->getHit() != 0 && player2->getHit() < 2){
+		particleManager.getEmitterList()[7]->ActivateEmitter();    
+	}else {
+		particleManager.getEmitterList()[7]->DeactivateEmitter();    
+	}
+	particleManager.update(player1,player2);
+	
 	sceneGraph->Update();
 
 	if (player1->GetHP() <= 0.0f || player2->GetHP() <= 0.0f)
@@ -801,40 +812,60 @@ void Game::PreRender(std::vector<CollisionBox> hitboxes)
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-void Game::PreRender(std::vector<ParticleEmitter*>* emitterList){
-	for (int i = 0, size = emitterList->size(); i<size; ++i){
+void Game::PreRender(std::vector<ParticleEmitter*> emitterList){
+	for (int i = 0, size = emitterList.size(); i<size; ++i){
 
 		ParticleType type = particleManager.getType()[i];
 
 		if (type == SMOKE){
 			*squareSize = 40.f;
 		}
-		else if (type == SPARK){
+		else if (type == SPARK || type == IMPACT){
 			*squareSize = 25.f;
 		}
 		else if (type == SHIELD){
 			*squareSize = 150.f;
 		}
 
+		glm::vec4 distort;
+		distort = glm::vec4(1.0);
+		if (type == SHIELD)
+			distort = glm::vec4((float)(rand() % 2 + 8)*0.1f, (float)(rand() % 2 + 8)*0.1f, (float)(rand() % 2 + 8)*0.1f, (float)(rand() % 2 + 8)*0.1f);
 
-		for (int j = 0, size = emitterList->at(i)->getParticleList()->size(); j < size; ++j){
+		ParticleEmitter *emitter = emitterList[i];
 
-			modelViewProjectionMatrix = emitterList->at(i)->getParticleList()->at(j)->UpdateModelViewProjection(projectionMatrix, viewMatrix);
-			glm::mat4 modelviewMatrix = viewMatrix*emitterList->at(i)->getParticleList()->at(j)->GetNode()->GetWorldTransform();
 
-			glUniformMatrix4fv(uniform_particle_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
-			glUniformMatrix4fv(uniform_particle_modelview, 1, 0, glm::value_ptr(modelviewMatrix));
-			glUniformMatrix4fv(uniform_particle_projection, 1, 0, glm::value_ptr(projectionMatrix));
-			glUniform1fv(uniform_particle_squaresize, 1, squareSize);
+		if (emitter->getParticleListSize() > 0){
 
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, emitterList->at(i)->getParticleList()->at(j)->GetTextureHandle());
-			glUniform1i(uniform_texture, 0);
+			//tempP = &emitterList->at(i)->getParticleList()[0];
+			//std::vector<Particle*> tempPList = emitter->getParticleList();
+			Particle* tempP = emitter->particleList[0];
 
-			emitterList->at(i)->getParticleList()->at(j)->GetModel()->Activate();
-			glDrawArrays(GL_POINTS, 0, 1);
+			for (int j = 0, size = emitter->getParticleListSize(); j < size; ++j){
+
+
+				if (emitter->particleList[j]->isAlive() == true){
+					modelViewProjectionMatrix = emitter->particleList[j]->UpdateModelViewProjection(projectionMatrix, viewMatrix);
+					glm::mat4 modelviewMatrix = viewMatrix*emitter->particleList[j]->GetNode()->GetWorldTransform();
+
+					glUniformMatrix4fv(uniform_particle_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
+					glUniformMatrix4fv(uniform_particle_modelview, 1, 0, glm::value_ptr(modelviewMatrix));
+					glUniformMatrix4fv(uniform_particle_projection, 1, 0, glm::value_ptr(projectionMatrix));
+					glUniform1fv(uniform_particle_squaresize, 1, squareSize);
+					glUniform4fv(uniform_particle_distort, 1, glm::value_ptr(distort));
+
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, emitter->particleList[j]->GetTextureHandle());
+					glUniform1i(uniform_texture, 0);
+
+					emitter->particleList[j]->GetModel()->Activate();
+					glDrawArrays(GL_POINTS, 0, 1);
+				}
+			}
+
+
+			//tempP = NULL;
 		}
-
 
 		//emitterList[i]->Render();
 

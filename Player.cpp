@@ -211,13 +211,16 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 	if (currentAction == MOVE_LEFT){
 		//sfx = MOVE_SFX;
 		//soundCheck(sfx);
+		
 		currentAction = playerAction.moveLeftAction(actionTimer, vel);
+		
 		
 	}
 	else if (currentAction == MOVE_RIGHT){
 		//sfx = MOVE_SFX;
 		//soundCheck(sfx);
 		currentAction = playerAction.moveRightAction(actionTimer, vel);
+		
 		
 	}
 	else if (currentAction == DASH_LEFT){
@@ -285,7 +288,7 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 	}
 
 	//cycle actions if IDLE
-	if (currentAction == IDLE){
+	if ((currentAction == IDLE)||(currentAction == MOVE_LEFT || currentAction == MOVE_RIGHT)){
 		cycleActions();
 	} else if (currentAction == IDLE && prevAction == IDLE){
 		cycleActions();
@@ -294,11 +297,11 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 
 
 	//x velocity damping
-	if(prevAction!=MOVE_LEFT || prevAction!=MOVE_RIGHT){
+	if(prevAction!=MOVE_LEFT && prevAction!=MOVE_RIGHT){
 		
 		if (vel.x > 0){
 			if (onGround == 1){
-				vel.x -= 25.f;
+				vel.x -= 15.f;
 			} else {
 				vel.x -= 5.f;
 			}
@@ -307,7 +310,7 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 		}
 		else if (vel.x < 0){
 			if (onGround == 1){
-				vel.x += 25.f;
+				vel.x += 15.f;
 			} else {
 				vel.x += 5.f;
 			}

@@ -26,36 +26,36 @@ void PlayerActions::deactivateAllHitbox(std::vector<CollisionBox> &hitboxList){
 Actions PlayerActions::moveLeftAction(int &t, glm::vec3 &vel){
 	
 
-	int moveVel = -50;
+	int moveVel = -150;
 
 	//if speed is less than max, increase it otherwise reduce it
 	if(vel.x < moveVel)
-		vel.x += 5;
+		vel.x += 35;
 	else
-		vel.x -= 5;
+		vel.x -= 35;
 
 	t+=1;
 	
-	return IDLE;
+	return MOVE_LEFT;
 }
 
 Actions PlayerActions::moveRightAction(int &t, glm::vec3 &vel){
 	
-	int moveVel = 50;
+	int moveVel = 150;
 
 	if(vel.x > moveVel)
-		vel.x -= 5;
+		vel.x -= 35;
 	else
-		vel.x += 5;
+		vel.x += 35;
 
 	t+=1;
 	
-	return IDLE;
+	return MOVE_RIGHT;
 }
 
 Actions PlayerActions::dashLeftAction(int &t, glm::vec3 &vel, int &sp){
 
-	int dashVel = -100;
+	int dashVel = -200;
 
 	if (sp > 50){
 		vel.x = dashVel;
@@ -69,7 +69,7 @@ Actions PlayerActions::dashLeftAction(int &t, glm::vec3 &vel, int &sp){
 
 Actions PlayerActions::dashRightAction(int &t, glm::vec3 &vel, int &sp){
 
-	int dashVel = 100;
+	int dashVel = 200;
 
 	if (sp > 50){
 		vel.x = dashVel;
@@ -96,7 +96,7 @@ Actions PlayerActions::punchAction(int &t, glm::vec3 &vel, int facing, std::vect
 	float casttime = 10;
 	float recovery = 15;
 
-	float punchVel = 150;
+	float punchVel = 250;
 
 	deactivateAllHitbox(hitboxList);
 	if (t > (casttime + recovery))
@@ -155,7 +155,7 @@ Actions PlayerActions::kickAction(int &t, glm::vec3 &vel, int facing, int onGrou
 
 			hitboxList[KICKBOX].GetSceneGraphObject()->SetLocalPosition(glm::vec3(0.f, -4.f + (8 * (float)t / casttime), (4 + (4 * (float)t / casttime))));
 
-			kickVel = glm::vec3(30 * facing, 40, 0);
+			kickVel = glm::vec3(100 * facing, 40, 0);
 			kickVel.y = Bezier(vel_curvedown, 1, (float)t / casttime)*kickVel.y;
 		}
 		else if (kickStart == 1){ // diiiiive kiiiickuuuu
@@ -172,7 +172,7 @@ Actions PlayerActions::kickAction(int &t, glm::vec3 &vel, int facing, int onGrou
 				return KICK;
 			}
 
-			kickVel = glm::vec3(60 * facing, -60, 0);
+			kickVel = glm::vec3(100 * facing, -60, 0);
 			kickVel.y = Bezier(vel_curveup, 1, (float)t / casttime)*kickVel.y;
 		}
 		vel = kickVel;
@@ -202,14 +202,14 @@ Actions PlayerActions::kickAction(int &t, glm::vec3 &vel, int facing, int onGrou
 }
 Actions PlayerActions::laserAction(int &t, glm::vec3 &vel, int facing, std::vector<CollisionBox> &hitboxList){
 	float vel_curve[4] = { 0.5, 1, 0.5, 0 };
-	float casttime = 10;
+	float casttime = 2;
 	float recovery = 30;
 
 	deactivateAllHitbox(hitboxList);
 	if (t > casttime + recovery)
 		return IDLE;
 
-	int laserVel = -15;
+	int laserVel = -55;
 
 	if (t<casttime){
 		activateHitbox(hitboxList[LASERBOX]);

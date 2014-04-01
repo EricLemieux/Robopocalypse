@@ -79,4 +79,8 @@ public:
 	 int getOnGround();
 
 	 Actions getCurrentAction(){ return currentAction; }
+
+	 int getFacing(){return isFacing;}
+
+	 int getHit(){return hasBeenHit;}
 };
