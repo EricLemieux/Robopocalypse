@@ -15,6 +15,7 @@ enum playerAnimations
 	PLAYER_ANIMATION_MOVE,
 	PLAYER_ANIMATION_PUNCH,
 	PLAYER_ANIMATION_BLOCK,
+	PLAYER_ANIMATION_STAGGER,
 	//etc...
 };
 class MorphTargets

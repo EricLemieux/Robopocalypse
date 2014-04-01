@@ -280,13 +280,13 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 		sfx = IMPACT1_SFX;
 		soundCheck(sfx);
 		currentAction = playerAction.staggerGAction(actionTimer, vel, isFacing, hitboxList, hasBeenHit);
-		
+		this->GetMorphTargets()->SetAnimation(PLAYER_ANIMATION_STAGGER);
 	}
 	else if (currentAction == STAGGER_A){
 		sfx = IMPACT2_SFX;
 		soundCheck(sfx);
 		currentAction = playerAction.staggerAAction(actionTimer, vel, isFacing, hitboxList, hasBeenHit);
-		
+		this->GetMorphTargets()->SetAnimation(PLAYER_ANIMATION_STAGGER);
 	}
 	else
 	{

@@ -93,6 +93,23 @@ void MorphTargets::LoadAnimations(void)
 	}
 
 	animations.push_back(block);
+
+	std::vector<OBJModel> stagger;
+	for (unsigned int i = 1; i <= 10; ++i)
+	{
+		char filePath[256] = "";
+
+		//Load the file
+		strcat_s(filePath, folder);
+		strcat_s(filePath, "StaggerAnimation/stagger");
+		_itoa_s(i, currentIndex, 10);
+		strcat_s(filePath, currentIndex);
+		strcat_s(filePath, ".obj");
+
+		stagger.push_back(OBJModel(filePath, false));
+	}
+
+	animations.push_back(stagger);
 }
 
 void MorphTargets::Update(float *dt)
