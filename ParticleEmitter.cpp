@@ -70,6 +70,8 @@ void ParticleEmitter::update(ParticleType type, Player *player1, Player *player2
 			particleList[particleNum]->Init(type);
 			//this->GetNode()->AttachNode(particleList[particleNum]->GetNode());
 			incrementNum(particleNum);
+		} else if (type == BOOM){
+			particleList[particleNum]->Init(type);
 		} else if ((type == SHADOW) && activeCounter == 0){
 			
 			particleList[particleNum]->Init(type);

@@ -21,6 +21,8 @@ Game::Game()
 	isRunning = true;
 
 	gameOver = false;
+
+	hasBeenInit = false;
 	
 	//load sounds
 	soundSystem.loadSound("Resources/sound_assets.txt");
@@ -40,6 +42,8 @@ void Game::initGameplay(void)
 	GAME_STATE = STATE_GAMEPLAY;
 
 	projectionMatrix = glm::perspective(90.0f, (float)1280 / (float)720, 0.1f, 750.0f);
+
+	particleManager.getEmitterList().clear();
 	
 	//Create the full screen quad
 	fullScreenQuad = ShapeFullScreenQuad();
@@ -260,14 +264,43 @@ void Game::initGameplay(void)
 	particleManager.addEmitter(player1->GetNode(), SHADOW);
 	particleManager.addEmitter(player2->GetNode(), SHADOW);
 
+	particleManager.addEmitter(player1->GetNode(), BOOM);
+	particleManager.addEmitter(player2->GetNode(), BOOM);
+
 	particleManager.getEmitterList()[8]->ActivateEmitter();
 	particleManager.getEmitterList()[9]->ActivateEmitter();
+
+	blastActive1 = 0;
+	blastActive2 = 0;
 
 	redStartPlayed = false;
 	blueStartPlayed = false;
 	soundCounter = 0;
 
+	gameOver = false;
+	timeAfterGameOver = 0.0f;
+
 	sceneGraph->Update();
+
+	hasBeenInit = true;
+}
+
+void Game::resetGameplay(void)
+{
+	//reset the players
+	player1->SetHealth(player1->GetMaxHP());
+	player1->SetPosition(glm::vec3(0, 0, 0));
+
+	player2->SetHealth(player2->GetMaxHP());
+	player2->SetPosition(glm::vec3(0, 0, 0));
+
+	gameOver = false;
+	timeAfterGameOver = 0.0f;
+
+	particleManager.getEmitterList()[0]->DeactivateEmitter();
+	particleManager.getEmitterList()[1]->DeactivateEmitter();
+	particleManager.getEmitterList()[2]->DeactivateEmitter();
+	particleManager.getEmitterList()[3]->DeactivateEmitter();
 }
 
 //Initializes for menu
@@ -288,7 +321,13 @@ void Game::OpenWindow(int width, int height)
 	windowHeight	= height;
 
 	//Create window
-	gameWindow = glfwCreateWindow(width, height, "Robobopocalypse", NULL, NULL);
+	int count;
+	GLFWmonitor** monitors = glfwGetMonitors(&count);
+	if (count > 1)
+		gameWindow = glfwCreateWindow(width, height, "Robopocalypse", monitors[1], NULL);
+	else
+		gameWindow = glfwCreateWindow(width, height, "Robopocalypse", monitors[0], NULL);
+	//gameWindow = glfwCreateWindow(width, height, "Robopocalypse", NULL, NULL);
 
 	//If window didnt open
 	if (!gameWindow)
@@ -321,99 +360,134 @@ void Game::Update(void)
 {
 	glfwPollEvents();
 
-	//If the window should close, user presses the exit button, the game is no longer running and shutsdown at the start of gameloop
-	if (glfwWindowShouldClose(gameWindow))
-		isRunning = false;
-
-	playerInput();
-	
-	player1->update(player2, pl1SFX);
-	player2->update(player1, pl2SFX);
-
-	static float val = 0.0f;
-	static bool way = true;
-	if (way)
-		val += 0.30f;
-	else
-		val -= 0.01f;
-	static float val2 = 0.0f;
-	val2 += 0.3f;
-	player1->GetMorphTargets()->Update(&val);
-	player2->GetMorphTargets()->Update(&val2);
-
-	player1->GetModel()->AddVerticies(player1->GetMorphTargets()->GetFinalVerts());
-	player2->GetModel()->AddVerticies(player2->GetMorphTargets()->GetFinalVerts());
-
-	soundSystem.setChannelPos(SFX_PLAYER1_CHANNEL, player1->getPos());
-	soundSystem.setChannelPos(SFX_PLAYER2_CHANNEL, player2->getPos());
-
-	if (player1->GetHP() < player1->GetMaxHP()*0.5f){
-		particleManager.getEmitterList()[0]->ActivateEmitter();
-		particleManager.getEmitterList()[1]->ActivateEmitter();
-	}
-
-	if (player2->GetHP() < player2->GetMaxHP()*0.5f){
-		particleManager.getEmitterList()[2]->ActivateEmitter();
-		particleManager.getEmitterList()[3]->ActivateEmitter();
-	}
-	++soundCounter;
-	if (!redStartPlayed){
-		pl1SFX = START_DIALOGUE1;
-		redStartPlayed = true;
-	}
-	else if (!blueStartPlayed && soundCounter == 180){
-		pl2SFX = START_DIALOGUE2;
-		blueStartPlayed = true;
-	}
-
-	if (pl1SFX != EMPTY_P_SFX)
-		soundSystem.playSound(pl1SFX, SFX_PLAYER1_CHANNEL);
-
-	if (pl2SFX != EMPTY_P_SFX)
-		soundSystem.playSound(pl2SFX, SFX_PLAYER2_CHANNEL);
-
-	mainCamera->SetTarget(glm::vec3((player1->getPos().x + player2->getPos().x) / 2.f, 0, 0));
-	mainCamera->SetPosition(glm::vec3((player1->getPos().x + player2->getPos().x) / 2.f, 0, 5));
-
-	HUDBars[0]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, (float)player1->GetHP() / (float)player1->GetMaxHP(), 1));
-	HUDBars[1]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, (float)player1->GetSP() / (float)player1->GetMaxSP(), 1));
-													  							
-	HUDBars[2]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, (float)player2->GetHP() / (float)player2->GetMaxHP(), -1));
-	HUDBars[3]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, (float)player2->GetSP() / (float)player2->GetMaxSP(), -1));
-
-	soundSystem.updateSound();
-
-	if (player1->getCurrentAction() == BLOCK){
-		particleManager.getEmitterList()[4]->ActivateEmitter();
-	}
-	else {
-		particleManager.getEmitterList()[4]->DeactivateEmitter();
-	}
-
-	if (player2->getCurrentAction() == BLOCK){
-		particleManager.getEmitterList()[5]->ActivateEmitter();
-	}
-	else {
-		particleManager.getEmitterList()[5]->DeactivateEmitter();
-	}
-	if(player1->getHit() != 0 && player1->getHit() < 2){
-		particleManager.getEmitterList()[6]->ActivateEmitter();    
-	} else {
-		particleManager.getEmitterList()[6]->DeactivateEmitter();        
-	}
-	
-	if(player2->getHit() != 0 && player2->getHit() < 2){
-		particleManager.getEmitterList()[7]->ActivateEmitter();    
-	}else {
-		particleManager.getEmitterList()[7]->DeactivateEmitter();    
-	}
-
-	sceneGraph->Update();
-	particleManager.update(player1, player2);
-
-	if (player1->GetHP() <= 0.0f || player2->GetHP() <= 0.0f)
+	if (!gameOver)
 	{
-		gameOver = true;
+
+		//If the window should close, user presses the exit button, the game is no longer running and shutsdown at the start of gameloop
+		if (glfwWindowShouldClose(gameWindow))
+			isRunning = false;
+
+		playerInput();
+
+		player1->update(player2, pl1SFX);
+		player2->update(player1, pl2SFX);
+
+		static float val = 0.0f;
+		static bool way = true;
+		if (way)
+			val += 0.30f;
+		else
+			val -= 0.01f;
+		static float val2 = 0.0f;
+		val2 += 0.3f;
+		player1->GetMorphTargets()->Update(&val);
+		player2->GetMorphTargets()->Update(&val2);
+
+		player1->GetModel()->AddVerticies(player1->GetMorphTargets()->GetFinalVerts());
+		player2->GetModel()->AddVerticies(player2->GetMorphTargets()->GetFinalVerts());
+
+		soundSystem.setChannelPos(SFX_PLAYER1_CHANNEL, player1->getPos());
+		soundSystem.setChannelPos(SFX_PLAYER2_CHANNEL, player2->getPos());
+
+		if (player1->GetHP() < player1->GetMaxHP()*0.5f){
+			particleManager.getEmitterList()[0]->ActivateEmitter();
+			particleManager.getEmitterList()[1]->ActivateEmitter();
+		}
+
+		if (player2->GetHP() < player2->GetMaxHP()*0.5f){
+			particleManager.getEmitterList()[2]->ActivateEmitter();
+			particleManager.getEmitterList()[3]->ActivateEmitter();
+		}
+		++soundCounter;
+		if (!redStartPlayed){
+			pl1SFX = START_DIALOGUE1;
+			redStartPlayed = true;
+		}
+		else if (!blueStartPlayed && soundCounter == 180){
+			pl2SFX = START_DIALOGUE2;
+			blueStartPlayed = true;
+		}
+
+		if (pl1SFX != EMPTY_P_SFX)
+			soundSystem.playSound(pl1SFX, SFX_PLAYER1_CHANNEL);
+
+		if (pl2SFX != EMPTY_P_SFX)
+			soundSystem.playSound(pl2SFX, SFX_PLAYER2_CHANNEL);
+
+		mainCamera->SetTarget(glm::vec3((player1->getPos().x + player2->getPos().x) / 2.f, 0, 0));
+		mainCamera->SetPosition(glm::vec3((player1->getPos().x + player2->getPos().x) / 2.f, 0, 5));
+
+		HUDBars[0]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, (float)player1->GetHP() / (float)player1->GetMaxHP(), 1));
+		HUDBars[1]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, (float)player1->GetSP() / (float)player1->GetMaxSP(), 1));
+
+		HUDBars[2]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, (float)player2->GetHP() / (float)player2->GetMaxHP(), -1));
+		HUDBars[3]->AttachModel(ShapeHUDQuad(0.7f, 0.02f, (float)player2->GetSP() / (float)player2->GetMaxSP(), -1));
+
+		soundSystem.updateSound();
+
+		if (player1->getCurrentAction() == BLOCK){
+			particleManager.getEmitterList()[4]->ActivateEmitter();
+		}
+		else {
+			particleManager.getEmitterList()[4]->DeactivateEmitter();
+		}
+
+		if (player2->getCurrentAction() == BLOCK){
+			particleManager.getEmitterList()[5]->ActivateEmitter();
+		}
+		else {
+			particleManager.getEmitterList()[5]->DeactivateEmitter();
+		}
+		if (player1->getHit() != 0 && player1->getHit() < 2){
+			particleManager.getEmitterList()[6]->ActivateEmitter();
+		}
+		else {
+			particleManager.getEmitterList()[6]->DeactivateEmitter();
+		}
+
+		if (player2->getHit() != 0 && player2->getHit() < 2){
+			particleManager.getEmitterList()[7]->ActivateEmitter();
+		}
+		else {
+			particleManager.getEmitterList()[7]->DeactivateEmitter();
+		}
+
+		if (player1->getCurrentAction() == BLAST){
+			particleManager.getEmitterList()[10]->ActivateEmitter();
+			++blastActive1;
+		}
+		else {
+			particleManager.getEmitterList()[10]->DeactivateEmitter();
+			blastActive1 = 0;
+		}
+
+		if (player2->getCurrentAction() == BLAST){
+			particleManager.getEmitterList()[11]->ActivateEmitter();
+			++blastActive2;
+		}
+		else {
+			particleManager.getEmitterList()[11]->DeactivateEmitter();
+			blastActive2 = 0;
+		}
+
+		sceneGraph->Update();
+		particleManager.update(player1, player2);
+
+		if (player1->GetHP() <= 0.0f || player2->GetHP() <= 0.0f)
+		{
+			gameOver = true;
+			timeAfterGameOver = 0.0f;
+		}
+	}
+	else
+	{
+		if (timeAfterGameOver > 10.0f)
+		{
+			this->GAME_STATE = STATE_MAINMENU;
+			initMainMenu();
+		}
+
+		timeAfterGameOver += 0.1f;
 	}
 }
 
@@ -601,7 +675,7 @@ void Game::Render(void)
 			firstPass->SetTexture(1);
 
 			//Render all of the background objects
-			projectionMatrix = glm::perspective(90.0f, (float)1280 / (float)720, 0.1f, 750.0f);
+			projectionMatrix = glm::perspective(90.0f, (float)1280 / (float)720, 0.1f, 1000.0f);
 			for (unsigned int i = 0; i < backWorldAssetsObjects.GetSize(); ++i)
 			{
 				firstPass->SetTexture(0);
@@ -842,6 +916,9 @@ void Game::PreRender(std::vector<ParticleEmitter*> emitterList){
 		}
 		else if (type == SHIELD){
 			*squareSize = 150.f;
+		}
+		else if ((type == BOOM) && (emitterList[i]->GetNode()->GetParent() == player1->GetNode())){
+			*squareSize = 7.f * (float)blastActive1;
 		}
 		else if (type == SHADOW){
 			*squareSize = 100.f;

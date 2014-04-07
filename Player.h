@@ -83,4 +83,6 @@ public:
 	 int getFacing(){return isFacing;}
 
 	 int getHit(){return hasBeenHit;}
+
+	 void SetHealth(float healthValue){ hp = healthValue; }
 };

@@ -66,6 +66,7 @@ public:
 
 	//Initializes for gameplay
 	void initGameplay(void);
+	void resetGameplay(void);
 
 	//Initializes for the menu
 	void initMainMenu(void);
@@ -113,6 +114,8 @@ public:
 	void PreRender(GameObject* object, Light* light);
 	void PreRender(std::vector<CollisionBox> hitboxes);
 	void PreRender(std::vector<ParticleEmitter*> emitterList);
+
+	bool hasBeenInit;
 
 private:
 
@@ -206,6 +209,8 @@ private:
 	
 	float *squareSize;
 
+	double timeAfterGameOver;
+
 	//sound
 	SoundWrap soundSystem;
 
@@ -219,6 +224,7 @@ private:
 
 	//Particle
 	ParticleManager particleManager;
+	int blastActive1, blastActive2;
 
 	//Full screen quad used for drawing the frame buffer object to.
 	VertexBuffer *fullScreenQuad;

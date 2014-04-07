@@ -93,7 +93,10 @@ void Menu::MenuInput(Game* game)
 			if (pressed == 1)
 			{
 				game->SetState(STATE_GAMEPLAY);
-				game->initGameplay();
+				if (game->hasBeenInit)
+					game->resetGameplay();
+				else
+					game->initGameplay();
 			}
 		}
 		else if ((*xpos >= 1298.0) && (*xpos <= 1500.0))
@@ -127,7 +130,10 @@ void Menu::MenuInput(Game* game)
 		if ((*(buttonPointerP1 + 0) == 1) || (*(buttonPointerP1 + 7) == 1))
 		{
 			game->SetState(STATE_GAMEPLAY);
-			game->initGameplay();
+			if (game->hasBeenInit)
+				game->resetGameplay();
+			else
+				game->initGameplay();
 		}
 		else if (*(buttonPointerP1 + 1) == 1){
 			exit(99);
@@ -149,7 +155,10 @@ void Menu::MenuInput(Game* game)
 		if ((*(buttonPointerP2 + 0) == 1) || (*(buttonPointerP2 + 7) == 1))
 		{
 			game->SetState(STATE_GAMEPLAY);
-			game->initGameplay();
+			if (game->hasBeenInit)
+				game->resetGameplay();
+			else
+				game->initGameplay();
 		}
 		else if (*(buttonPointerP2 + 1) == 1){
 			exit(99);

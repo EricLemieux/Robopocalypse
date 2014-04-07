@@ -252,6 +252,15 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 		sfx = KICK_SFX;
 		soundCheck(sfx);
 		currentAction = playerAction.kickAction(actionTimer, vel, isFacing, onGround, hitboxList);
+
+		if (playerAction.GetKickStart() == 0)
+		{
+			GetMorphTargets()->SetAnimation(PLAYER_ANIMATION_GROUND_KICK);
+		}
+		else
+		{
+			GetMorphTargets()->SetAnimation(PLAYER_ANIMATION_AIR_KICK);
+		}
 		
 	}
 	else if (currentAction == LASER){

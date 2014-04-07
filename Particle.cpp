@@ -260,6 +260,8 @@ void Particle::Init(ParticleType type){
 	} else if (type == SHADOW){
 		lifeSpan = 20;
 		//this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/shadow.png"));
+	} else if (type == BOOM){
+		lifeSpan = 1;
 	}
 
 	particleNode->SetLocalPosition(pos);
@@ -383,6 +385,8 @@ void Particle::InitTex(ParticleType type){
 	} else if (type == SHADOW){
 
 		this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/shadow.png"));
+	} else if (type == BOOM){
+		this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/blast.png"));
 	}
 
 }
@@ -457,7 +461,7 @@ bool Particle::update(ParticleType type, Node* emitterNode, Player *player1, Pla
 				pos.z += vel.x*0.2f - difference;
 			
 			} else if (type == SHIELD){
-				pos = pos;
+				//pos = pos;
 			} else if (type == SHADOW){
 				//glm::mat4 temp = particleNode->GetWorldTransform();
 				pos = particleNode->GetWorldPosition();

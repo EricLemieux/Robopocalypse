@@ -12,6 +12,7 @@ enum ParticleType{
 	IMPACT,
 	SHIELD,
 	SHADOW,
+	BOOM,
 };
 
 class Particle : public GameObject{

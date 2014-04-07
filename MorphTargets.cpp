@@ -107,6 +107,40 @@ void MorphTargets::LoadAnimations(void)
 	}
 
 	animations.push_back(stagger);
+
+	std::vector<OBJModel> groundKick;
+	for (unsigned int i = 1; i <= 10; ++i)
+	{
+		char filePath[256] = "";
+
+		//Load the file
+		strcat_s(filePath, folder);
+		strcat_s(filePath, "GroundKickAnimation/groundkick");
+		_itoa_s(i, currentIndex, 10);
+		strcat_s(filePath, currentIndex);
+		strcat_s(filePath, ".obj");
+
+		groundKick.push_back(OBJModel(filePath, false));
+	}
+
+	animations.push_back(groundKick);
+
+	std::vector<OBJModel> airKick;
+	for (unsigned int i = 1; i <= 10; ++i)
+	{
+		char filePath[256] = "";
+
+		//Load the file
+		strcat_s(filePath, folder);
+		strcat_s(filePath, "DiveKickAnimation/divekick");
+		_itoa_s(i, currentIndex, 10);
+		strcat_s(filePath, currentIndex);
+		strcat_s(filePath, ".obj");
+
+		airKick.push_back(OBJModel(filePath, false));
+	}
+
+	animations.push_back(airKick);
 }
 
 void MorphTargets::Update(float *dt)

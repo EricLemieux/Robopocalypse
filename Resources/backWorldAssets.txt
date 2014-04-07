@@ -37,3 +37,8 @@ pos 0 -20 -50
 obj Resources/Models/Level/BackTower.obj
 tex Resources/Textures/Level/Tower.jpg
 load
+new
+pos 0 0 0
+obj Resources/Models/Level/skybox.obj
+tex Resources/Textures/Level/CoudTesting.jpg
+load

@@ -73,6 +73,8 @@ public:
 	//use this to clear all hitboxes except body
 	void deactivateAllHitbox(std::vector<CollisionBox> &hitboxList);
 
+	int GetKickStart(void){ return kickStart; }
+
 private:
 	int kickStart;//0 started on ground, 1 started in air
 };
