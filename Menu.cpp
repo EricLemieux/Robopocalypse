@@ -104,4 +104,57 @@ void Menu::MenuInput(Game* game)
 			}
 		}
 	}
+
+	if (glfwJoystickPresent(0) == GL_TRUE)
+	{
+		//Get joystick input
+		int * joySizeP1;
+		joySizeP1 = new int;
+		int * buttonSizeP1;
+		buttonSizeP1 = new int;
+		const unsigned char* buttonPointerP1 = glfwGetJoystickButtons(0, buttonSizeP1);
+
+		////joystick player 1
+		//for (unsigned int i = 0; i < 14; ++i)
+		//{
+		//	if (*(buttonPointerP1 + i) == 1)
+		//	{
+		//		std::cout << i << "\n";
+		//		std::cout << "moo\n";
+		//	}
+		//}
+
+		if ((*(buttonPointerP1 + 0) == 1) || (*(buttonPointerP1 + 7) == 1))
+		{
+			game->SetState(STATE_GAMEPLAY);
+			game->initGameplay();
+		}
+		else if (*(buttonPointerP1 + 1) == 1){
+			exit(99);
+		}
+		free(joySizeP1);
+		free(buttonSizeP1);
+	}
+
+	if (glfwJoystickPresent(1) == GL_TRUE)
+	{
+		//Get joystick input
+		int * joySizeP2;
+		joySizeP2 = new int;
+		int * buttonSizeP2;
+		buttonSizeP2 = new int;
+		const unsigned char* buttonPointerP2 = glfwGetJoystickButtons(1, buttonSizeP2);
+
+		//joystick player 2
+		if ((*(buttonPointerP2 + 0) == 1) || (*(buttonPointerP2 + 7) == 1))
+		{
+			game->SetState(STATE_GAMEPLAY);
+			game->initGameplay();
+		}
+		else if (*(buttonPointerP2 + 1) == 1){
+			exit(99);
+		}
+		free(joySizeP2);
+		free(buttonSizeP2);
+	}
 }

@@ -27,6 +27,9 @@ void Node::SetLocalPosition(const glm::vec3 position)
 {
 	translation[3] = glm::vec4(position, 1.0f);
 }
+void Node::SetWorldPosition(const glm::vec3 position){
+	worldTransform[3] = glm::vec4(position,1.0f);
+}
 
 //Set the local rotation
 void Node::SetRotation(glm::mat4 newRot)

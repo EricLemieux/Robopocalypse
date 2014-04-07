@@ -35,6 +35,7 @@ public:
 	//Translate the node in 3D space
 	void TranslateNode(const glm::vec3 position);
 	void SetLocalPosition(const glm::vec3 position);
+	void SetWorldPosition(const glm::vec3 position);
 
 	void SetRotation(glm::mat4 newRot);
 	void SetRotation(glm::vec3 rot);

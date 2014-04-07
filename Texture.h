@@ -52,6 +52,7 @@ inline GLuint loadAlphaTex(const char* theFileName)
 		{
 			error = ilGetError();
 			std::cout << "Image conversion failed - IL reports error: " << error << " - " << iluErrorString(error) << std::endl;
+			std::cout << "The file path is: " << theFileName << "\n";
 			exit(-1);
 		}
 
@@ -84,6 +85,7 @@ inline GLuint loadAlphaTex(const char* theFileName)
 	{
 		error = ilGetError();
 		std::cout << "Image load failed - IL reports error: " << error << " - " << iluErrorString(error) << std::endl;
+		std::cout << "The file path is: " << theFileName << "\n";
 		exit(-1);
 	}
 

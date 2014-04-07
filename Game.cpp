@@ -257,6 +257,12 @@ void Game::initGameplay(void)
 	particleManager.addEmitter(player1->GetNode(), IMPACT);
 	particleManager.addEmitter(player2->GetNode(), IMPACT);
 
+	particleManager.addEmitter(player1->GetNode(), SHADOW);
+	particleManager.addEmitter(player2->GetNode(), SHADOW);
+
+	particleManager.getEmitterList()[8]->ActivateEmitter();
+	particleManager.getEmitterList()[9]->ActivateEmitter();
+
 	redStartPlayed = false;
 	blueStartPlayed = false;
 	soundCounter = 0;
@@ -401,9 +407,9 @@ void Game::Update(void)
 	}else {
 		particleManager.getEmitterList()[7]->DeactivateEmitter();    
 	}
-	particleManager.update(player1,player2);
-	
+
 	sceneGraph->Update();
+	particleManager.update(player1, player2);
 
 	if (player1->GetHP() <= 0.0f || player2->GetHP() <= 0.0f)
 	{
@@ -421,7 +427,7 @@ void Game::playerInput(void){
 		const float* joystickPointer = glfwGetJoystickAxes(0, joySize);
 		int * buttonSize;
 		buttonSize = new int;
-		static const unsigned char* buttonPointer = glfwGetJoystickButtons(0, buttonSize);
+		const unsigned char* buttonPointer = glfwGetJoystickButtons(0, buttonSize);
 
 		if ((*joystickPointer <= -0.25f) || (*(buttonPointer + 13) == 1)){
 			player1->controllerInput(MOVE_LEFT);
@@ -502,7 +508,7 @@ void Game::playerInput(void){
 		const float* joystickPointer = glfwGetJoystickAxes(1, joySize);
 		int * buttonSize;
 		buttonSize = new int;
-		static const unsigned char* buttonPointer = glfwGetJoystickButtons(1, buttonSize);
+		const unsigned char* buttonPointer = glfwGetJoystickButtons(1, buttonSize);
 
 		//joystick player 2
 		if ((*joystickPointer <= -0.25f) || (*(buttonPointer + 13) == 1)){
@@ -624,8 +630,9 @@ void Game::Render(void)
 
 		ParticleProgram->Activate();
 		{
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 			glEnable(GL_BLEND);
+
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 			PreRender(particleManager.getEmitterList());
 			glDisable(GL_BLEND);
@@ -835,6 +842,10 @@ void Game::PreRender(std::vector<ParticleEmitter*> emitterList){
 		}
 		else if (type == SHIELD){
 			*squareSize = 150.f;
+		}
+		else if (type == SHADOW){
+			*squareSize = 100.f;
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		}
 
 		glm::vec4 distort;

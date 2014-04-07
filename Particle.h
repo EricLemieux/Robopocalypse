@@ -11,6 +11,7 @@ enum ParticleType{
 	SPARK,
 	IMPACT,
 	SHIELD,
+	SHADOW,
 };
 
 class Particle : public GameObject{
@@ -39,6 +40,7 @@ public:
 	~Particle();
 
 	void Init(ParticleType type);
+	void InitTex(ParticleType type);
 	void Deactivate();
 
 	bool update(ParticleType type, Node* emitterNode, Player *player1, Player *player2);

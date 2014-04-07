@@ -125,8 +125,11 @@ Particle::Particle(ParticleType type){
 			this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/transparent.png"));
 		}
 	} else if (type == SHIELD){
-		lifeSpan = 0;
+		lifeSpan = 1;
 		this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Shield.png"));
+	} else if (type == SHADOW){
+		lifeSpan = 20;
+		this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/shadow.png"));
 	}
 
 	particleNode->SetLocalPosition(pos);
@@ -151,12 +154,137 @@ void Particle::Init(ParticleType type){
 	currentLife = 0;
 	if(type == BASIC){
 		lifeSpan = 10;
-		this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Sparks_1.png"));
+		//this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Sparks_1.png"));
 		
 	} else if(type == SMOKE){
 		pos = glm::vec3(0,0,(float)(rand()%1-2));
 		vel = glm::vec3((float)(rand()%3-1),(float)(rand()%2+1),0);
 		lifeSpan = rand()%30 + 10;
+		//int temp = rand()%5+1;
+		//switch(temp){
+		//case 1:
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Smoke_1.png"));
+		//	break;
+		//case 2:
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Smoke_2.png"));
+		//	break;
+		//case 3:
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Smoke_3.png"));
+		//	break;
+		//case 4:
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Smoke_4.png"));
+		//	break;
+		//case 5:
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Smoke_5.png"));
+		//	break;
+		//default:
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/transparent.png"));
+		//}
+
+	} else if(type == FIRE){
+	
+	} else if(type == SPARK){
+		pos = glm::vec3(0,0,(float)(rand()%1-2));
+		lifeSpan = 0;
+		//int temp = rand()%9+1;
+		//switch(temp){
+		//case 1:
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Sparks_1.png"));
+		//	break;														   
+		//case 2:															   
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Sparks_2.png"));
+		//	break;														   
+		//case 3:															   
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Sparks_3.png"));
+		//	break;														   
+		//case 4:															   
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Sparks_4.png"));
+		//	break;														   
+		//case 5:															   
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Sparks_5.png"));
+		//	break;														   
+		//case 6:															   
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Sparks_6.png"));
+		//	break;														   
+		//case 7:															   
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Sparks_7.png"));
+		//	break;														   
+		//case 8:															   
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Sparks_8.png"));
+		//	break;														   
+		//case 9:															   
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Sparks_9.png"));
+		//	break;
+		//default:
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/transparent.png"));
+		//}
+	} else if(type == IMPACT){
+		pos = glm::vec3(0,0,0);
+		vel = glm::vec3((float)(rand()%2-1),(float)(rand()%5+5),(float)(rand()%2-1));
+		lifeSpan = rand()%15+5;
+		//int temp = rand()%9+1;
+		//switch(temp){
+		//case 1:
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Sparks_1.png"));
+		//	break;														   
+		//case 2:															   
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Sparks_2.png"));
+		//	break;														   
+		//case 3:															   
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Sparks_3.png"));
+		//	break;														   
+		//case 4:															   
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Sparks_4.png"));
+		//	break;														   
+		//case 5:															   
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Sparks_5.png"));
+		//	break;														   
+		//case 6:															   
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Sparks_6.png"));
+		//	break;														   
+		//case 7:															   
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Sparks_7.png"));
+		//	break;														   
+		//case 8:															   
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Sparks_8.png"));
+		//	break;														   
+		//case 9:															   
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Sparks_9.png"));
+		//	break;
+		//default:
+		//	this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/transparent.png"));
+		//}
+	} else if (type == SHIELD){
+		lifeSpan = 1;
+		//this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Shield.png"));
+	} else if (type == SHADOW){
+		lifeSpan = 20;
+		//this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/shadow.png"));
+	}
+
+	particleNode->SetLocalPosition(pos);
+	prevSmokePos = particleNode->GetLocalPosition();
+	currentSmokePos = particleNode->GetLocalPosition();
+	flipped = false;
+
+	int a = 0;
+	isActive = true;
+}
+
+void Particle::InitTex(ParticleType type){
+	
+	pos = glm::vec3(0,0,0);
+	vel = glm::vec3(0,0,0);
+
+	
+
+	currentLife = 0;
+	if(type == BASIC){
+		lifeSpan = 10;
+		//this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Sparks_1.png"));
+		
+	} else if(type == SMOKE){
+
 		int temp = rand()%5+1;
 		switch(temp){
 		case 1:
@@ -181,8 +309,7 @@ void Particle::Init(ParticleType type){
 	} else if(type == FIRE){
 	
 	} else if(type == SPARK){
-		pos = glm::vec3(0,0,(float)(rand()%1-2));
-		lifeSpan = 0;
+
 		int temp = rand()%9+1;
 		switch(temp){
 		case 1:
@@ -216,9 +343,7 @@ void Particle::Init(ParticleType type){
 			this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/transparent.png"));
 		}
 	} else if(type == IMPACT){
-		pos = glm::vec3(0,0,0);
-		vel = glm::vec3((float)(rand()%2-1),(float)(rand()%5+5),(float)(rand()%2-1));
-		lifeSpan = rand()%15+5;
+
 		int temp = rand()%9+1;
 		switch(temp){
 		case 1:
@@ -252,17 +377,14 @@ void Particle::Init(ParticleType type){
 			this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/transparent.png"));
 		}
 	} else if (type == SHIELD){
-		lifeSpan = 0;
+
 		this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/Shield.png"));
+
+	} else if (type == SHADOW){
+
+		this->AttachTexture(loadAlphaTex("Resources/Textures/Particles/shadow.png"));
 	}
 
-	particleNode->SetLocalPosition(pos);
-	prevSmokePos = particleNode->GetLocalPosition();
-	currentSmokePos = particleNode->GetLocalPosition();
-	flipped = false;
-
-	int a = 0;
-	isActive = true;
 }
 
 void Particle::Deactivate(){
@@ -271,7 +393,7 @@ void Particle::Deactivate(){
 	currentLife = 0;
 	lifeSpan = 0;
 	isActive = false;
-	this->AttachTexture(0);
+	//this->AttachTexture(0);
 	particleNode->SetLocalPosition(pos);
 
 }
@@ -282,7 +404,11 @@ bool Particle::update(ParticleType type, Node* emitterNode, Player *player1, Pla
 		return false;
 	} else {
 		if (isActive){
-			pos = particleNode->GetLocalPosition();
+			if(type != SHADOW)
+				pos = particleNode->GetLocalPosition();
+
+			if(pos.z == -10000)
+				pos.z = 0;
 
 			if(currentLife == 0){
 				currentSmokePos = emitterNode->GetWorldPosition();
@@ -331,14 +457,21 @@ bool Particle::update(ParticleType type, Node* emitterNode, Player *player1, Pla
 				pos.z += vel.x*0.2f - difference;
 			
 			} else if (type == SHIELD){
-				
+				pos = pos;
+			} else if (type == SHADOW){
+				//glm::mat4 temp = particleNode->GetWorldTransform();
+				pos = particleNode->GetWorldPosition();
+				pos.y = -9;
+				//pos.x = 0;
+				//pos.z = 0;
+				particleNode->SetWorldPosition(pos);
+				currentLife = 0;
 			}
-
 			prevSmokePos = currentSmokePos;
 			++currentLife;
 
-
-			particleNode->SetLocalPosition(pos);
+			if(type != SHADOW)
+				particleNode->SetLocalPosition(pos);
 		}
 		
 		return true;

@@ -30,6 +30,11 @@ ParticleEmitter::~ParticleEmitter(){
 
 void ParticleEmitter::update(ParticleType type, Player *player1, Player *player2){
 	pos = this->GetNode()->GetLocalPosition();
+	if((activeCounter == 0) && (isActive)){
+		for(int i = 0; i < 50; ++i){
+			particleList[i]->InitTex(type);
+		}
+	}
 	if(isActive){
 		if(type == BASIC){
 			particleList[particleNum]->Init(type);
@@ -41,29 +46,35 @@ void ParticleEmitter::update(ParticleType type, Player *player1, Player *player2
 
 			particleList[particleNum]->Init(type);
 			//this->GetNode()->AttachNode(particleList[particleNum]->GetNode());
-			incrementNum(particleNum);;
+			incrementNum(particleNum);
 			particleList[particleNum]->Init(type);
 			//this->GetNode()->AttachNode(particleList[particleNum]->GetNode());
-			incrementNum(particleNum);;
+			incrementNum(particleNum);
 			particleList[particleNum]->Init(type);
 			//this->GetNode()->AttachNode(particleList[particleNum]->GetNode());
-			incrementNum(particleNum);;
+			incrementNum(particleNum);
 			particleList[particleNum]->Init(type);
 			//this->GetNode()->AttachNode(particleList[particleNum]->GetNode());
-			incrementNum(particleNum);;			
+			incrementNum(particleNum);;		
 		} else if (type == SPARK && (activeCounter%17 == 0 || activeCounter%9 == 0)){
 			particleList[particleNum]->Init(type);
 			//this->GetNode()->AttachNode(particleList[particleNum]->GetNode());
-			incrementNum(particleNum);;
+			incrementNum(particleNum);
 		} else if (type == SHIELD){
 			particleList[particleNum]->Init(type);
+			//particleList[particleNum]->Init(type);
+			//particleList[particleNum]->InitTex(type);
 			//this->GetNode()->AttachNode(particleList[particleNum]->GetNode());
-			incrementNum(particleNum);;
+			//incrementNum(particleNum);
 		} else if((type == IMPACT) && activeCounter%20 == 0){
 			particleList[particleNum]->Init(type);
 			//this->GetNode()->AttachNode(particleList[particleNum]->GetNode());
-			incrementNum(particleNum);;
-		}
+			incrementNum(particleNum);
+		} else if ((type == SHADOW) && activeCounter == 0){
+			
+			particleList[particleNum]->Init(type);
+			//particleList[particleNum]->InitTex(type);
+		} 
 		
 		
 		
