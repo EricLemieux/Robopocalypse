@@ -489,7 +489,7 @@ void Game::Update(void)
 		if (timeAfterGameOver > 10.0f)
 		{
 			this->GAME_STATE = STATE_MAINMENU;
-			initMainMenu();
+			//initMainMenu();
 		}
 
 		timeAfterGameOver += 0.1f;
