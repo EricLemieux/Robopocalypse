@@ -421,7 +421,7 @@ void Game::playerInput(void){
 		const float* joystickPointer = glfwGetJoystickAxes(0, joySize);
 		int * buttonSize;
 		buttonSize = new int;
-		const unsigned char* buttonPointer = glfwGetJoystickButtons(0, buttonSize);
+		static const unsigned char* buttonPointer = glfwGetJoystickButtons(0, buttonSize);
 
 		if ((*joystickPointer <= -0.25f) || (*(buttonPointer + 13) == 1)){
 			player1->controllerInput(MOVE_LEFT);
@@ -453,6 +453,9 @@ void Game::playerInput(void){
 		else if (*(buttonPointer + 1) == 1){
 			player1->controllerInput(BLAST);
 		}
+
+		free(joySize);
+		free(buttonSize);
 	}
 	else
 	{
@@ -499,7 +502,7 @@ void Game::playerInput(void){
 		const float* joystickPointer = glfwGetJoystickAxes(1, joySize);
 		int * buttonSize;
 		buttonSize = new int;
-		const unsigned char* buttonPointer = glfwGetJoystickButtons(1, buttonSize);
+		static const unsigned char* buttonPointer = glfwGetJoystickButtons(1, buttonSize);
 
 		//joystick player 2
 		if ((*joystickPointer <= -0.25f) || (*(buttonPointer + 13) == 1)){
@@ -532,6 +535,9 @@ void Game::playerInput(void){
 		else if (*(buttonPointer + 1) == 1){
 			player2->controllerInput(BLAST);
 		}
+
+		free(joySize);
+		free(buttonSize);
 	}
 	else
 	{

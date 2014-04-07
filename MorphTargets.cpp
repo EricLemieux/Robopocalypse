@@ -18,12 +18,9 @@ MorphTargets::~MorphTargets()
 
 void MorphTargets::LoadAnimations(void)
 {
-	//TODO
-	//Load a text file that contains all of the animations
-
 	double time = glfwGetTime();
 
-	char *folder = "Resources/Animations/";
+	static const char *folder = "Resources/Animations/";
 	char currentIndex[256] = "";
 
 	std::vector<OBJModel> idle;

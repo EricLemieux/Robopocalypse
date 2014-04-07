@@ -51,8 +51,8 @@ int main()
 	//Load a blank image into spot #1 using this for objects that dont have a normal map, there is probably a way better way of doing this...
 	loadTexture("Resources/NormalMaps/blank.png");
 
-	Robopocalypse->initGameplay();
-	//Robopocalypse->initMainMenu();
+	//Robopocalypse->initGameplay();
+	Robopocalypse->initMainMenu();
 
 	//Set the time to zero before running the game loop so we know it starts from scratch.
 	glfwSetTime(0.0f);
