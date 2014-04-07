@@ -127,7 +127,7 @@ private:
 	unsigned int windowHeight;
 
 	//Stores whether the game is over or not
-	bool gameOver;
+	int gameOver;	//0 not over, 1 player 1 wins, 2 player 2 wins
 
 	//Scene Graph nodes
 	Node *world;

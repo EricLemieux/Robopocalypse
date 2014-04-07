@@ -56,6 +56,8 @@ Player::Player(){
 
 	hasBeenHit = 0;
 
+	timeBeforeSPRegen = 0;
+
 }
 Player::~Player(){}
 void Player::update(Player *otherPlayer, playerSFX &sfx){
@@ -136,7 +138,7 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 	
 	if ((hitboxListHit[PUNCHBOX] || hitboxListHit[KICKBOX] || hitboxListHit[LASERBOX] 
 	|| hitboxListHit[BLASTBOX]) && currentAction != BLOCK && hasBeenHit == 0){
-		if(!hitboxListHit[LASERBOX]){
+		if(!hitboxListHit[LASERBOX] && !hitboxListHit[BLASTBOX]){
 			//if hit by attack, interrupt current and trigger stagger if not blocking
 			actionTimer = 0;
 			prevAction = currentAction;
@@ -148,6 +150,7 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 				currentAction = STAGGER_G;
 			}
 		}
+		
 
 		//since not blocking, reduce hp/sp according to attack TODO collision shiiit
 		if (hitboxListHit[PUNCHBOX]){
@@ -159,10 +162,10 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 		else if (hitboxListHit[LASERBOX]){
 			hp -= 100;
 		}
-		else if (hitboxListHit[BLASTBOX]){
+		else if ((hitboxListHit[BLASTBOX])&& blastStunCooldown == 0){
 			hp -= 50;
 			sp -= 500;
-			blastStunCooldown = 60;
+			blastStunCooldown = 90;
 		}
 		hasBeenHit += 1;
 	}
@@ -196,7 +199,7 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 		}
 		else if (hitboxListHit[BLASTBOX]){
 			sp -= 200;
-			blastStunCooldown = 60;
+			blastStunCooldown = 90;
 		}
 		hasBeenHit += 1;
 	}
@@ -227,13 +230,13 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 		//sfx = DASH_SFX;
 		//soundCheck(sfx);
 		currentAction = playerAction.dashLeftAction(actionTimer, vel, sp);
-		
+		blastStunCooldown = 20;
 	}
 	else if (currentAction == DASH_RIGHT){
 		//sfx = DASH_SFX;
 		//soundCheck(sfx);
 		currentAction = playerAction.dashRightAction(actionTimer, vel, sp);
-		
+		blastStunCooldown = 20;
 	}
 	else if (currentAction == JUMP){
 		//sfx = JUMP_SFX;
@@ -273,17 +276,22 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 		sfx = BLAST_SFX;
 		soundCheck(sfx);
 		currentAction = playerAction.blastAction(actionTimer, vel, hitboxList);
-		
+		blastStunCooldown = 30;
 	}
 	else if (currentAction == BLOCK){
-		if(sfx != BLOCK_IMPACT_SFX){
-			sfx = BLOCK_IMPACT_SFX;
-			actionTimer = 0;
+		if (sp > 100){
+			if (sfx != BLOCK_IMPACT_SFX){
+				sfx = BLOCK_IMPACT_SFX;
+				actionTimer = 0;
+			}
+			soundCheck(sfx);
+			currentAction = playerAction.blockAction(actionTimer, vel, hitboxList, sp);
+
+			this->GetMorphTargets()->SetAnimation(PLAYER_ANIMATION_BLOCK);
+
+			blastStunCooldown = 30;
 		}
-		soundCheck(sfx);
-		currentAction = playerAction.blockAction(actionTimer, vel, hitboxList, sp);
-		
-		this->GetMorphTargets()->SetAnimation(PLAYER_ANIMATION_BLOCK);
+		else { currentAction = IDLE; }
 	}
 	else if (currentAction == STAGGER_G){
 		sfx = IMPACT1_SFX;
@@ -371,6 +379,7 @@ void Player::update(Player *otherPlayer, playerSFX &sfx){
 	else {
 		sp += 10;
 	}
+
 	if (sp > 1000)
 		sp = 1000;
 

@@ -473,9 +473,14 @@ void Game::Update(void)
 		sceneGraph->Update();
 		particleManager.update(player1, player2);
 
-		if (player1->GetHP() <= 0.0f || player2->GetHP() <= 0.0f)
+		if (player1->GetHP() <= 0.0f)
 		{
-			gameOver = true;
+			gameOver = 2;
+			timeAfterGameOver = 0.0f;
+		}
+		if (player2->GetHP() <= 0.0f)
+		{
+			gameOver = 1;
 			timeAfterGameOver = 0.0f;
 		}
 	}
@@ -528,7 +533,7 @@ void Game::playerInput(void){
 			player1->controllerInput(KICK);
 		}
 		else if (*(buttonPointer + 3) == 1){
-			player1->controllerInput(LASER);
+			//player1->controllerInput(LASER);
 		}
 		else if (*(buttonPointer + 1) == 1){
 			player1->controllerInput(BLAST);
@@ -565,7 +570,7 @@ void Game::playerInput(void){
 			player1->controllerInput(KICK);
 		}
 		else if (glfwGetKey(gameWindow, 'T') == GLFW_PRESS){
-			player1->controllerInput(LASER);
+			//player1->controllerInput(LASER);
 		}
 		else if (glfwGetKey(gameWindow, 'G') == GLFW_PRESS){
 			player1->controllerInput(BLAST);
@@ -610,7 +615,7 @@ void Game::playerInput(void){
 			player2->controllerInput(KICK);
 		}
 		else if (*(buttonPointer + 3) == 1){
-			player2->controllerInput(LASER);
+			//player2->controllerInput(LASER);
 		}
 		else if (*(buttonPointer + 1) == 1){
 			player2->controllerInput(BLAST);
@@ -641,7 +646,7 @@ void Game::playerInput(void){
 			player2->controllerInput(DASH_RIGHT);
 		}
 		else if (glfwGetKey(gameWindow, 'Y') == GLFW_PRESS){
-			player2->controllerInput(LASER);
+			//player2->controllerInput(LASER);
 		}
 		else if (glfwGetKey(gameWindow, 'H') == GLFW_PRESS){
 			player2->controllerInput(BLAST);
@@ -750,7 +755,11 @@ void Game::Render(void)
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		static const GLuint winImageHandle = ilutGLLoadImage("Resources/Textures/win.jpg");
+		static GLuint winImageHandle;
+		if (gameOver == 1)
+			winImageHandle = ilutGLLoadImage("Resources/Textures/win1.jpg");
+		else
+			winImageHandle = ilutGLLoadImage("Resources/Textures/win2.jpg");
 
 		OutlineProgram->Activate();
 		{
@@ -919,6 +928,9 @@ void Game::PreRender(std::vector<ParticleEmitter*> emitterList){
 		}
 		else if ((type == BOOM) && (emitterList[i]->GetNode()->GetParent() == player1->GetNode())){
 			*squareSize = 7.f * (float)blastActive1;
+		}
+		else if ((type == BOOM) && (emitterList[i]->GetNode()->GetParent() == player2->GetNode())){
+			*squareSize = 7.f * (float)blastActive2;
 		}
 		else if (type == SHADOW){
 			*squareSize = 100.f;

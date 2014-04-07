@@ -51,6 +51,8 @@ private:
 	//prevents multiple hits from one attack
 	int hasBeenHit;
 
+	int timeBeforeSPRegen;
+
 
 public:
 	Player();

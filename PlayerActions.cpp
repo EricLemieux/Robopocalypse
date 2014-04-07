@@ -30,9 +30,9 @@ Actions PlayerActions::moveLeftAction(int &t, glm::vec3 &vel){
 
 	//if speed is less than max, increase it otherwise reduce it
 	if(vel.x < moveVel)
-		vel.x += 35;
+		vel.x += 25;
 	else
-		vel.x -= 35;
+		vel.x -= 25;
 
 	t+=1;
 	
@@ -44,9 +44,9 @@ Actions PlayerActions::moveRightAction(int &t, glm::vec3 &vel){
 	int moveVel = 150;
 
 	if(vel.x > moveVel)
-		vel.x -= 35;
+		vel.x -= 25;
 	else
-		vel.x += 35;
+		vel.x += 25;
 
 	t+=1;
 	
@@ -55,7 +55,7 @@ Actions PlayerActions::moveRightAction(int &t, glm::vec3 &vel){
 
 Actions PlayerActions::dashLeftAction(int &t, glm::vec3 &vel, int &sp){
 
-	int dashVel = -200;
+	int dashVel = -150;
 
 	if (sp > 50){
 		vel.x = dashVel;
@@ -69,7 +69,7 @@ Actions PlayerActions::dashLeftAction(int &t, glm::vec3 &vel, int &sp){
 
 Actions PlayerActions::dashRightAction(int &t, glm::vec3 &vel, int &sp){
 
-	int dashVel = 200;
+	int dashVel = 150;
 
 	if (sp > 50){
 		vel.x = dashVel;
@@ -258,9 +258,9 @@ Actions PlayerActions::blockAction(int &t, glm::vec3 &vel, std::vector<Collision
 	deactivateAllHitbox(hitboxList);
 
 	//if not enough sp left then can't block
-	if(sp < 20)
+	if(sp < 100)
 		return IDLE;
-
+	
 	//stop movement while blocking
 	vel.x = 0;
 	vel.y = 0;
