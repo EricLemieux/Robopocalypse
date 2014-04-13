@@ -17,7 +17,7 @@ void main()
 {
 	gl_Position = MVP * position;
 
-	data.pos	= position.xyz;
+	data.pos	= gl_Position.xyz;
 	data.norm	= normal;
 	data.UV		= texcoord;
 }

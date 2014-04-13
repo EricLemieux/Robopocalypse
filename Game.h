@@ -114,6 +114,7 @@ public:
 	void PreRender(GameObject* object, Light* light);
 	void PreRender(std::vector<CollisionBox> hitboxes);
 	void PreRender(std::vector<ParticleEmitter*> emitterList);
+	void PreRenderLight(Light* object);
 
 	bool hasBeenInit;
 
@@ -184,14 +185,18 @@ private:
 	unsigned int uniform_texture;
 	unsigned int uniform_normalMap;
 
+	unsigned int uniform_light_MVP;
+	unsigned int uniform_light_inverse_P;
+	unsigned int uniform_light_qMap;
+
 	unsigned int uniform_meshSkin_MVP;
 	unsigned int uniform_meshSkin_texture;
 	unsigned int uniform_meshSkin_normalMap;
 	unsigned int uniform_meshSkin_boneMat;
 
-	unsigned int uniform_Light_LightPos;
-	unsigned int uniform_Light_LightColour;
-	unsigned int uniform_Light_qMap;
+	//unsigned int uniform_Light_LightPos;
+	//unsigned int uniform_Light_LightColour;
+	//unsigned int uniform_Light_qMap;
 
 	unsigned int uniform_HUD_MVP;
 	unsigned int uniform_HUD_texture;
@@ -231,4 +236,6 @@ private:
 
 	//Frame buffers
 	FrameBuffer *firstPass;
+	FrameBuffer *lightPass;
+	FrameBuffer *finalPass;
 };

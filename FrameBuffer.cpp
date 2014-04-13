@@ -175,7 +175,7 @@ void FrameBuffer::Deactivate(void)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	glDrawBuffer(GL_FRONT);
+	glDrawBuffer(GL_BACK);
 
 	glEnable(GL_DEPTH_TEST);
 }

@@ -12,6 +12,7 @@ uniform sampler2D objectNormalMap;
 
 layout (location=0) out vec4 finalColour;
 layout (location=1) out vec3 finalNormals;
+layout (location=2) out vec3 finalDepth;
 
 void main()
 {
@@ -21,4 +22,5 @@ void main()
 
 	finalColour.rgb = diffuse;
 	finalNormals	= data.norm;
+	finalDepth		= vec3(data.pos.z);
 }

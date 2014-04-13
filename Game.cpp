@@ -65,9 +65,30 @@ void Game::initGameplay(void)
 	diffuseShader_V.Release();
 
 	//get uniform variables
-	uniform_MVP			= diffuseProgram->GetUniformLocation("MVP");
-	uniform_texture		= diffuseProgram->GetUniformLocation("objectTexture");
-	uniform_normalMap	= diffuseProgram->GetUniformLocation("objectNormalMap");
+	uniform_MVP						= diffuseProgram->GetUniformLocation("MVP");
+	uniform_texture					= diffuseProgram->GetUniformLocation("objectTexture");
+	uniform_normalMap				= diffuseProgram->GetUniformLocation("objectNormalMap");
+
+	lightProgram = new GLSLProgram;
+	result = 1;
+	GLSLShader lightShader_V, lightShader_G, lightShader_F;
+	result *= lightShader_V.CreateShaderFromFile(GLSL_VERTEX_SHADER,   "Resources/Shaders/light_v.glsl");
+	result *= lightShader_G.CreateShaderFromFile(GLSL_GEOMETRY_SHADER, "Resources/Shaders/light_g.glsl");
+	result *= lightShader_F.CreateShaderFromFile(GLSL_FRAGMENT_SHADER, "Resources/Shaders/light_f.glsl");
+	result *= lightProgram->AttachShader(&lightShader_V);
+	result *= lightProgram->AttachShader(&lightShader_G);
+	result *= lightProgram->AttachShader(&lightShader_F);
+	result *= lightProgram->LinkProgram();
+	result *= lightProgram->ValidateProgram();
+
+	lightShader_F.Release();
+	lightShader_G.Release();
+	lightShader_V.Release();
+
+	//get uniform variables
+	uniform_light_MVP			= lightProgram->GetUniformLocation("MVP");
+	uniform_light_inverse_P		= lightProgram->GetUniformLocation("inverseP");
+	uniform_light_qMap			= lightProgram->GetUniformLocation("qMap");
 
 	meshSkinProgram = new GLSLProgram;
 	result = 1;
@@ -239,13 +260,20 @@ void Game::initGameplay(void)
 
 	//Set up the first pass Frame buffer
 	firstPass = new FrameBuffer;
-	firstPass->Initialize(windowWidth, windowHeight, 2, true, false);
+	firstPass->Initialize(windowWidth, windowHeight, 3, true, false);
+
+	lightPass = new FrameBuffer;
+	lightPass->Initialize(windowWidth, windowHeight, 2, false, false);
+
+	finalPass = new FrameBuffer;
+	finalPass->Initialize(windowWidth, windowHeight, 2, true, false);
 
 	mainLight = new Light;
 	mainLight->SetColour(glm::vec3(1, 1, 1));
 	mainLight->AttachModel(OBJModel("Resources/Models/Ball.obj", false).GetVBO());
 	mainLight->SetPosition(glm::vec3(0.0f, 1.0f, 1.0f));
 	mainLight->GetNode()->SetScale(glm::vec3(0.1f, 0.1f, 0.1f));
+	mainLight->GetNode()->SetScale(glm::vec3(5.0f, 5.0f, 5.0f));
 	sceneGraph->AttachNode(mainLight->GetNode());
 
 	qMap_handle = loadTexture("Resources/Textures/qMap.png");
@@ -320,14 +348,14 @@ void Game::OpenWindow(int width, int height)
 	windowWidth		= width;
 	windowHeight	= height;
 
-	//Create window
-	int count;
-	GLFWmonitor** monitors = glfwGetMonitors(&count);
-	if (count > 1)
-		gameWindow = glfwCreateWindow(width, height, "Robopocalypse", monitors[1], NULL);
-	else
-		gameWindow = glfwCreateWindow(width, height, "Robopocalypse", monitors[0], NULL);
-	//gameWindow = glfwCreateWindow(width, height, "Robopocalypse", NULL, NULL);
+	////Create window
+	//int count;
+	//GLFWmonitor** monitors = glfwGetMonitors(&count);
+	//if (count > 1)
+	//	gameWindow = glfwCreateWindow(width, height, "Robopocalypse", monitors[1], NULL);
+	//else
+	//	gameWindow = glfwCreateWindow(width, height, "Robopocalypse", monitors[0], NULL);
+	gameWindow = glfwCreateWindow(width, height, "Robopocalypse", NULL, NULL);
 
 	//If window didnt open
 	if (!gameWindow)
@@ -477,11 +505,13 @@ void Game::Update(void)
 		{
 			gameOver = 2;
 			timeAfterGameOver = 0.0f;
+			soundSystem.playSound(END_DIALOGUE2, SFX_PLAYER1_CHANNEL);
 		}
 		if (player2->GetHP() <= 0.0f)
 		{
 			gameOver = 1;
 			timeAfterGameOver = 0.0f;
+			soundSystem.playSound(END_DIALOGUE1, SFX_PLAYER1_CHANNEL);
 		}
 	}
 	else
@@ -675,15 +705,17 @@ void Game::Render(void)
 		mainCamera->Update(viewMatrix);
 
 		//Activate the shader and render the player
-		//diffuseProgram->Activate();
+		diffuseProgram->Activate();
 		{
+			firstPass->SetTexture(0);
 			firstPass->SetTexture(1);
+			firstPass->SetTexture(2);
 
 			//Render all of the background objects
 			projectionMatrix = glm::perspective(90.0f, (float)1280 / (float)720, 0.1f, 1000.0f);
 			for (unsigned int i = 0; i < backWorldAssetsObjects.GetSize(); ++i)
 			{
-				firstPass->SetTexture(0);
+				//firstPass->SetTexture(0);
 				PreRender(backWorldAssetsObjects.GetObjectAtIndex(i));
 			}
 
@@ -691,10 +723,11 @@ void Game::Render(void)
 			projectionMatrix = glm::perspective(90.0f, (float)1280 / (float)720, 0.1f, 200.0f);
 			for (unsigned int i = 0; i < frontWorldAssetsObjects.GetSize(); ++i)
 			{
-				firstPass->SetTexture(0);
+				//firstPass->SetTexture(0);
 				PreRender(frontWorldAssetsObjects.GetObjectAtIndex(i));
 			}
 
+			projectionMatrix = glm::perspective(90.0f, (float)1280 / (float)720, 0.1f, 50.0f);
 			//Render the two player game objects
 			PreRender(player1);
 			PreRender(player2);
@@ -705,43 +738,68 @@ void Game::Render(void)
 			//PreRender(player1->GetCollisionBoxes());
 			//PreRender(player2->GetCollisionBoxes());
 		}
-		//diffuseProgram->Deactivate();
+		diffuseProgram->Deactivate();
 
 		ParticleProgram->Activate();
 		{
 			glEnable(GL_BLEND);
 
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glDisable(GL_DEPTH_TEST);
 
 			PreRender(particleManager.getEmitterList());
+
+			glEnable(GL_DEPTH_TEST);
+
 			glDisable(GL_BLEND);
 		} ParticleProgram->Deactivate();
 
 		firstPass->Deactivate();
-
-
-		glDisable(GL_DEPTH_TEST);
-
-		//Enable new shader
-		OutlineProgram->Activate();
+		
+		lightPass->Activate();
+		lightPass->SetTexture(0);
+		lightProgram->Activate();
 		{
 			//Set textures for the FBO
 			firstPass->SetTexture(0);
 			firstPass->BindColour(0);
 			firstPass->SetTexture(1);
 			firstPass->BindColour(1);
-			firstPass->SetTexture(2);
-			firstPass->BindDepth();
+			firstPass->SetTexture(3);
+			firstPass->BindColour(3);
 
-			glUniformMatrix4fv(uniform_outline_MVP, 1, 0, glm::value_ptr(glm::mat4(1)));
+			//pass in qMap
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, qMap_handle);
+			glUniform1i(uniform_light_qMap, 3);
 
-			fullScreenQuad->ActivateAndRender();
+			PreRenderLight(mainLight);
 
 			//Unbind the FBO textures
 			firstPass->SetTexture(2);
 			firstPass->UnbindTextures();
 			firstPass->SetTexture(1);
 			firstPass->UnbindTextures();
+			firstPass->SetTexture(0);
+			firstPass->UnbindTextures();
+		}
+		lightProgram->Deactivate();
+		lightPass->Deactivate();
+
+		glDisable(GL_DEPTH_TEST);
+		
+		//Enable new shader
+		OutlineProgram->Activate();
+		{
+			//Set textures for the FBO
+			firstPass->SetTexture(0);
+			firstPass->BindColour(0);
+
+			glUniformMatrix4fv(uniform_outline_MVP, 1, 0, glm::value_ptr(glm::mat4(1)));
+
+			fullScreenQuad->ActivateAndRender();
+
+			//Unbind the FBO textures
 			firstPass->SetTexture(0);
 			firstPass->UnbindTextures();
 
@@ -859,9 +917,8 @@ void Game::PreRender(GameObject* object)
 	//
 	//else
 	{
-		diffuseProgram->Activate();
-
 		modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);
+		
 		glUniformMatrix4fv(uniform_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
 		//glUniform3fv(uniform_LightPos, 1, glm::value_ptr(glm::inverse(object->GetNode()->GetWorldTransform()) * LIGHTPOS));
 		//glUniform3fv(uniform_LightColour, 1, glm::value_ptr(glm::vec3(1, 1, 1)));
@@ -882,9 +939,17 @@ void Game::PreRender(GameObject* object)
 		//glUniform1i(uniform_qMap, 2);
 
 		object->Render();
-
-		diffuseProgram->Deactivate();
 	}
+}
+
+void Game::PreRenderLight(Light* object)
+{
+	modelViewProjectionMatrix = object->UpdateModelViewProjection(projectionMatrix, viewMatrix);
+
+	glUniformMatrix4fv(uniform_light_MVP, 1, 0, glm::value_ptr(modelViewProjectionMatrix));
+	glUniformMatrix4fv(uniform_light_inverse_P, 1, 0, glm::value_ptr(glm::inverse(projectionMatrix)));
+
+	object->Render();
 }
 
 //void Game::PreRender(GameObject* object, Light* light)
